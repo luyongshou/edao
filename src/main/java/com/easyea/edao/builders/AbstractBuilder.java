@@ -1145,7 +1145,9 @@ public abstract class AbstractBuilder implements Builder {
                     Annotation ann = anns[i];
                     if (ann instanceof Column) {
                         Column col = (Column)ann;
-                        fieldName = col.name();
+                        if (col.name() != null && col.name().length() > 0) {
+                            fieldName = col.name();
+                        }
                     }
                 }
             }

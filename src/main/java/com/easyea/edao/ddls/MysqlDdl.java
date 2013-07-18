@@ -140,9 +140,9 @@ public class MysqlDdl extends AbstractDdl {
                             sql.a(") default 0");
                         } else if (ftype.equals(String.class)) {
                             if (isLob) {
-                                sql.a(" text DEFAULT ''");
+                                sql.a(" text");
                             } else {
-                                sql.a(" VARCHAR2(").a(flength)
+                                sql.a(" VARCHAR(").a(flength)
                                         .a(") DEFAULT ''");
                             }
                         } else if (ftype.equals(Date.class)) {
