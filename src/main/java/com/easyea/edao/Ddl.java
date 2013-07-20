@@ -13,6 +13,17 @@ import javax.sql.DataSource;
  * @author louis
  */
 public interface Ddl {
+    
+    /**
+     * 获取一个持久化bean所拥有的所有数据表，如果没有分区则只有一张数据表，如果分区表则有多条记录
+     * @param entity 持久化Bean的Class
+     * @return
+     * @throws EntityException
+     * @throws Exception 
+     */
+    public List<String> getTables(Class entity, DataSource ds) 
+            throws EntityException, Exception;
+    
     /**
      * 定义由持久化Bean获取创建对应数据表的SQL语句集合
      * @param entity 持久化Bean的class

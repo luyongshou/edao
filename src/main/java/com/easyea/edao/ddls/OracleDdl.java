@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.sql.DataSource;
 
 /**
@@ -201,6 +202,17 @@ public class OracleDdl extends AbstractDdl {
     @Override
     public List<String> getViewUpdateDdl(Class view, DataSource ds) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public List<String> getTables(Class entity, DataSource ds) throws EntityException, Exception {
+        String           tbName = ClassUtil.getTableName(entity);
+        tbName = tbName.toUpperCase(Locale.ENGLISH);
+        List<String> tbs = this.getTablesByJdbc(ds, 
+                                                null, 
+                                                null, 
+                                                tbName, 
+                                                new String[]{"TABLE"});
+        return tbs;
     }
     
 }

@@ -14,10 +14,15 @@ import com.easyea.edao.util.ClassUtil;
 import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.sql.DataSource;
 
 /**
@@ -179,5 +184,16 @@ public class PostgresqlDdl extends AbstractDdl {
         List<String> sqls = new ArrayList<String>();
         return sqls;
     }
-    
+
+    @Override
+    public List<String> getTables(Class entity, DataSource ds) throws EntityException, Exception {
+        String           tbName = ClassUtil.getTableName(entity);
+        tbName = tbName.toLowerCase(Locale.ENGLISH);
+        List<String> tbs = this.getTablesByJdbc(ds, 
+                                                null, 
+                                                null, 
+                                                tbName, 
+                                                new String[]{"TABLE"});
+        return tbs;
+    }
 }
