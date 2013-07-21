@@ -715,7 +715,6 @@ public class DefaultManager implements DaoManager {
         code.append(t(2)).append("if (ddlm == null) {").append(r(1));
         code.append(t(3)).append("this.ddlm = new ").append(db).append("DdlManager(").append(entityName).append(".class);").append(r(1));
         code.append(t(2)).append("}").append(r(1));
-        code.append(t(2)).append("System.out.println(\"ddlm=[\" + ddlm + \"]\");").append(r(1));
         code.append(t(2)).append("dao.setDdlManager(ddlm);").append(r(1));
         code.append(t(2)).append("return dao;").append(r(1));
         code.append(t(1)).append("}").append(r(1));

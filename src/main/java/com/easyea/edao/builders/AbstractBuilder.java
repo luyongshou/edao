@@ -505,10 +505,6 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public void setConnect(Connection con) {").append(r(1));
         sb.append(t(2)).append("this.con = con;").append(r(1));
-        sb.append(t(2)).append("logger.debug(\"ddlManager=[{}]\", ddlManager);").append(r(1));
-        sb.append(t(2)).append("if (ddlManager != null) {").append(r(1));
-        sb.append(t(2)).append("logger.debug(\"ddlManager.isSync()=[{}]\", ddlManager.isSync());").append(r(1));
-        sb.append(t(2)).append("}").append(r(1));
         sb.append(t(2)).append("if (ddlManager != null && !ddlManager.isSync()) {").append(r(1));
         sb.append(t(3)).append("try {").append(r(1));
         sb.append(t(4)).append("ddlManager.syncDdl(con);").append(r(1));
