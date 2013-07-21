@@ -14,7 +14,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import javax.sql.DataSource;
 
 /**
  *
@@ -33,21 +32,20 @@ public abstract class AbstractDdl implements Ddl {
      * @throws EntityException
      * @throws Exception 
      */
-    public List<String> getTablesByJdbc(DataSource ds,
+    public List<String> getTablesByJdbc(Connection con,
                                         String catalog,
                                         String schema,
                                         String tableName,
                                         String[] types) 
             throws EntityException, Exception {
         List<String> tbs = null;
-        Connection   con = null;
         try {
-            con = ds.getConnection();
             DatabaseMetaData dbData = con.getMetaData();
             ResultSet rs = dbData.getTables(catalog, 
                                             schema, 
                                             tableName + "%", 
                                             types);
+            tableName = tableName.toLowerCase(Locale.ENGLISH);
             while (rs.next()) {
                 if (tbs == null) {
                     tbs = new ArrayList<String>();
@@ -55,17 +53,14 @@ public abstract class AbstractDdl implements Ddl {
                 String tname = rs.getString("table_name");
                 if (tname != null && tname.length() > 0) {
                     tname = tname.toLowerCase(Locale.ENGLISH);
-                    if (tableName.equals(tname) || tname.startsWith(tableName + "__")) {
+                    if (tableName.equals(tname) 
+                            || tname.startsWith(tableName + "__")) {
                         tbs.add(tname);
                     }
                 }
             }
         } catch (Exception e) {
             logger.error("{}", e);
-        } finally {
-            if (con != null) {
-                try {con.close();} catch (Exception e) {}
-            }
         }
         return tbs;
     }

@@ -12,6 +12,16 @@ import java.util.List;
  * 
  */
 public interface EntityDao {
+    /**
+     * 获取持久化Dao的Ddl管理器
+     * @return 
+     */
+    public DdlManager getDdlManager();
+    /**
+     * 设置持久化Dao的Ddl管理器
+     * @param ddlManager 
+     */
+    public void setDdlManager(DdlManager ddlManager);
 
     /**
      * 设置该接口持有的数据库连接

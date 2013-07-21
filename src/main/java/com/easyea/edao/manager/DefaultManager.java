@@ -87,7 +87,7 @@ public class DefaultManager implements DaoManager {
     }
     
     @Override
-    public EntityFactory getEntityFactory(String daoName, Builder builder) 
+    public EntityFactory getEntityFactory(String daoName, Builder builder, String db) 
             throws EntityException,Exception {
         Class fcls = null;
         String factName = getEntityFactoryName(daoName);
@@ -97,7 +97,7 @@ public class DefaultManager implements DaoManager {
             flock.lock();
             try {
                 this.getDaoClass(daoName, builder);
-                compileDaoFactory(factName, daoName, loader);
+                compileDaoFactory(factName, daoName, loader, db);
                 fcls = loader.loadClass(factName);
             } catch (Exception e) {
                 throw e;
@@ -235,7 +235,7 @@ public class DefaultManager implements DaoManager {
     }
     
     public static void compileDaoFactory(String factName, String daoName, 
-            DynamicClassLoader loader) throws EntityException, Exception {
+            DynamicClassLoader loader, String db) throws EntityException, Exception {
         String packName  = "";
         String shortName = "";
         int lastDot = factName.lastIndexOf(".");
@@ -244,7 +244,7 @@ public class DefaultManager implements DaoManager {
         }
         packName  = factName.substring(0, lastDot);
         shortName = factName.substring(lastDot+1);
-        String source = getEntityFactoryCode(daoName);
+        String source = getEntityFactoryCode(daoName, db);
         if (logger.isDebugEnabled()) {
             logger.debug("{} Factory's java source [{}]", daoName, source);
         }
@@ -690,23 +690,34 @@ public class DefaultManager implements DaoManager {
         return vcls;
     }
     
-    public static String getEntityFactoryCode(String daoName) {
+    public static String getEntityFactoryCode(String daoName, String db) {
         StringBuilder code = new StringBuilder();
         int lastDot = daoName.lastIndexOf(".");
         String packName = daoName.substring(0, lastDot);
+        String entityPack = packName.substring(0, packName.length()-3) + "entity";
         String clsName  = daoName.substring(lastDot + 1);
+        String entityName = clsName.substring(0, clsName.length() - 3);
         code.append("package ").append(packName).append("f;").append(r(2));
         code.append("import ").append(daoName)
                 .append(";").append(r(1));
         code.append("import com.easyea.edao.EntityFactory;").append(r(1));
         code.append("import com.easyea.edao.Builder;").append(r(1));
         code.append("import com.easyea.edao.EntityDao;").append(r(1));
+        code.append("import com.easyea.edao.ddls.").append(db).append("DdlManager;").append(r(1));
+        code.append("import ").append(entityPack).append(".").append(entityName).append(";").append(r(1));
         code.append("import com.easyea.edao.exception.EntityException;").append(r(2));
         code.append("public class ").append(clsName).append("Factory")
                 .append(" implements EntityFactory {").append(r(1));
+        code.append(t(2)).append("private ").append(db).append("DdlManager ddlm = null;").append(r(1));
         code.append(t(1)).append("public EntityDao getDao(String daoName)").append(r(1))
                 .append(t(3)).append("throws EntityException, Exception {").append(r(1));
-        code.append(t(2)).append("return new ").append(clsName).append("();").append(r(1));
+        code.append(t(2)).append("EntityDao dao = new ").append(clsName).append("();").append(r(1));
+        code.append(t(2)).append("if (ddlm == null) {").append(r(1));
+        code.append(t(3)).append("this.ddlm = new ").append(db).append("DdlManager(").append(entityName).append(".class);").append(r(1));
+        code.append(t(2)).append("}").append(r(1));
+        code.append(t(2)).append("System.out.println(\"ddlm=[\" + ddlm + \"]\");").append(r(1));
+        code.append(t(2)).append("dao.setDdlManager(ddlm);").append(r(1));
+        code.append(t(2)).append("return dao;").append(r(1));
         code.append(t(1)).append("}").append(r(1));
         code.append("}").append(r(1));
         return code.toString();

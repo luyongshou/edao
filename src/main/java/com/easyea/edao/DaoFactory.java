@@ -118,7 +118,7 @@ public class DaoFactory {
                                 + db.substring(0, 1).toUpperCase() 
                                 + db.substring(1) + "Builder");
                     Builder builder = (Builder)bcls.newInstance();
-                    fact = manager.getEntityFactory(name, builder);
+                    fact = manager.getEntityFactory(name, builder, db);
                     if (fact != null) {
                         entityFacts.put(factName, fact);
                     }

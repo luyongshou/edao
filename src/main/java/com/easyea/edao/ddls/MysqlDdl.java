@@ -14,6 +14,7 @@ import com.easyea.edao.util.ClassUtil;
 import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -170,7 +171,7 @@ public class MysqlDdl extends AbstractDdl {
         return l;
     }
 
-    public List<String> getEntityUpdateDdl(Class entity, DataSource ds) throws EntityException, Exception {
+    public List<String> getEntityUpdateDdl(Class entity, Connection con) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -179,14 +180,15 @@ public class MysqlDdl extends AbstractDdl {
         //
     }
 
-    public List<String> getViewUpdateDdl(Class view, DataSource ds) throws EntityException, Exception {
+    public List<String> getViewUpdateDdl(Class view, Connection con) 
+            throws EntityException, Exception {
         return null;
     }
 
-    public List<String> getTables(Class entity, DataSource ds) throws EntityException, Exception {
+    public List<String> getTables(Class entity, Connection con) throws EntityException, Exception {
         String           tbName = ClassUtil.getTableName(entity);
         tbName = tbName.toLowerCase(Locale.ENGLISH);
-        List<String> tbs = this.getTablesByJdbc(ds, 
+        List<String> tbs = this.getTablesByJdbc(con, 
                                                 null, 
                                                 null, 
                                                 tbName, 

@@ -53,11 +53,12 @@ public interface DaoManager {
      *
      * @param daoName 指定dao的名称
      * @param builder 
+     * @param db      数据类型 
      * @return 返回dao的工厂类
      * @throws EntityException 持久化bean相关的错误，包名规范，属性以及函数错误。
      * @throws Exception 编译错误以及其他的错误
      */
-    public EntityFactory getEntityFactory(String daoName, Builder builder)
+    public EntityFactory getEntityFactory(String daoName, Builder builder, String db)
             throws EntityException, Exception;
     /**
      * 根据指定的试图dao的名称返回试图dao的工厂类

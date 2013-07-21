@@ -5,6 +5,7 @@
 package com.easyea.edao;
 
 import com.easyea.edao.exception.EntityException;
+import java.sql.Connection;
 import java.util.List;
 import javax.sql.DataSource;
 
@@ -21,7 +22,7 @@ public interface Ddl {
      * @throws EntityException
      * @throws Exception 
      */
-    public List<String> getTables(Class entity, DataSource ds) 
+    public List<String> getTables(Class entity, Connection con) 
             throws EntityException, Exception;
     
     /**
@@ -37,12 +38,12 @@ public interface Ddl {
      * @param entity
      * @return 
      */
-    public List<String> getEntityUpdateDdl(Class entity, DataSource ds) 
+    public List<String> getEntityUpdateDdl(Class entity, Connection con) 
             throws EntityException, Exception;
     
     public List<String> getViewCreateDdl(Class view) 
             throws EntityException, Exception;
     
-    public List<String> getViewUpdateDdl(Class view, DataSource ds) 
+    public List<String> getViewUpdateDdl(Class view, Connection con) 
             throws EntityException, Exception;
 }

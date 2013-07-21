@@ -5,7 +5,6 @@
 package com.easyea.edao.builders;
 
 import com.easyea.edao.Builder;
-import com.easyea.edao.QueryParam;
 import com.easyea.edao.annotation.Column;
 import com.easyea.edao.annotation.GeneratedValue;
 import com.easyea.edao.annotation.GenerationType;
@@ -19,12 +18,10 @@ import com.easyea.edao.util.FieldInfo;
 import com.easyea.edao.util.MethodInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -325,6 +322,7 @@ public abstract class AbstractBuilder implements Builder {
                 sb.append("import ").append(imp).append(";").append(r(1));
             }
         }
+        sb.append("import com.easyea.edao.DdlManager;").append(r(1));
         sb.append(r(1));
         sb.append("public class ").append(ecls.getSimpleName())
                 .append("Dao implements EntityDao {").append(r(2));
@@ -332,8 +330,11 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(1)).append("Logger logger = ")
                 .append("LoggerFactory.getLogger(this.getClass());").append(r(1));
         sb.append(t(1)).append("private Connection con;").append(r(1));
+        sb.append(t(1)).append("private DdlManager ddlManager = null;").append(r(1));
         
         sb.append(r(1));
+        sb.append(this.getSetDdlManager(ecls));
+        sb.append(this.getGetDdlManager(ecls));
         sb.append(this.getSetConnection(ecls));
         sb.append(this.getGetConnection(ecls));
         sb.append(this.getPersist(ecls));
@@ -481,6 +482,16 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(1)).append("}").append(r(1));
         return sb.toString();
     }
+    
+    public String getGetDdlManager(Class cls) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(r(1));
+        sb.append(t(1)).append("@Override").append(r(1));
+        sb.append(t(1)).append("public DdlManager getDdlManager() {").append(r(1));
+        sb.append(t(2)).append("return this.ddlManager;").append(r(1));
+        sb.append(t(1)).append("}").append(r(1));
+        return sb.toString();
+    }
 
     /**
      * 生成实现 public void setConnect(Connection con); 方法的代码
@@ -494,6 +505,27 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public void setConnect(Connection con) {").append(r(1));
         sb.append(t(2)).append("this.con = con;").append(r(1));
+        sb.append(t(2)).append("logger.debug(\"ddlManager=[{}]\", ddlManager);").append(r(1));
+        sb.append(t(2)).append("if (ddlManager != null) {").append(r(1));
+        sb.append(t(2)).append("logger.debug(\"ddlManager.isSync()=[{}]\", ddlManager.isSync());").append(r(1));
+        sb.append(t(2)).append("}").append(r(1));
+        sb.append(t(2)).append("if (ddlManager != null && !ddlManager.isSync()) {").append(r(1));
+        sb.append(t(3)).append("try {").append(r(1));
+        sb.append(t(4)).append("ddlManager.syncDdl(con);").append(r(1));
+        sb.append(t(3)).append("} catch (Exception e) {").append(r(1));
+        sb.append(t(4)).append("logger.error(\"{}\", e);").append(r(1));
+        sb.append(t(3)).append("}").append(r(1));
+        sb.append(t(2)).append("}").append(r(1));
+        sb.append(t(1)).append("}").append(r(1));
+        return sb.toString();
+    }
+    
+    public String getSetDdlManager(Class cls) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(r(1));
+        sb.append(t(1)).append("@Override").append(r(1));
+        sb.append(t(1)).append("public void setDdlManager(DdlManager ddlManager) {").append(r(1));
+        sb.append(t(2)).append("this.ddlManager = ddlManager;").append(r(1));
         sb.append(t(1)).append("}").append(r(1));
         return sb.toString();
     }
