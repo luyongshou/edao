@@ -133,7 +133,7 @@ public abstract class AbstractBuilder implements Builder {
         code.a("public class ").a(this.getDbTypeName()).a("MapDao implements MapDao {").r(2);
         code.t(1).a("Logger logger = LoggerFactory.getLogger(this.getClass());").r(1);
         code.t(1).a("private Connection con;").r(1);
-        code.a(this.getSetConnection(null));
+        code.a(this.getSetConnection(null, false));
         code.a(this.getGetConnection(null));
         code.a(this.getMapList1());
         code.a(this.getMapList2());
@@ -335,7 +335,7 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(r(1));
         sb.append(this.getSetDdlManager(ecls));
         sb.append(this.getGetDdlManager(ecls));
-        sb.append(this.getSetConnection(ecls));
+        sb.append(this.getSetConnection(ecls, true));
         sb.append(this.getGetConnection(ecls));
         sb.append(this.getPersist(ecls));
         sb.append(this.getPersists(ecls));
@@ -381,6 +381,7 @@ public abstract class AbstractBuilder implements Builder {
                 sb.append("import ").append(imp).append(";").append(r(1));
             }
         }
+        sb.append("import com.easyea.edao.DdlManager;").append(r(1));
         sb.append(r(1));
         sb.append("public class ").append(vcls.getSimpleName())
                 .append("Dao implements ViewDao {").append(r(2));
@@ -388,9 +389,10 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(1)).append("Logger logger = ")
                 .append("LoggerFactory.getLogger(this.getClass());").append(r(1));
         sb.append(t(1)).append("private Connection con;").append(r(1));
+        sb.append(t(1)).append("private DdlManager ddlManager = null;").append(r(1));
         
         sb.append(r(1));
-        sb.append(this.getSetConnection(vcls));
+        sb.append(this.getSetConnection(vcls, false));
         sb.append(this.getGetConnection(vcls));
         sb.append(this.getList1(vcls));
         sb.append(this.getList2(vcls));
@@ -499,19 +501,21 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getSetConnection(Class cls) {
+    public String getSetConnection(Class cls, boolean isEntityDao) {
         StringBuilder sb = new StringBuilder();
         sb.append(r(1));
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public void setConnect(Connection con) {").append(r(1));
         sb.append(t(2)).append("this.con = con;").append(r(1));
-        sb.append(t(2)).append("if (ddlManager != null && !ddlManager.isSync()) {").append(r(1));
-        sb.append(t(3)).append("try {").append(r(1));
-        sb.append(t(4)).append("ddlManager.syncDdl(con);").append(r(1));
-        sb.append(t(3)).append("} catch (Exception e) {").append(r(1));
-        sb.append(t(4)).append("logger.error(\"{}\", e);").append(r(1));
-        sb.append(t(3)).append("}").append(r(1));
-        sb.append(t(2)).append("}").append(r(1));
+        if (isEntityDao) {
+            sb.append(t(2)).append("if (ddlManager != null && !ddlManager.isSync()) {").append(r(1));
+            sb.append(t(3)).append("try {").append(r(1));
+            sb.append(t(4)).append("ddlManager.syncDdl(con);").append(r(1));
+            sb.append(t(3)).append("} catch (Exception e) {").append(r(1));
+            sb.append(t(4)).append("logger.error(\"{}\", e);").append(r(1));
+            sb.append(t(3)).append("}").append(r(1));
+            sb.append(t(2)).append("}").append(r(1));
+        }
         sb.append(t(1)).append("}").append(r(1));
         return sb.toString();
     }
