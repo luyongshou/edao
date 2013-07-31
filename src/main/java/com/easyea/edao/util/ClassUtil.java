@@ -4,12 +4,17 @@
  */
 package com.easyea.edao.util;
 
+import com.easyea.edao.annotation.GeneratedValue;
+import com.easyea.edao.annotation.GenerationType;
+import com.easyea.edao.annotation.Id;
+import com.easyea.edao.annotation.SequenceGenerator;
 import com.easyea.edao.annotation.Table;
 import com.easyea.edao.annotation.View;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,6 +39,63 @@ public class ClassUtil {
             tbName = cls.getSimpleName();
         }
         return tbName;
+    }
+    /**
+     * 获取一个实体类序列的名称
+     * @param cls
+     * @return 
+     */
+    public static String getSeqName(Class cls) {
+        String       seq  = getTableName(cls) + "_id_seq";
+        Annotation[] anns = cls.getAnnotations();
+        HashMap<String, String> aSeq = new HashMap<String, String>();
+        if (anns != null) {
+            for (int i=0;i<anns.length;i++) {
+                if (anns[i] instanceof SequenceGenerator) {
+                    SequenceGenerator seqg = (SequenceGenerator)anns[i];
+                    if (seqg.name() != null && seqg.name().length() > 0 
+                            && seqg.sequenceName() != null 
+                            && seqg.sequenceName().length() > 0) {
+                        aSeq.put(seqg.name(), seqg.sequenceName());
+                    }
+                }
+            }
+            if (!aSeq.isEmpty()) {
+                List<FieldInfo> fs = getFields(cls);
+                FieldInfo idf = null;
+                if (fs != null && !fs.isEmpty()) {
+                    for (FieldInfo f : fs) {
+                        if (f.getName().equals("id") || idf == null) {
+                            idf = f;
+                        }
+                        Annotation[] fanns = f.getAnnotations();
+                        if (fanns != null) {
+                            for (int i=0;i<fanns.length;i++) {
+                                if (fanns[i] instanceof Id) {
+                                    idf = f;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (idf != null) {
+                    Annotation[] idanns = idf.getAnnotations();
+                    if (idanns != null) {
+                        for (int i=0;i<idanns.length;i++) {
+                            if (idanns[i] instanceof GeneratedValue) {
+                                GeneratedValue gv = (GeneratedValue)idanns[i];
+                                if (gv.strategy().equals(GenerationType.SEQUENCE)) {
+                                    if (aSeq.containsKey(gv.generator())) {
+                                        seq = aSeq.get(gv.generator());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return seq;
     }
 
     /**

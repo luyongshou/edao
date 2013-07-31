@@ -167,8 +167,9 @@ public class OracleDdl extends AbstractDdl {
                 l.add(sql.toString());
                 
                 sql = new CodeBuilder();
-                sql.a("create sequence ").a(tbName)
-                        .a("_ID_SEQ minvalue 1 NOMAXVALUE ")
+                String seqName = ClassUtil.getSeqName(entity);
+                sql.a("create sequence ").a(seqName)
+                        .a(" minvalue 1 NOMAXVALUE ")
                         .a("increment by 1 start with 1 NOCYCLE").r(1);
                 l.add(sql.toString());
                 
@@ -178,7 +179,7 @@ public class OracleDdl extends AbstractDdl {
                 sql.a("for each row").r(1);
                 sql.a("begin").r(1);
                 sql.a("if :new.ID is NULL then").r(1);
-                sql.a("SELECT ").a(tbName).a("_ID_SEQ.nextval INTO :new.ID from DUAL;").r(1);
+                sql.a("SELECT ").a(seqName).a(".nextval INTO :new.ID from DUAL;").r(1);
                 sql.a("end if;").r(1);
                 sql.a("end;").r(2);
                 l.add(sql.toString());

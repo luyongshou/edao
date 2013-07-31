@@ -4,6 +4,8 @@
  */
 package com.easyea.edao.builders;
 
+import com.easyea.edao.util.ClassUtil;
+
 /**
  * 定义Postgresql的代码拼接的实现类，主要是实现一些特殊SQL的函数，多数的代码实现由
  * AbstractBuilder来实现
@@ -20,9 +22,10 @@ public class PostgresqlBuilder extends AbstractBuilder {
     @Override
     public String getNextId(Class cls) {
         StringBuilder sb = new StringBuilder();
-        String tbName = this.getTableName(cls);
-        sb.append(t(3)).append("String sId = \"SELECT NEXTVAL('").append(tbName)
-                .append("_id_seq') AS nid\";").append(r(1));
+        String seqName = ClassUtil.getSeqName(cls);
+        
+        sb.append(t(3)).append("String sId = \"SELECT NEXTVAL('").append(seqName)
+                .append("') AS nid\";").append(r(1));
         sb.append(t(3)).append("pstmt = con.prepareStatement(sId);")
                 .append(r(1));
         sb.append(t(3)).append("ResultSet rs = pstmt.executeQuery();").append(r(1));

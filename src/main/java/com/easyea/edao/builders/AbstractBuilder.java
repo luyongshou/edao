@@ -1001,7 +1001,11 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(4)).append("con.setAutoCommit(false);").append(r(1));
         sb.append(t(3)).append("}").append(r(1));
         sb.append(t(3)).append(((Class)idInfo.getType()).getSimpleName()).append(" nid = null;").append(r(1));
+        sb.append(t(3)).append("if (entity.getId() == null || entity.getId() <= 0) {").append(r(1));
         sb.append(this.getNextId(cls)).append(r(1));
+        sb.append(t(3)).append("} else {").append(r(1));
+        sb.append(t(4)).append("nid = entity.getId();").append(r(1));
+        sb.append(t(3)).append("}").append(r(1));
         sb.append(t(3)).append("int row = 0;").append(r(1));
         sb.append(t(3)).append("if (nid != null) {").append(r(1));
         sb.append(t(4)).append("pstmt = con.prepareStatement(sql);").append(r(1));
@@ -1704,7 +1708,11 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(4)).append(cls.getSimpleName()).append(" entity = (")
                 .append(cls.getSimpleName()).append(")ent;").append(r(1));
         sb.append(t(4)).append(((Class)idInfo.getType()).getSimpleName()).append(" nid = null;").append(r(1));
+        sb.append(t(3)).append("if (entity.getId() == null || entity.getId() <= 0) {").append(r(1));
         sb.append(this.getNextId(cls)).append(r(1));
+        sb.append(t(3)).append("} else {").append(r(1));
+        sb.append(t(4)).append("nid = entity.getId();").append(r(1));
+        sb.append(t(3)).append("}").append(r(1));
         sb.append(t(4)).append("if (nid != null) {").append(r(1));
         sb.append(t(5)).append("pstmt = con.prepareStatement(sql);").append(r(1));
         int i = 0;

@@ -4,6 +4,8 @@
  */
 package com.easyea.edao.builders;
 
+import com.easyea.edao.util.ClassUtil;
+
 
 /**
  * Oracle 数据库的基本实现的Builder
@@ -22,9 +24,9 @@ public class OracleBuilder extends AbstractBuilder {
     @Override
     public String getNextId(Class cls) {
         StringBuilder sb = new StringBuilder();
-        String tbName = this.getTableName(cls);
-        sb.append(t(3)).append("String sId = \"SELECT ").append(tbName)
-                .append("_id_seq.nextval AS nid FROM DUAL\";").append(r(1));
+        String seqName = ClassUtil.getSeqName(cls);
+        sb.append(t(3)).append("String sId = \"SELECT ").append(seqName)
+                .append(".nextval AS nid FROM DUAL\";").append(r(1));
         sb.append(t(3)).append("pstmt = con.prepareStatement(sId);")
                 .append(r(1));
         sb.append(t(3)).append("ResultSet rs = pstmt.executeQuery();").append(r(1));
