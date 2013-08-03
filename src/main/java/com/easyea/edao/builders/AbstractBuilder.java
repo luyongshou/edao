@@ -411,6 +411,7 @@ public abstract class AbstractBuilder implements Builder {
      * 或者entitybean结尾。
      * @param cls 持久化bean的class
      * @return 返回EntityDao实现类的包名
+     * @throws com.easyea.edao.exception.EntityException
      */
     public String getEntityDaoPackage(Class cls) throws EntityException {
         StringBuilder sb = new StringBuilder();
@@ -499,6 +500,7 @@ public abstract class AbstractBuilder implements Builder {
      * 生成实现 public void setConnect(Connection con); 方法的代码
      *
      * @param cls
+     * @param isEntityDao
      * @return
      */
     public String getSetConnection(Class cls, boolean isEntityDao) {

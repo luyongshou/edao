@@ -4,6 +4,7 @@
  */
 package com.easyea.edao.util;
 
+import com.easyea.edao.annotation.Column;
 import com.easyea.edao.annotation.GeneratedValue;
 import com.easyea.edao.annotation.GenerationType;
 import com.easyea.edao.annotation.Id;
@@ -118,6 +119,20 @@ public class ClassUtil {
 
         appendSuperFields(cls, afs);
         return afs;
+    }
+    
+    public static String getColumnName(FieldInfo field) {
+        String       colName = field.getName();
+        Annotation[] fanns   = field.getAnnotations();
+        if (fanns != null) {
+            for (Annotation fann : fanns) {
+                if (fann instanceof Column) {
+                    Column cann = (Column) fann;
+                    colName = cann.name();
+                }
+            }
+        }
+        return colName;
     }
     
     private static void appendSuperFields(Class cls, List<FieldInfo> aFields) {

@@ -17,6 +17,11 @@ public interface DdlManager {
      * @return 
      */
     public boolean isSync();
+    /**
+     * 该Dao的数据表是否进行了字段的同步
+     * @return 
+     */
+    public boolean isSyncField();
     
     /**
      * Dao是否进行数据分区
@@ -35,7 +40,6 @@ public interface DdlManager {
     public Date getNextSyncTime();
     /**
      * 同步数据表结构，如果为分区表则需要创建所需的分区表
-     * @param entity
      * @param con
      * @throws Exception 
      */

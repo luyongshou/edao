@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import javax.sql.DataSource;
 
 /**
  * Oracle数据库根据持久化Bean以及试图Bean反射生成创建一个更新数据表结构的DDL语句的类
@@ -209,7 +208,7 @@ public class OracleDdl extends AbstractDdl {
 
     public List<String> getTables(Class entity, Connection con) 
             throws EntityException, Exception {
-        String           tbName = ClassUtil.getTableName(entity);
+        String tbName = ClassUtil.getTableName(entity);
         tbName = tbName.toUpperCase(Locale.ENGLISH);
         List<String> tbs = this.getTablesByJdbc(con, 
                                                 null, 
@@ -219,4 +218,230 @@ public class OracleDdl extends AbstractDdl {
         return tbs;
     }
     
+    protected void appendBooleanColumSqls(String       tableName, 
+                                        String       colName, 
+                                        Column       fCol,
+                                        List<String> sqls) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        sql.append("CHAR(1) CHECK (").append(colName).append(" IN (0,1))");
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendDateColumSqls(String       tableName, 
+                                     String       colName, 
+                                     Annotation[] anns,
+                                     List<String> sqls) {
+        Column       fCol     = null;
+        String       colType  = "";
+        TemporalType tempType = null;
+        String       nullAble = "";
+        if (anns != null) {
+            for (Annotation ann : anns) {
+                if (ann instanceof Column) {
+                    fCol = (Column)ann;
+                }
+                if (ann instanceof Temporal) {
+                    Temporal tann = (Temporal)ann;
+                    tempType = tann.value();
+                }
+            }
+        }
+        if (tempType == null) {
+            colType = " TIMESTAMP WITH TIME ZONE";
+        } else if (tempType.equals(TemporalType.TIMESTAMP)) {
+            colType = " TIMESTAMP WITH TIME ZONE";
+        } else if (tempType.equals(TemporalType.TIME)) {
+            colType = " TIME WITHOUT TIME ZONE";
+        } else if (tempType.equals(TemporalType.DATE)) {
+            colType = " DATE";
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        if (fCol != null) {
+            if (!fCol.nullable()) {
+                nullAble = " NOT NULL";
+            }
+        }
+        sql.append(colType).append("").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendStringColumSqls(String       tableName, 
+                                       String       colName, 
+                                       Annotation[] anns,
+                                       List<String> sqls) {
+        Column fCol     = null;
+        String colType  = "varchar2";
+        Lob    lob      = null;
+        String nullAble = "";
+        if (anns != null) {
+            for (Annotation ann : anns) {
+                if (ann instanceof Column) {
+                    fCol = (Column)ann;
+                }
+                if (ann instanceof Lob) {
+                    lob = (Lob)ann;
+                }
+            }
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        int length = 255;
+        if (fCol != null) {
+            length = fCol.length();
+            if (!fCol.nullable()) {
+                nullAble = " NOT NULL";
+            }
+        }
+        if (length < 1) {
+            length = 1;
+        }
+        if (lob != null && length > 4000) {
+            colType = "CLOB";
+        } else {
+            colType += "(" + length + ")";
+        }
+        sql.append(colType).append("").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendDoubleColumSqls(String       tableName, 
+                                       String       colName, 
+                                       Column       fCol,
+                                       List<String> sqls) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        int precision = 15;
+        int scale     = 2;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 1) {
+            precision = 1;
+        }
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (precision < scale) {
+            precision = scale;
+        }
+        sql.append("NUMBER(").append(precision).append(",")
+                .append(scale).append(") DEFAULT 0").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendFloatColumSqls(String       tableName, 
+                                      String       colName, 
+                                      Column       fCol,
+                                      List<String> sqls) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        int precision = 15;
+        int scale     = 2;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 1) {
+            precision = 1;
+        }
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (precision < scale) {
+            precision = scale;
+        }
+        sql.append("NUMBER(").append(precision).append(",")
+                .append(scale).append(") DEFAULT 0").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendLongColumSqls(String       tableName, 
+                                     String       colName, 
+                                     Column       fCol,
+                                     List<String> sqls) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        int precision = 20;
+        int scale     = 0;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 11) {
+            precision = 11;
+        }
+        if (scale != 0) {
+            scale = 0;
+        }
+        sql.append("NUMBER(").append(precision).append(",")
+                .append(scale).append(") DEFAULT 0").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+    
+    protected void appendIntColumSqls(String tableName, 
+                                 String colName, 
+                                 Column fCol,
+                                 List<String> sqls) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
+                .append(colName).append(" ");
+        int precision = 11;
+        int scale     = 0;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 1) {
+            precision = 1;
+        }
+        if (scale != 0) {
+            scale = 0;
+        }
+        sql.append("NUMBER(").append(precision).append(",")
+                .append(scale).append(") DEFAULT 0").append(nullAble);
+        sql.append(")");
+        sqls.add(sql.toString());
+    }
+
+    @Override
+    public String getTableName(Class entity) throws EntityException, Exception {
+        String tb = ClassUtil.getTableName(entity);
+        return tb.toUpperCase(Locale.ENGLISH);
+    }
+
+    public List<String> getColumns(Class entity, Connection con) 
+            throws EntityException, Exception {
+        return this.getFieldsByJdbc(con, this.getTableName(entity));
+    }
 }

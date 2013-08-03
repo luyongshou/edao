@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import javax.sql.DataSource;
 
 /**
  *
@@ -195,4 +194,188 @@ public class MysqlDdl extends AbstractDdl {
                                                 new String[]{"TABLE"});
         return tbs;
     }
+
+    protected void appendBooleanColumSqls(String       tableName, 
+                                          String       colName, 
+                                          Column       fCol,
+                                          List<String> sqls) {
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " boolean";
+        sqls.add(sql);
+    }
+    
+    protected void appendDateColumSqls(String       tableName, 
+                                       String       colName, 
+                                       Annotation[] anns,
+                                       List<String> sqls) {
+        Column       fCol     = null;
+        String       colType  = "";
+        TemporalType tempType = null;
+        String       nullAble = "";
+        if (anns != null) {
+            for (Annotation ann : anns) {
+                if (ann instanceof Column) {
+                    fCol = (Column)ann;
+                }
+                if (ann instanceof Temporal) {
+                    Temporal tann = (Temporal)ann;
+                    tempType = tann.value();
+                }
+            }
+        }
+        if (tempType == null) {
+            colType = " TIMESTAMP";
+        } else if (tempType.equals(TemporalType.TIMESTAMP)) {
+            colType = " TIMESTAMP";
+        } else if (tempType.equals(TemporalType.TIME)) {
+            colType = " TIME";
+        } else if (tempType.equals(TemporalType.DATE)) {
+            colType = " DATE";
+        }
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " " + colType;
+        if (fCol != null) {
+            if (!fCol.nullable()) {
+                nullAble = " NOT NULL";
+            }
+        }
+        sql += nullAble;
+        sqls.add(sql);
+    }
+    
+    protected void appendStringColumSqls(String       tableName, 
+                                         String       colName, 
+                                         Annotation[] anns,
+                                         List<String> sqls) {
+        Column fCol     = null;
+        String colType  = "varchar";
+        Lob    lob      = null;
+        String nullAble = "";
+        if (anns != null) {
+            for (Annotation ann : anns) {
+                if (ann instanceof Column) {
+                    fCol = (Column)ann;
+                }
+                if (ann instanceof Lob) {
+                    lob = (Lob)ann;
+                }
+            }
+        }
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " ";
+        int length = 255;
+        if (fCol != null) {
+            length = fCol.length();
+            if (!fCol.nullable()) {
+                nullAble = " NOT NULL";
+            }
+        }
+        if (length < 1) {
+            length = 1;
+        }
+        if (length > 255) {
+            colType = "text";
+        } else {
+            colType += "(" + length + ")";
+        }
+        sql += colType + nullAble;
+        sqls.add(sql);
+    }
+    
+    protected void appendDoubleColumSqls(String       tableName, 
+                                         String       colName, 
+                                         Column       fCol,
+                                         List<String> sqls) {
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " ";
+        int precision = 22;
+        int scale     = 2;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 1) {
+            precision = 1;
+        }
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (precision < scale) {
+            precision = scale;
+        }
+        sql += "decimal(" + precision + "," +
+                scale + ") DEFAULT 0" + nullAble;
+        sqls.add(sql);
+    }
+    
+    protected void appendFloatColumSqls(String       tableName, 
+                                        String       colName, 
+                                        Column       fCol,
+                                        List<String> sqls) {
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " ";
+        int precision = 22;
+        int scale     = 2;
+        String nullAble = "";
+        if (fCol != null) {
+            precision = fCol.precision();
+            scale     = fCol.scale();
+            if (!fCol.nullable()) {
+                nullAble = " not null";
+            }
+        }
+        if (precision < 1) {
+            precision = 1;
+        }
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (precision < scale) {
+            precision = scale;
+        }
+        sql += "float(" + precision + "," +
+                scale + ") DEFAULT 0" + nullAble;
+        sqls.add(sql);
+    }
+    
+    protected void appendLongColumSqls(String       tableName, 
+                                       String       colName, 
+                                       Column       fCol,
+                                       List<String> sqls) {
+        int length = 20;
+        if (fCol != null) {
+            length = fCol.length();
+        }
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " bigint(" + length + ")";
+        sqls.add(sql);
+    }
+    
+    protected void appendIntColumSqls(String       tableName, 
+                                      String       colName, 
+                                      Column       fCol,
+                                      List<String> sqls) {
+        int length = 10;
+        if (fCol != null) {
+            length = fCol.length();
+        }
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " integer(" + length + ")";
+        sqls.add(sql);
+    }
+
+    @Override
+    public String getTableName(Class entity) throws EntityException, Exception {
+        return ClassUtil.getTableName(entity);
+    }
+
+    public List<String> getColumns(Class entity, Connection con) 
+            throws EntityException, Exception {
+        return this.getFieldsByJdbc(con, this.getTableName(entity));
+    }
+
 }

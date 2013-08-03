@@ -7,11 +7,13 @@ package com.easyea.edao.ddls;
 import com.easyea.edao.Ddl;
 import com.easyea.edao.DdlManager;
 import com.easyea.edao.util.ClassUtil;
+import com.easyea.edao.util.FieldInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -30,13 +32,16 @@ public abstract class AbstractDdlManager implements DdlManager {
     protected List<String> tables;
     protected boolean isPartition;
     protected boolean isSync;
+    protected boolean isSyncField;
     protected Date    lastSyncTime;
     protected Date    nextSyncTime;
     protected Class   entity;
     
     public AbstractDdlManager(Class entity) {
-        this.tables = null;
-        this.entity = entity;
+        this.tables      = null;
+        this.entity      = entity;
+        this.isSync      = false;
+        this.isSyncField = false;
     }
 
     public boolean getIsPartition() {
@@ -53,6 +58,10 @@ public abstract class AbstractDdlManager implements DdlManager {
 
     public boolean isSync() {
         return isSync;
+    }
+    
+    public boolean isSyncField() {
+        return isSyncField;
     }
     
     public void syncDdl(Ddl ddl, Connection con) throws Exception {
@@ -77,6 +86,62 @@ public abstract class AbstractDdlManager implements DdlManager {
                 throw e;
             }
         }
+        if (this.isSync) {
+            if (!this.isSyncField) {
+                doSyncColumn(ddl, con);
+            }
+        }
+    }
+    
+    private boolean doSyncColumn(Ddl ddl, Connection con) throws Exception {
+        boolean isFieldSync = false;
+        List<FieldInfo> fields = ClassUtil.getFields(entity);
+        if (fields != null) {
+            List<String> cols = null;
+            try {
+                cols = ddl.getColumns(entity, con);
+            } catch (Exception e) {
+                throw e;
+            }
+            List<String> sqls = new ArrayList<String>();
+            if (cols != null) {
+                for (FieldInfo fi : fields) {
+                    String col = ClassUtil.getColumnName(fi);
+                    if (!cols.contains(col)) {
+                        sqls.addAll(ddl.getAddColumnSqls(ddl.getTableName(entity), fi));
+                    }
+                }
+            }
+            if (!sqls.isEmpty()) {
+                Statement stmt = null;
+                try {
+                    boolean isAuto = con.getAutoCommit();
+                    if (isAuto) {
+                        con.setAutoCommit(false);
+                    }
+                    stmt = con.createStatement();
+                    for (String sql : sqls) {
+                        stmt.executeUpdate(sql);
+                    }
+                    con.commit();
+                    if (isAuto) {
+                        con.setAutoCommit(true);
+                    }
+                    return true;
+                } catch (SQLException e) {
+                    try {con.rollback();} catch (Exception ex) {}
+                    throw e;
+                } catch (Exception e) {
+                    throw e;
+                } finally {
+                    if (stmt != null) {
+                        try {stmt.close();} catch (Exception e) {}
+                    }
+                }
+            }
+            isFieldSync = true;
+        }
+        return isFieldSync;
     }
     
     public boolean createTable(List<String> sqls, Connection con) throws Exception {
