@@ -32,6 +32,8 @@ public interface MapDao {
      * 获取一个Map的列表，用于一些简单结果集的数据返回
      * @param sql 查询结果集的SQL语句
      * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
      */
     public List<Map<String, Object>> getList(String sql) 
             throws SQLException, Exception;
@@ -41,6 +43,8 @@ public interface MapDao {
      * @param sql 查询的SQL语句
      * @param params 绑定的参数
      * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
      */
     public List<Map<String, Object>> getList(String sql, 
             ArrayList<QueryParam> params) throws SQLException, Exception;
@@ -52,6 +56,8 @@ public interface MapDao {
      * @param start 开始取数据的位置
      * @param counts 去数据的数量
      * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
      */
     public List<Map<String, Object>> getList(String sql, 
             ArrayList<QueryParam> params, long start, int counts)
@@ -60,6 +66,8 @@ public interface MapDao {
      * 获取一个单条记录的简单的Map字段名为键，字段的值为Map的值
      * @param sql 查询的SQL语句
      * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
      */
     public Map<String, Object> getMap(String sql) throws SQLException, Exception;
     /**
@@ -67,6 +75,8 @@ public interface MapDao {
      * @param sql 查询的SQL语句
      * @param params 绑定的参数
      * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
      */
     public Map<String, Object> getMap(String sql, ArrayList<QueryParam> params)
             throws SQLException, Exception;

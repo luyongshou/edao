@@ -31,6 +31,8 @@ public interface ViewDao {
      * 获取所有该类持久化对象列表
      *
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList() throws SQLException, Exception;
 
@@ -40,6 +42,8 @@ public interface ViewDao {
      * @param qlString
      *            查询语句
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString) throws SQLException, Exception;
 
@@ -53,6 +57,8 @@ public interface ViewDao {
      * @param counts
      *            获取对象的个数
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, long start, int counts) throws SQLException, Exception;
 
@@ -64,6 +70,8 @@ public interface ViewDao {
      * @param params
      *            参数列表
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, ArrayList<QueryParam> params)
              throws SQLException, Exception;
@@ -80,6 +88,8 @@ public interface ViewDao {
      * @param counts
      *            获取对象的个数
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception;
@@ -88,13 +98,18 @@ public interface ViewDao {
      * 获取该类所有持久化对象的个数
      *
      * @return 总个数
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal() throws SQLException, Exception;
 
     /**
      * 获取该类所有持久化对象的个数
      *
+     * @param qlString
      * @return 符合条件总个数
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal(String qlString) throws SQLException, Exception;
 
@@ -103,6 +118,8 @@ public interface ViewDao {
      * @param qlString
      * @param params
      * @return
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal(String qlString, ArrayList<QueryParam> params)
              throws SQLException, Exception;

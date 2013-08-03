@@ -38,9 +38,11 @@ public interface EntityDao {
     /**
      * 把一个角色的对象保存到容器或者数据库中去
      *
+     * @param <T>
      * @param entity
      *            持久化对象
      * @return 如果保存成功返回持久化对象如果失败返回null
+     * @throws java.sql.SQLException
      */
     public <T> T persist(T entity) throws SQLException, Exception;
     
@@ -55,9 +57,12 @@ public interface EntityDao {
     /**
      * 根据主键获取一个持久化的对象
      *
+     * @param <T>
      * @param primaryKey
      *            角色的主键
      * @return 如果成功返回一个角色对象如果失败返回null
+     * @throws SQLException
+     * @throws Exception
      */
     public <T> T getEntityById(Object primaryKey) throws SQLException, Exception;
 
@@ -65,6 +70,8 @@ public interface EntityDao {
      * 获取所有该类持久化对象列表
      *
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList() throws SQLException, Exception;
 
@@ -74,6 +81,8 @@ public interface EntityDao {
      * @param qlString
      *            查询语句
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString) throws SQLException, Exception;
 
@@ -87,6 +96,8 @@ public interface EntityDao {
      * @param counts
      *            获取对象的个数
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, long start, int counts) 
             throws SQLException, Exception;
@@ -99,6 +110,8 @@ public interface EntityDao {
      * @param params
      *            参数列表
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, ArrayList<QueryParam> params) 
             throws SQLException, Exception;
@@ -115,6 +128,8 @@ public interface EntityDao {
      * @param counts
      *            获取对象的个数
      * @return 持久化对象列表
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public List getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception;
@@ -125,6 +140,8 @@ public interface EntityDao {
      * @param <T> 需要更新的持久化Bean的类型
      * @param entity 需要持久化的持久化对象
      * @return 返回修改成功的持久化bean
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public <T> T merge(T entity) throws SQLException, Exception;
 
@@ -132,13 +149,18 @@ public interface EntityDao {
      * 获取该类所有持久化对象的个数
      *
      * @return 总个数
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal() throws SQLException, Exception;
 
     /**
      * 获取该类所有持久化对象的个数
      *
+     * @param qlString
      * @return 符合条件总个数
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal(String qlString) throws SQLException, Exception;
 
@@ -147,6 +169,8 @@ public interface EntityDao {
      * @param qlString
      * @param params
      * @return 返回服务器条件的记录总数
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public long getTotal(String qlString, ArrayList<QueryParam> params) 
             throws SQLException, Exception;
@@ -156,6 +180,8 @@ public interface EntityDao {
      *
      * @param qlString
      * @return 更新影响的个数，如果错误返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public int update(String qlString) throws SQLException, Exception;
 
@@ -165,6 +191,8 @@ public interface EntityDao {
      * @param qlString
      * @param params
      * @return 更新影响的个数，如果错误返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public int update(String qlString, ArrayList<QueryParam> params) 
             throws SQLException, Exception;
@@ -175,6 +203,8 @@ public interface EntityDao {
      * @param entity
      *            持久化对象
      * @return 是否删除成功
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public boolean remove(Object entity) throws SQLException, Exception;
 
@@ -183,6 +213,8 @@ public interface EntityDao {
      *
      * @param qlString
      * @return 返回删除对象的个数失败返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public int remove(String qlString) throws SQLException, Exception;
 
@@ -192,6 +224,8 @@ public interface EntityDao {
      * @param qlString
      * @param params
      * @return 返回删除对象的个数失败返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
      */
     public int remove(String qlString, ArrayList<QueryParam> params) 
             throws SQLException, Exception;
