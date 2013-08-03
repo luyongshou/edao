@@ -16,6 +16,7 @@ public interface Builder {
      * 根据给定的持久化的Bean反射bean并生成实现EntityDao接口实现类的Java代码
      * @param entityCls 持久化的javabean
      * @return 生成的DAO实现的Java代码
+     * @throws com.easyea.edao.exception.EntityException
      */
     public String getDaoCode(Class entityCls) throws EntityException;
 
@@ -23,6 +24,7 @@ public interface Builder {
      * 根据指定的View的javabean生成ViewDao实现类的Java代码
      * @param viewCls View性质的javabean
      * @return 生成的ViewDao实现的Java代码
+     * @throws com.easyea.edao.exception.ViewException
      */
     public String getViewDaoCode(Class viewCls) throws ViewException;
     
@@ -32,6 +34,7 @@ public interface Builder {
      * @throws Exception 
      */
     public String getMapDaoCode() throws Exception;
+    
     /**
      * 获取数据库类型的名称比如Postgresql,Oracle,Mysql
      * @return 
