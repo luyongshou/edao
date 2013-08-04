@@ -7,13 +7,11 @@ package com.easyea.edao.ddls;
 import com.easyea.edao.Ddl;
 import com.easyea.edao.DdlManager;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -95,50 +93,34 @@ public abstract class AbstractDdlManager implements DdlManager {
     
     private boolean doSyncColumn(Ddl ddl, Connection con) throws Exception {
         boolean isFieldSync = false;
-        List<FieldInfo> fields = ClassUtil.getFields(entity);
-        if (fields != null) {
-            List<String> cols = null;
+        List<String> sqls = ddl.getEntityUpdateDdl(entity, con);
+        if (sqls != null && !sqls.isEmpty()) {
+            Statement stmt = null;
             try {
-                cols = ddl.getColumns(entity, con);
+                boolean isAuto = con.getAutoCommit();
+                if (isAuto) {
+                    con.setAutoCommit(false);
+                }
+                stmt = con.createStatement();
+                for (String sql : sqls) {
+                    stmt.executeUpdate(sql);
+                }
+                con.commit();
+                if (isAuto) {
+                    con.setAutoCommit(true);
+                }
+                return true;
+            } catch (SQLException e) {
+                try {con.rollback();} catch (Exception ex) {}
+                throw e;
             } catch (Exception e) {
                 throw e;
-            }
-            List<String> sqls = new ArrayList<String>();
-            if (cols != null) {
-                for (FieldInfo fi : fields) {
-                    String col = ClassUtil.getColumnName(fi);
-                    if (!cols.contains(col)) {
-                        sqls.addAll(ddl.getAddColumnSqls(ddl.getTableName(entity), fi));
-                    }
+            } finally {
+                if (stmt != null) {
+                    try {stmt.close();} catch (Exception e) {}
                 }
             }
-            if (!sqls.isEmpty()) {
-                Statement stmt = null;
-                try {
-                    boolean isAuto = con.getAutoCommit();
-                    if (isAuto) {
-                        con.setAutoCommit(false);
-                    }
-                    stmt = con.createStatement();
-                    for (String sql : sqls) {
-                        stmt.executeUpdate(sql);
-                    }
-                    con.commit();
-                    if (isAuto) {
-                        con.setAutoCommit(true);
-                    }
-                    return true;
-                } catch (SQLException e) {
-                    try {con.rollback();} catch (Exception ex) {}
-                    throw e;
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    if (stmt != null) {
-                        try {stmt.close();} catch (Exception e) {}
-                    }
-                }
-            }
+        } else {
             isFieldSync = true;
         }
         return isFieldSync;

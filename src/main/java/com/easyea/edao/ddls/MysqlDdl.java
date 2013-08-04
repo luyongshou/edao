@@ -69,14 +69,13 @@ public class MysqlDdl extends AbstractDdl {
                     if (aann != null) {
                         //System.out.println(f);
                         int slength = 4000;
-                        for (int i=0;i<aann.length;i++) {
-                            Annotation ann = aann[i];
+                        for (Annotation ann : aann) {
                             if (ann instanceof Id) {
                                 isPrikey = true;
                             }
                             if (ann instanceof Column) {
                                 Column cann = (Column)ann;
-                                fname = cann.name();
+                                fname   = cann.name();
                                 flength = cann.length() + "";
                                 slength = cann.length();
                                 dcolumn = cann;
@@ -96,7 +95,6 @@ public class MysqlDdl extends AbstractDdl {
                                 fname = f;
                             }
                         }
-                        //System.out.println(isLob);
                     } else {
                         if (f.equals("id")) {
                             isPrikey = true;

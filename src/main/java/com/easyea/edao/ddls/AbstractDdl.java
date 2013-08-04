@@ -150,6 +150,30 @@ public abstract class AbstractDdl implements Ddl {
         return sqls;
     }
     
+    public List<String> getEntityUpdateDdl(Class entity, Connection con) 
+            throws EntityException, Exception {
+        List<String> sqls = new ArrayList<String>();
+        List<FieldInfo> fields = ClassUtil.getFields(entity);
+        if (fields != null) {
+            List<String> cols = null;
+            try {
+                cols = this.getColumns(entity, con);
+            } catch (Exception e) {
+                throw e;
+            }
+            
+            if (cols != null) {
+                for (FieldInfo fi : fields) {
+                    String col = ClassUtil.getColumnName(fi);
+                    if (!cols.contains(col)) {
+                        sqls.addAll(this.getAddColumnSqls(this.getTableName(entity), fi));
+                    }
+                }
+            }
+        }
+        return sqls;
+    }
+    
     protected abstract void appendBooleanColumSqls(String       tableName, 
                                                    String       colName, 
                                                    Column       fCol,

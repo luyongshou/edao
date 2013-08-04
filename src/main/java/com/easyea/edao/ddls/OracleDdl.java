@@ -70,8 +70,7 @@ public class OracleDdl extends AbstractDdl {
                     if (aann != null) {
                         //System.out.println(f);
                         int slength = 4000;
-                        for (int i=0;i<aann.length;i++) {
-                            Annotation ann = aann[i];
+                        for (Annotation ann : aann) {
                             if (ann instanceof Id) {
                                 isPrikey = true;
                             }
@@ -97,7 +96,6 @@ public class OracleDdl extends AbstractDdl {
                                 fname = f;
                             }
                         }
-                        //System.out.println(isLob);
                     } else {
                         if (f.equals("id")) {
                             isPrikey = true;
@@ -219,9 +217,9 @@ public class OracleDdl extends AbstractDdl {
     }
     
     protected void appendBooleanColumSqls(String       tableName, 
-                                        String       colName, 
-                                        Column       fCol,
-                                        List<String> sqls) {
+                                          String       colName, 
+                                          Column       fCol,
+                                          List<String> sqls) {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
                 .append(colName).append(" ");
@@ -231,9 +229,9 @@ public class OracleDdl extends AbstractDdl {
     }
     
     protected void appendDateColumSqls(String       tableName, 
-                                     String       colName, 
-                                     Annotation[] anns,
-                                     List<String> sqls) {
+                                       String       colName, 
+                                       Annotation[] anns,
+                                       List<String> sqls) {
         Column       fCol     = null;
         String       colType  = "";
         TemporalType tempType = null;
@@ -345,9 +343,9 @@ public class OracleDdl extends AbstractDdl {
     }
     
     protected void appendFloatColumSqls(String       tableName, 
-                                      String       colName, 
-                                      Column       fCol,
-                                      List<String> sqls) {
+                                        String       colName, 
+                                        Column       fCol,
+                                        List<String> sqls) {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
                 .append(colName).append(" ");
@@ -377,9 +375,9 @@ public class OracleDdl extends AbstractDdl {
     }
     
     protected void appendLongColumSqls(String       tableName, 
-                                     String       colName, 
-                                     Column       fCol,
-                                     List<String> sqls) {
+                                       String       colName, 
+                                       Column       fCol,
+                                       List<String> sqls) {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ").append(tableName).append(" ADD (")
                 .append(colName).append(" ");

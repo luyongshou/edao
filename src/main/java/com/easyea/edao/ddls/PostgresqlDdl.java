@@ -69,8 +69,7 @@ public class PostgresqlDdl extends AbstractDdl {
                 boolean      isLob = false;
                 TemporalType tempType = null;
                 if (aann != null) {
-                    for (int i=0;i<aann.length;i++) {
-                        Annotation ann = aann[i];
+                    for (Annotation ann : aann) {
                         isLob = false;
                         if (ann instanceof Id) {
                             isPrikey = true;
