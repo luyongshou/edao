@@ -4,6 +4,7 @@
  */
 package com.easyea.edao;
 
+import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.manager.DefaultManager;
 import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,6 +62,36 @@ public class DaoFactory {
      */
     public static EntityDao getDao(String name) throws Exception {
         return getEntityDao(name, "Postgresql");
+    }
+    /**
+     * 根据持久化对象的Class来获取一个持久化Dao的实现
+     * @param entity 持久Bean的Class对象
+     * @return
+     * @throws Exception 
+     */
+    public static EntityDao getDao(Class entity) throws Exception {
+        return getDao(entity, "Postgresql");
+    }
+    /**
+     * 根据持久化对象的Class以及制定数据类型来获取一个持久化Dao的实现
+     * @param entity 持久Bean的Class对象
+     * @param db 数据库类型
+     * @return
+     * @throws Exception 
+     */
+    public static EntityDao getDao(Class entity, String db) throws Exception {
+        String packName = entity.getPackage().getName();
+        if (!packName.endsWith(".entity")) {
+            throw new EntityException("package not endwith \"entity\"!");
+        }
+        int lastDot = packName.lastIndexOf("entity");
+        if (lastDot == -1) {
+            throw new EntityException("package not endwith \"entity\"!");
+        } else {
+            packName = packName.substring(0, lastDot) + "dao";
+        }
+        String name = packName + "." + entity.getSimpleName() + "Dao";
+        return getEntityDao(name, db);
     }
     
     /**
@@ -128,7 +159,6 @@ public class DaoFactory {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 throw e;
             } finally {
                 elock.unlock();
@@ -138,6 +168,36 @@ public class DaoFactory {
             dao = fact.getDao(name);
         }
         return dao;
+    }
+    /**
+     * 根据JOPO的Class获取ViewDao。
+     * @param view 试图或者持久化Bean的Class
+     * @return
+     * @throws Exception 
+     */
+    public static ViewDao getViewDao(Class view) throws Exception {
+        return getViewDao(view, "Postgresql");
+    }
+    /**
+     * 根据JOPO的Class以及数据库类型获取ViewDao。
+     * @param view 试图或者持久化Bean的Class
+     * @param db 数据库类型
+     * @return
+     * @throws Exception 
+     */
+    public static ViewDao getViewDao(Class view, String db) throws Exception {
+        String packName = view.getPackage().getName();
+        if (!packName.endsWith(".view") && packName.endsWith(".entity")) {
+            throw new EntityException("package not endwith \"entity\" and \"view\"!");
+        }
+        int lastDot = packName.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new EntityException("package not endwith \"entity\" and \"view\"!");
+        } else {
+            packName = packName.substring(0, lastDot) + "viewdao";
+        }
+        String name = packName + "." + view.getSimpleName() + "Dao";
+        return getViewDao(name, db);
     }
 
     /**
