@@ -690,7 +690,7 @@ public abstract class AbstractBuilder implements Builder {
                 } else {
                     sb.append("rs.getTimestamp(\"");
                 }
-            } else if (otype.equals(Boolean.class)) {
+            } else if (otype.equals(Boolean.class) || otype.toString().equals("boolean")) {
                 sb.append("rs.getBoolean(\"");
             } else if (otype.equals(Float.class) || otype.toString().equals("float")) {
                 sb.append("rs.getFloat(\"");
