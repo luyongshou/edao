@@ -823,6 +823,11 @@ public abstract class AbstractBuilder implements Builder {
                         }
                     }
                 }
+                sb.append("if (entity.get")
+                                .append(fieldn.substring(0, 1).toUpperCase())
+                                .append(fieldn.substring(1))
+                                .append("() != null) {").append(r(1));
+                sb.append(t(4));
                 if (temporalANN != null) {
                     Temporal datetype = (Temporal)temporalANN;
                     if (datetype.value().equals(TemporalType.TIMESTAMP)) {
@@ -857,13 +862,43 @@ public abstract class AbstractBuilder implements Builder {
                             .append(fieldn.substring(1))
                             .append("().getTime()));").append(r(1));
                 }
-            } else if (otype.equals(Boolean.class)) {
+                sb.append(t(3)).append("} else {").append(r(1));
+                sb.append(t(4));
+                if (temporalANN != null) {
+                    Temporal datetype = (Temporal)temporalANN;
+                    if (datetype.value().equals(TemporalType.TIMESTAMP)) {
+                        sb.append("pstmt.setTimestamp(")
+                                .append(position).append(", null);").append(r(1));
+                    } else if (datetype.value().equals(TemporalType.DATE)) {
+                        sb.append("pstmt.setDate(")
+                                .append(position).append(", null);").append(r(1));
+                    } else if (datetype.value().equals(TemporalType.TIME)) {
+                        sb.append("pstmt.setTime(")
+                                .append(position).append(", null);").append(r(1));
+                    } else {
+                        sb.append("pstmt.setTimestamp(")
+                                .append(position).append(", null);").append(r(1));
+                    }
+                } else {
+                    sb.append("pstmt.setTimestamp(")
+                            .append(position).append(", null);").append(r(1));
+                }
+                sb.append(t(3)).append("}").append(r(1));
+            } else if (otype.equals(Boolean.class) 
+                    || otype.toString().equals("boolean")) {
                 sb.append("pstmt.setBoolean(")
                         .append(position).append(", entity.get")
                         .append(fieldn.substring(0, 1).toUpperCase())
                         .append(fieldn.substring(1))
                         .append("());").append(r(1));
-            } else if (otype.equals(Double.class)) {
+            } else if (otype.equals(Float.class) 
+                    || otype.toString().equals("float")) {
+                sb.append("pstmt.setFloat(")
+                        .append(position).append(", entity.get")
+                        .append(fieldn.substring(0, 1).toUpperCase())
+                        .append(fieldn.substring(1))
+                        .append("());").append(r(1));
+            } else if (otype.equals(Double.class) || otype.toString().equals("double")) {
                 sb.append("pstmt.setDouble(")
                         .append(position).append(", entity.get")
                         .append(fieldn.substring(0, 1).toUpperCase())
@@ -1115,12 +1150,16 @@ public abstract class AbstractBuilder implements Builder {
                     sb.append("pstmt.setTimestamp(")
                             .append(i+1).append(", ts").append(i).append(");").append(r(1));
                 }
-            } else if (otype.equals(Boolean.class)) {
+            } else if (otype.equals(Boolean.class) || otype.toString().equals("boolean")) {
                 sb.append("pstmt.setBoolean(")
                         .append(i+1).append(", ").append(valStr)
                         .append(");").append(r(1));
-            } else if (otype.equals(Double.class)) {
+            } else if (otype.equals(Double.class) || otype.toString().equals("double")) {
                 sb.append("pstmt.setDouble(")
+                        .append(i+1).append(", ").append(valStr)
+                        .append(");").append(r(1));
+            } else if (otype.equals(Float.class) || otype.toString().equals("float")) {
+                sb.append("pstmt.setFloat(")
                         .append(i+1).append(", ").append(valStr)
                         .append(");").append(r(1));
             } else {
