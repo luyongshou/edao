@@ -187,14 +187,14 @@ public class DaoFactory {
      */
     public static ViewDao getViewDao(Class view, String db) throws Exception {
         String packName = view.getPackage().getName();
-        if (!packName.endsWith(".view") && packName.endsWith(".entity")) {
+        if (!packName.endsWith(".view") && !packName.endsWith(".entity")) {
             throw new EntityException("package not endwith \"entity\" and \"view\"!");
         }
         int lastDot = packName.lastIndexOf(".");
         if (lastDot == -1) {
             throw new EntityException("package not endwith \"entity\" and \"view\"!");
         } else {
-            packName = packName.substring(0, lastDot) + "viewdao";
+            packName = packName.substring(0, lastDot) + ".viewdao";
         }
         String name = packName + "." + view.getSimpleName() + "Dao";
         return getViewDao(name, db);
