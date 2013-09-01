@@ -160,13 +160,6 @@ public class PostgresqlDdl extends AbstractDdl {
     }
 
     @Override
-    public List<String> getEntityUpdateDdl(Class entity, Connection con) 
-            throws EntityException, Exception {
-        List<String> sqls = new ArrayList<String>();
-        return sqls;
-    }
-
-    @Override
     public List<String> getViewCreateDdl(Class view) 
             throws EntityException, Exception {
         List<String> sqls = new ArrayList<String>();
@@ -365,6 +358,11 @@ public class PostgresqlDdl extends AbstractDdl {
 
     public List<String> getColumns(Class entity, Connection con) 
             throws EntityException, Exception {
-        return this.getFieldsByJdbc(con, this.getTableName(entity));
+        String tb = this.getTableName(entity);
+        if (tb == null) {
+            tb = "";
+        }
+        tb = tb.toLowerCase(Locale.ENGLISH);
+        return this.getFieldsByJdbc(con, tb);
     }
 }

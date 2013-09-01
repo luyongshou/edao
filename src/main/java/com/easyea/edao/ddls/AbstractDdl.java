@@ -165,6 +165,7 @@ public abstract class AbstractDdl implements Ddl {
             if (cols != null) {
                 for (FieldInfo fi : fields) {
                     String col = ClassUtil.getColumnName(fi);
+                    col = col.toLowerCase(Locale.ENGLISH);
                     if (!cols.contains(col)) {
                         sqls.addAll(this.getAddColumnSqls(this.getTableName(entity), fi));
                     }
