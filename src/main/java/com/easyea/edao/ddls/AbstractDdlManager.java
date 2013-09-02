@@ -6,9 +6,17 @@ package com.easyea.edao.ddls;
 
 import com.easyea.edao.Ddl;
 import com.easyea.edao.DdlManager;
+import com.easyea.edao.annotation.partition.NumberRangePartition;
+import com.easyea.edao.annotation.partition.TimeRangePartition;
+import com.easyea.edao.exception.EntityException;
+import com.easyea.edao.partition.NumberRange;
+import com.easyea.edao.partition.PartitionParam;
+import com.easyea.edao.partition.TimeRange;
 import com.easyea.edao.util.ClassUtil;
+import com.easyea.edao.util.FieldInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
+import java.lang.annotation.Annotation;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,6 +48,17 @@ public abstract class AbstractDdlManager implements DdlManager {
         this.entity      = entity;
         this.isSync      = false;
         this.isSyncField = false;
+        boolean isPart   = false;
+        PartitionParam   partParam = null;
+        try {
+            partParam = this.getPartitionParam();
+        } catch (Exception e) {
+            logger.error("get partition param error!", e);
+        }
+        if (partParam != null) {
+            isPart = true;
+        }
+        this.isPartition = isPart;
     }
 
     public boolean getIsPartition() {
@@ -124,6 +143,69 @@ public abstract class AbstractDdlManager implements DdlManager {
             isFieldSync = true;
         }
         return isFieldSync;
+    }
+    
+    public PartitionParam getPartitionParam() 
+            throws EntityException, Exception {
+        Annotation[] anns = entity.getAnnotations();
+        if (anns != null) {
+            for (Annotation ann : anns) {
+                if (ann instanceof NumberRangePartition) {
+                    NumberRangePartition nump = (NumberRangePartition)ann;
+                    String field = nump.field();
+                    Class  ftype = null;
+                    NumberRange param = new NumberRange();
+                    param.setField(field);
+                    List<FieldInfo> fis = ClassUtil.getFields(entity);
+                    if (fis != null && !fis.isEmpty()) {
+                        for (FieldInfo fi : fis) {
+                            if (fi.getName().equals(field)) {
+                                ftype = fi.getType();
+                            }
+                        }
+                    }
+                    if (ftype == null) {
+                        throw new Exception("entity not declare \"" + field + "\"");
+                    }
+                    int count = nump.count();
+                    if (count < 1) {
+                        count = 1;
+                    }
+                    param.setFieldType(ftype);
+                    param.setCount(count);
+                    param.setCustomerRange(null);
+                    param.setInterval(nump.interval());
+                    return param;
+                } else if (ann instanceof TimeRangePartition) {
+                    TimeRangePartition nump = (TimeRangePartition)ann;
+                    String field = nump.field();
+                    Class  ftype = null;
+                    TimeRange param = new TimeRange();
+                    param.setField(field);
+                    List<FieldInfo> fis = ClassUtil.getFields(entity);
+                    if (fis != null && !fis.isEmpty()) {
+                        for (FieldInfo fi : fis) {
+                            if (fi.getName().equals(field)) {
+                                ftype = fi.getType();
+                            }
+                        }
+                    }
+                    if (ftype == null) {
+                        throw new Exception("entity not declare \"" + field + "\"");
+                    }
+                    int count= nump.count();
+                    if (count < 1) {
+                        count = 1;
+                    }
+                    param.setFieldType(ftype);
+                    param.setCount(count);
+                    param.setCustomerRange(null);
+                    param.setInterval(nump.interval());
+                    return param;
+                }
+            }
+        }
+        return null;
     }
     
     public boolean createTable(List<String> sqls, Connection con) throws Exception {

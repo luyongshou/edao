@@ -4,6 +4,8 @@
  */
 package com.easyea.edao;
 
+import com.easyea.edao.exception.EntityException;
+import com.easyea.edao.partition.PartitionParam;
 import java.sql.Connection;
 import java.util.Date;
 
@@ -44,4 +46,12 @@ public interface DdlManager {
      * @throws Exception 
      */
     public void syncDdl(Connection con) throws Exception;
+    /**
+     * 根据持久化Bean获取一个分区的参数
+     * @return 返回持久化Bean分区的参数设置
+     * @throws EntityException
+     * @throws Exception 
+     */
+    public PartitionParam getPartitionParam() throws EntityException, Exception;
+    
 }
