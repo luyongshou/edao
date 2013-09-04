@@ -35,13 +35,14 @@ public abstract class AbstractDdlManager implements DdlManager {
     /**
      * 数据库中数据表的列表
      */
-    protected List<String> tables;
-    protected boolean isPartition;
-    protected boolean isSync;
-    protected boolean isSyncField;
-    protected Date    lastSyncTime;
-    protected Date    nextSyncTime;
-    protected Class   entity;
+    protected List<String>   tables;
+    protected boolean        isPartition;
+    protected boolean        isSync;
+    protected boolean        isSyncField;
+    protected PartitionParam partitionParam;
+    protected Date           lastSyncTime;
+    protected Date           nextSyncTime;
+    protected Class          entity;
     
     public AbstractDdlManager(Class entity) {
         this.tables      = null;
@@ -51,12 +52,15 @@ public abstract class AbstractDdlManager implements DdlManager {
         boolean isPart   = false;
         PartitionParam   partParam = null;
         try {
-            partParam = this.getPartitionParam();
+            partParam = this.parsePartitionParam();
         } catch (Exception e) {
             logger.error("get partition param error!", e);
         }
         if (partParam != null) {
+            partitionParam = partParam;
             isPart = true;
+        } else {
+            partitionParam = null;
         }
         this.isPartition = isPart;
     }
@@ -145,8 +149,7 @@ public abstract class AbstractDdlManager implements DdlManager {
         return isFieldSync;
     }
     
-    public PartitionParam getPartitionParam() 
-            throws EntityException, Exception {
+    public PartitionParam parsePartitionParam() throws EntityException, Exception {
         Annotation[] anns = entity.getAnnotations();
         if (anns != null) {
             for (Annotation ann : anns) {
@@ -206,6 +209,11 @@ public abstract class AbstractDdlManager implements DdlManager {
             }
         }
         return null;
+    }
+    
+    public PartitionParam getPartitionParam() 
+            throws EntityException, Exception {
+        return this.partitionParam;
     }
     
     public boolean createTable(List<String> sqls, Connection con) throws Exception {
