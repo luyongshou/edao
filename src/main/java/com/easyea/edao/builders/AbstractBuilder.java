@@ -307,7 +307,7 @@ public abstract class AbstractBuilder implements Builder {
     }
 
     @Override
-    public String getDaoCode(Class ecls) throws EntityException {
+    public String getDaoCode(Class ecls, Class partManager) throws EntityException {
         StringBuilder sb = new StringBuilder();
         checkEntity(ecls);
         //生成包名的代码
@@ -323,6 +323,9 @@ public abstract class AbstractBuilder implements Builder {
             }
         }
         sb.append("import com.easyea.edao.DdlManager;").append(r(1));
+        if (partManager != null) {
+            sb.append("import ").append(partManager.getName()).append(";").append(r(1));
+        }
         sb.append(r(1));
         sb.append("public class ").append(ecls.getSimpleName())
                 .append("Dao implements EntityDao {").append(r(2));
@@ -337,8 +340,8 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(this.getGetDdlManager(ecls));
         sb.append(this.getSetConnection(ecls, true));
         sb.append(this.getGetConnection(ecls));
-        sb.append(this.getPersist(ecls));
-        sb.append(this.getPersists(ecls));
+        sb.append(this.getPersist(ecls, partManager));
+        sb.append(this.getPersists(ecls, partManager));
         sb.append(this.getGetObjectById(ecls));
         sb.append(this.getList1(ecls));
         sb.append(this.getList2(ecls));
@@ -956,7 +959,7 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getPersist(Class cls) {
+    public String getPersist(Class cls, Class partManager) {
         GenerationType gt = getGenerationType(cls);
         if (gt == null) {
             gt = getGenerationType();
@@ -965,13 +968,13 @@ public abstract class AbstractBuilder implements Builder {
             gt = GenerationType.SEQUENCE;
         }
         if (gt == GenerationType.IDENTITY) {
-            return getIdentityPersist(cls);
+            return getIdentityPersist(cls, partManager);
         } else {
-            return getSequencePersist(cls);
+            return getSequencePersist(cls, partManager);
         }
     }
     
-    public String getSequencePersist(Class cls) {
+    public String getSequencePersist(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public <T> T persist(T ent) throws SQLException, Exception {").append(r(1));
@@ -1015,11 +1018,20 @@ public abstract class AbstractBuilder implements Builder {
             fieldCount++;
         }
 
-        String sql = "";
-        String tbName = getTableName(cls);
+        String sql     = "";
+        String tbName  = getTableName(cls);
+        String extName = "";
+        if (partManager != null) {
+            sb.append(t(2)).append("String extTbName = \"\";").append(r(1));
+            sb.append(t(2)).append(partManager.getSimpleName())
+                .append(" partm = new ").append(partManager.getSimpleName())
+                .append("();").append(r(1));
+            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
+            extName = "\" + extTbName + \"";
+        }
         sb.append(t(2))
                 .append("String sql = \"insert into ")
-                .append(tbName).append(" (\"").append(r(1))
+                .append(tbName).append(extName).append(" (\"").append(r(1))
                 .append(t(3))
                 .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
                 .append(t(3))
@@ -1200,7 +1212,7 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getIdentityPersist(Class cls) {
+    public String getIdentityPersist(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public <T> T persist(T ent) throws SQLException, Exception {").append(r(1));
@@ -1246,11 +1258,20 @@ public abstract class AbstractBuilder implements Builder {
             }
         }
 
-        String sql = "";
-        String tbName = getTableName(cls);
+        String sql     = "";
+        String tbName  = getTableName(cls);
+        String extName = "";
+        if (partManager != null) {
+            sb.append(t(2)).append("String extTbName = \"\";").append(r(1));
+            sb.append(t(2)).append(partManager.getSimpleName())
+                .append(" partm = new ").append(partManager.getSimpleName())
+                .append("();").append(r(1));
+            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
+            extName = "\" + extTbName + \"";
+        }
         sb.append(t(2))
                 .append("String sql = \"insert into ")
-                .append(tbName).append(" (\"").append(r(1))
+                .append(tbName).append(extName).append(" (\"").append(r(1))
                 .append(t(3))
                 .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
                 .append(t(3))
@@ -1439,7 +1460,7 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getPersists(Class cls) {
+    public String getPersists(Class cls, Class partManager) {
         GenerationType gt = getGenerationType(cls);
         if (gt == null) {
             gt = getGenerationType();
@@ -1448,13 +1469,13 @@ public abstract class AbstractBuilder implements Builder {
             gt = GenerationType.SEQUENCE;
         }
         if (gt == GenerationType.IDENTITY) {
-            return getIdentityPersists(cls);
+            return getIdentityPersists(cls, partManager);
         } else {
-            return getSequencePersists(cls);
+            return getSequencePersists(cls, partManager);
         }
     }
     
-    public String getIdentityPersists(Class cls) {
+    public String getIdentityPersists(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public void persist(List<?> entities) throws SQLException, Exception {").append(r(1));
@@ -1499,19 +1520,12 @@ public abstract class AbstractBuilder implements Builder {
             }
         }
 
-        String sql = "";
-        String tbName = getTableName(cls);
-        sb.append(t(2))
-                .append("String sql = \"insert into ")
-                .append(tbName).append(" (\"").append(r(1))
-                .append(t(3))
-                .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
-                .append(t(3))
-                .append("+ \") values (").append(sqlvals.toString()).append(")\";")
-                .append(r(1));
+        String sql     = "";
+        String tbName  = getTableName(cls);
+        String extName = "";
+        
         sb.append(t(2));
-        sb.append("logger.debug(\"insert sql = {{}}\",").append("sql").append(");").append(r(1));
-        sb.append(t(2));
+        
         sb.append("PreparedStatement pstmt = null;").append(r(1));
         sb.append(t(2)).append("boolean initAuto = false;").append(r(1));
         sb.append(t(2));
@@ -1526,6 +1540,24 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(4)).append(cls.getSimpleName()).append(" entity = (")
                 .append(cls.getSimpleName()).append(")ent;").append(r(1));
         sb.append(t(4)).append(((Class)idInfo.getType()).getSimpleName()).append(" nid = null;").append(r(1));
+        if (partManager != null) {
+            sb.append(t(2)).append("String extTbName = \"\";").append(r(1));
+            sb.append(t(2)).append(partManager.getSimpleName())
+                .append(" partm = new ").append(partManager.getSimpleName())
+                .append("();").append(r(1));
+            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
+            extName = "\" + extTbName + \"";
+        }
+        sb.append(t(2))
+                .append("String sql = \"insert into ")
+                .append(tbName).append(extName).append(" (\"").append(r(1))
+                .append(t(3))
+                .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
+                .append(t(3))
+                .append("+ \") values (").append(sqlvals.toString()).append(")\";")
+                .append(r(1));
+        sb.append("logger.debug(\"insert sql = {{}}\",").append("sql").append(");").append(r(1));
+        sb.append(t(2));
         sb.append(t(5)).append("pstmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);").append(r(1));
         int i = 0;
         for (FieldInfo finfo : fields) {
@@ -1679,7 +1711,7 @@ public abstract class AbstractBuilder implements Builder {
         return sb.toString();
     }
     
-    public String getSequencePersists(Class cls) {
+    public String getSequencePersists(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         sb.append(t(1)).append("@Override").append(r(1));
         sb.append(t(1)).append("public void persist(List<?> entities) throws SQLException, Exception {").append(r(1));
@@ -1722,19 +1754,12 @@ public abstract class AbstractBuilder implements Builder {
             fieldCount++;
         }
 
-        String sql = "";
-        String tbName = getTableName(cls);
-        sb.append(t(2))
-                .append("String sql = \"insert into ")
-                .append(tbName).append(" (\"").append(r(1))
-                .append(t(3))
-                .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
-                .append(t(3))
-                .append("+ \") values (").append(sqlvals.toString()).append(")\";")
-                .append(r(1));
+        String sql     = "";
+        String tbName  = getTableName(cls);
+        String extName = "";
+        
         sb.append(t(2));
-        sb.append("logger.debug(\"insert sql = {{}}\",").append("sql").append(");").append(r(1));
-        sb.append(t(2));
+        
         sb.append("PreparedStatement pstmt = null;").append(r(1));
         sb.append(t(2)).append("boolean initAuto = false;").append(r(1));
         sb.append(t(2));
@@ -1755,6 +1780,24 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(4)).append("nid = entity.getId();").append(r(1));
         sb.append(t(3)).append("}").append(r(1));
         sb.append(t(4)).append("if (nid != null) {").append(r(1));
+        if (partManager != null) {
+            sb.append(t(2)).append("String extTbName = \"\";").append(r(1));
+            sb.append(t(2)).append(partManager.getSimpleName())
+                .append(" partm = new ").append(partManager.getSimpleName())
+                .append("();").append(r(1));
+            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
+            extName = "\" + extTbName + \"";
+        }
+        sb.append(t(2))
+                .append("String sql = \"insert into ")
+                .append(tbName).append(extName).append(" (\"").append(r(1))
+                .append(t(3))
+                .append("+ \"").append(sqlfields.toString()).append("\"").append(r(1))
+                .append(t(3))
+                .append("+ \") values (").append(sqlvals.toString()).append(")\";")
+                .append(r(1));
+        sb.append("logger.debug(\"insert sql = {{}}\",").append("sql").append(");").append(r(1));
+        sb.append(t(2));
         sb.append(t(5)).append("pstmt = con.prepareStatement(sql);").append(r(1));
         int i = 0;
         for (FieldInfo finfo : fields) {

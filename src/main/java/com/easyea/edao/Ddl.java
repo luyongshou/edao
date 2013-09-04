@@ -49,6 +49,17 @@ public interface Ddl {
             throws EntityException, Exception;
     
     /**
+     * 根据持久化Bean的class对象以及扩展名来获取创建分区表的sql语句列表
+     * @param entity 实体化Bean的class对象
+     * @param extName
+     * @return
+     * @throws EntityException
+     * @throws Exception 
+     */
+    public List<String> getEntityPartitionDdl(Class entity, String extName) 
+            throws EntityException, Exception;
+    
+    /**
      * 定义持久化Bean获取更新数据库结构的SQL语句的集合
      * @param entity
      * @param con

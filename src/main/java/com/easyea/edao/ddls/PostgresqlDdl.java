@@ -365,4 +365,21 @@ public class PostgresqlDdl extends AbstractDdl {
         tb = tb.toLowerCase(Locale.ENGLISH);
         return this.getFieldsByJdbc(con, tb);
     }
+
+    public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
+        String tbName = ClassUtil.getTableName(entity);
+        List<String> sqls = new ArrayList<String>();
+        extName = extName.substring(2);
+        if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
+            int count = 1;
+            int index = extName.indexOf("_");
+            String type = "";
+            String ext  = "";
+            if (index != -1) {
+                type = extName.substring(0, index);
+                ext  = extName.substring(index + 1);
+            }
+        }
+        return sqls;
+    }
 }

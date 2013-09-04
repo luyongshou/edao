@@ -128,7 +128,9 @@ public class ClassUtil {
             for (Annotation fann : fanns) {
                 if (fann instanceof Column) {
                     Column cann = (Column) fann;
-                    colName = cann.name();
+                    if (cann.name() != null && cann.name().length() > 0) {
+                        colName = cann.name();
+                    }
                 }
             }
         }

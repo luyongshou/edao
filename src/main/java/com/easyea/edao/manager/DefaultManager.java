@@ -9,11 +9,18 @@ import com.easyea.dynamic.DynamicJavaFile;
 import com.easyea.dynamic.DynamicJavaFileManager;
 import com.easyea.edao.Builder;
 import com.easyea.edao.DaoManager;
+import com.easyea.edao.DdlManager;
 import com.easyea.edao.EntityFactory;
 import com.easyea.edao.MapFactory;
 import com.easyea.edao.ViewFactory;
+import com.easyea.edao.ddls.MysqlDdlManager;
+import com.easyea.edao.ddls.OracleDdlManager;
+import com.easyea.edao.ddls.PostgresqlDdlManager;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.exception.ViewException;
+import com.easyea.edao.partition.PartitionParam;
+import com.easyea.edao.util.JavaCode;
+import com.easyea.edao.util.PartitionUtil;
 import com.easyea.internal.util.ClassUtils;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
@@ -49,6 +56,7 @@ public class DefaultManager implements DaoManager {
     private final static ReentrantLock flock = new ReentrantLock();
     private final static ReentrantLock vlock = new ReentrantLock();
     private final static ReentrantLock vflock = new ReentrantLock();
+    private final static ReentrantLock pmlock = new ReentrantLock();
     private DynamicClassLoader loader;
     private ConcurrentHashMap<String, Class> cache = 
             new ConcurrentHashMap<String, Class>();
@@ -151,6 +159,103 @@ public class DefaultManager implements DaoManager {
         }
         return (ViewFactory)fcls.newInstance();
     }
+    
+    public void compilePartManager(JavaCode           javaCode, 
+                                   DynamicClassLoader loader) throws Exception {
+        DynamicJavaFile jfile = new DynamicJavaFile(javaCode.getClassName(), 
+                javaCode.getCode());
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} 's source [{}]", javaCode.getClassName(), 
+                    javaCode.getCode());
+        }
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            throw new IllegalStateException("Can not get system java compiler. Please add jdk tools.jar to your classpath.");
+        }
+        DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
+        StandardJavaFileManager manager = compiler.getStandardFileManager(diagnosticCollector, null, null);
+        final ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader cloader = contextLoader;
+        List<File> files = new ArrayList<File>();
+        while (cloader instanceof URLClassLoader 
+                && (! loader.getClass().getName()
+                    .equals("sun.misc.Launcher$AppClassLoader"))) {
+            URLClassLoader urlClassLoader = (URLClassLoader) cloader;
+            for (URL url : urlClassLoader.getURLs()) {
+                files.add(new File(url.getFile()));
+            }
+            cloader = cloader.getParent();
+        }
+        if (files.size() > 0) {
+            try {
+                manager.setLocation(StandardLocation.CLASS_PATH, files);
+            } catch (IOException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+        }
+
+        List<String> options = new ArrayList<String>();
+        DynamicJavaFileManager javaFileManager = new DynamicJavaFileManager(
+                manager, loader);
+        javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, 
+                javaCode.getPackName().replace('.', '/'), 
+                javaCode.getClassName() + ClassUtils.JAVA_EXTENSION, jfile);
+        Boolean result = compiler.getTask(null, javaFileManager, 
+                diagnosticCollector, options, 
+                null, Arrays.asList(new JavaFileObject[]{jfile})).call();
+        if (result == null || ! result.booleanValue()) {
+            throw new IllegalStateException("Compilation failed. class: " 
+                    + javaCode.getPackName() + "." + javaCode.getClassName() + 
+                    ", diagnostics: " 
+                    + diagnosticCollector.getDiagnostics());
+        }
+    }
+    
+    public Class getPartManager(Class entity, String dbType) throws Exception {
+        PartitionParam trp  = null;
+        DdlManager     ddlm = null;
+        if ("Postgresql".equals(dbType)) {
+            ddlm = new PostgresqlDdlManager(entity);
+        } else if ("Mysql".equals(dbType)) {
+            ddlm = new MysqlDdlManager(entity);
+        } else if ("Oracle".equals(dbType)) {
+            ddlm = new OracleDdlManager(entity);
+        }
+        try {
+            trp = ddlm.getPartitionParam();
+        } catch (Exception e) {
+            
+        }
+        String partmName = PartitionUtil.getPartManagerPackage(entity) + 
+                "." + PartitionUtil.getPartManagerName(entity);
+        Class partm = cache.get(partmName);
+        if (partm != null) {
+            return partm;
+        }
+        try {
+            partm = loader.loadClass(partmName);
+        } catch (ClassNotFoundException ex) {
+            JavaCode java = PartitionUtil.getPartitionManager(entity, trp);
+            if (java != null) {
+                pmlock.lock();
+                try {
+
+                    compilePartManager(java, loader);
+                    try {
+                        partm = loader.loadClass(partmName);
+                        cache.put(partmName, partm);
+                    } catch (ClassNotFoundException e) {
+                        throw e;
+                    }
+                } finally {
+                    pmlock.unlock();
+                }
+            }
+        }
+        return partm;
+    }
+    
+    
 
     @Override
     public Class getDaoClass(String daoName, Builder builder) 
@@ -408,12 +513,18 @@ public class DefaultManager implements DaoManager {
         }
     }
     
-    public static void compileDao(String daoName, DynamicClassLoader loader, 
+    public void compileDao(String daoName, DynamicClassLoader loader, 
             Builder builder) throws EntityException, Exception {
         if (daoName == null) {
             throw new EntityException("Dao package name is null");
         }
         Class ecls = DefaultManager.getEntityClass(daoName);
+        Class partmClass = null;
+        try {
+            partmClass = getPartManager(ecls, builder.getDbTypeName());
+        } catch (Exception e) {
+            logger.error("获取分区表管理器失败", e);
+        }
         String packName  = "";
         String shortName = "";
         int lastDot = daoName.lastIndexOf(".");
@@ -422,7 +533,7 @@ public class DefaultManager implements DaoManager {
         }
         packName  = daoName.substring(0, lastDot);
         shortName = daoName.substring(lastDot+1);
-        String source = builder.getDaoCode(ecls);
+        String source = builder.getDaoCode(ecls, partmClass);
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }

@@ -21,5 +21,9 @@ public class OracleDdlManager extends AbstractDdlManager {
         Ddl ddl = new OracleDdl();
         this.syncDdl(ddl, con);
     }
+
+    public boolean getPartitionEnable() {
+        return false;
+    }
     
 }

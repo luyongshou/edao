@@ -442,4 +442,8 @@ public class OracleDdl extends AbstractDdl {
             throws EntityException, Exception {
         return this.getFieldsByJdbc(con, this.getTableName(entity));
     }
+
+    public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

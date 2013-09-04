@@ -21,5 +21,9 @@ public class MysqlDdlManager extends AbstractDdlManager {
         Ddl ddl = new MysqlDdl();
         this.syncDdl(ddl, con);
     }
+
+    public boolean getPartitionEnable() {
+        return false;
+    }
     
 }

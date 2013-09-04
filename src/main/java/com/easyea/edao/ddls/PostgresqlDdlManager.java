@@ -23,5 +23,9 @@ public class PostgresqlDdlManager extends AbstractDdlManager {
         Ddl ddl = new PostgresqlDdl();
         this.syncDdl(ddl, con);
     }
+
+    public boolean getPartitionEnable() {
+        return true;
+    }
     
 }

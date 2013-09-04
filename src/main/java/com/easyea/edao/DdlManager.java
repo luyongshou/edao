@@ -30,6 +30,7 @@ public interface DdlManager {
      * @return 
      */
     public boolean getIsPartition();
+    
     /**
      * Ddl最后同步时间
      * @return 
@@ -53,5 +54,9 @@ public interface DdlManager {
      * @throws Exception 
      */
     public PartitionParam getPartitionParam() throws EntityException, Exception;
-    
+    /**
+     * 该Dll管理器是否支持分区功能
+     * @return 
+     */
+    public boolean getPartitionEnable();
 }

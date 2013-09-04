@@ -5,14 +5,10 @@
  */
 package com.easyea.edao.util;
 
-import com.easyea.edao.ddls.PostgresqlDdlManager;
 import com.easyea.edao.partition.NumberRange;
 import com.easyea.edao.partition.PartitionParam;
-import com.easyea.edao.partition.TimeInterval;
 import com.easyea.edao.partition.TimeRange;
-import com.easyea.edaodemo.entity.Demo;
 import com.easyea.internal.CodeBuilder;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -21,6 +17,9 @@ import java.util.Locale;
  */
 public class PartitionUtil {
     public static JavaCode getPartitionManager(Class entity, PartitionParam param) {
+        if (param == null) {
+            return null;
+        }
         JavaCode java = new JavaCode();
         String packName  = getPartManagerPackage(entity);
         String className = getPartManagerName(entity);
@@ -87,6 +86,9 @@ public class PartitionUtil {
             code.t(2).a("return s;").r(1);
             code.t(1).a("}").r(1);
             code.a("}");
+        } else {
+            java = null;
+            return java;
         }
         java.setCode(code.toString());
         return java;
@@ -105,18 +107,5 @@ public class PartitionUtil {
     public static String getPartManagerName(Class entity) {
         String s = entity.getSimpleName() + "Partm";
         return s;
-    }
-    
-    public static void main(String[] args) {
-        PartitionParam trp = null;
-        PostgresqlDdlManager ddlm = new PostgresqlDdlManager(Demo.class);
-        try {
-            trp = ddlm.getPartitionParam();
-        } catch (Exception e) {
-            
-        }
-        JavaCode java = PartitionUtil.getPartitionManager(Demo.class, trp);
-        System.out.println(java.getPackName() + "." + java.getClassName());
-        System.out.println(java.getCode());
     }
 }
