@@ -13,8 +13,8 @@ import java.sql.Connection;
  */
 public class OracleDdlManager extends AbstractDdlManager {
     
-    public OracleDdlManager(Class entity) {
-        super(entity);
+    public OracleDdlManager(Class entity, Ddl ddl) {
+        super(entity, ddl);
     }
 
     public void syncDdl(Connection con) throws Exception {

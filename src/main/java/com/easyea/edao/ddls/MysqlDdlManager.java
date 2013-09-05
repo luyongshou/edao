@@ -13,8 +13,8 @@ import java.sql.Connection;
  */
 public class MysqlDdlManager extends AbstractDdlManager {
     
-    public MysqlDdlManager(Class entity) {
-        super(entity);
+    public MysqlDdlManager(Class entity, Ddl ddl) {
+        super(entity, ddl);
     }
 
     public void syncDdl(Connection con) throws Exception {

@@ -1028,6 +1028,13 @@ public abstract class AbstractBuilder implements Builder {
                 .append("();").append(r(1));
             sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
             extName = "\" + extTbName + \"";
+            sb.append(t(2)).append("if (!ddlManager.hasPartitionTable(\"")
+                    .append(tbName).append("\" + ").append("extTbName")
+                    .append(")) {").append(r(1));
+            sb.append(t(3)).append("ddlManager.createPartitionTable(")
+                    .append(cls.getSimpleName()).append(".class, extTbName, this.con")
+                    .append(");").append(r(1));
+            sb.append(t(2)).append("}").append(r(1));
         }
         sb.append(t(2))
                 .append("String sql = \"insert into ")
@@ -1269,6 +1276,13 @@ public abstract class AbstractBuilder implements Builder {
             sb.append(t(2)).append("extTbName = partm.getExtTableString(ent,")
                     .append(" ddlManager.getPartitionParam());").append(r(1));
             extName = "\" + extTbName + \"";
+            sb.append(t(2)).append("if (!ddlManager.hasPartitionTable(\"")
+                    .append(tbName).append("\" + ").append("extTbName")
+                    .append(")) {").append(r(1));
+            sb.append(t(3)).append("ddlManager.createPartitionTable(")
+                    .append(cls.getSimpleName()).append(".class, extTbName, this.con")
+                    .append(");").append(r(1));
+            sb.append(t(2)).append("}").append(r(1));
         }
         sb.append(t(2))
                 .append("String sql = \"insert into ")
@@ -1548,6 +1562,13 @@ public abstract class AbstractBuilder implements Builder {
                 .append("();").append(r(1));
             sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
             extName = "\" + extTbName + \"";
+           sb.append(t(2)).append("if (!ddlManager.hasPartitionTable(\"")
+                    .append(tbName).append("\" + ").append("extTbName")
+                    .append(")) {").append(r(1));
+            sb.append(t(3)).append("ddlManager.createPartitionTable(")
+                    .append(cls.getSimpleName()).append(".class, extTbName, this.con")
+                    .append(");").append(r(1));
+            sb.append(t(2)).append("}").append(r(1));
         }
         sb.append(t(2))
                 .append("String sql = \"insert into ")
@@ -1788,6 +1809,13 @@ public abstract class AbstractBuilder implements Builder {
                 .append("();").append(r(1));
             sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
             extName = "\" + extTbName + \"";
+            sb.append(t(2)).append("if (!ddlManager.hasPartitionTable(\"")
+                    .append(tbName).append("\" + ").append("extTbName")
+                    .append(")) {").append(r(1));
+            sb.append(t(3)).append("ddlManager.createPartitionTable(")
+                    .append(cls.getSimpleName()).append(".class, extTbName, this.con")
+                    .append(");").append(r(1));
+            sb.append(t(2)).append("}").append(r(1));
         }
         sb.append(t(2))
                 .append("String sql = \"insert into ")

@@ -15,8 +15,8 @@ public class PostgresqlDdlManager extends AbstractDdlManager {
     
     
     
-    public PostgresqlDdlManager(Class entity) {
-        super(entity);
+    public PostgresqlDdlManager(Class entity, Ddl ddl) {
+        super(entity, ddl);
     }
 
     public void syncDdl(Connection con) throws Exception {

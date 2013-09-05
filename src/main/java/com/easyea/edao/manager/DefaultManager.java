@@ -9,12 +9,16 @@ import com.easyea.dynamic.DynamicJavaFile;
 import com.easyea.dynamic.DynamicJavaFileManager;
 import com.easyea.edao.Builder;
 import com.easyea.edao.DaoManager;
+import com.easyea.edao.Ddl;
 import com.easyea.edao.DdlManager;
 import com.easyea.edao.EntityFactory;
 import com.easyea.edao.MapFactory;
 import com.easyea.edao.ViewFactory;
+import com.easyea.edao.ddls.MysqlDdl;
 import com.easyea.edao.ddls.MysqlDdlManager;
+import com.easyea.edao.ddls.OracleDdl;
 import com.easyea.edao.ddls.OracleDdlManager;
+import com.easyea.edao.ddls.PostgresqlDdl;
 import com.easyea.edao.ddls.PostgresqlDdlManager;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.exception.ViewException;
@@ -215,11 +219,14 @@ public class DefaultManager implements DaoManager {
         PartitionParam trp  = null;
         DdlManager     ddlm = null;
         if ("Postgresql".equals(dbType)) {
-            ddlm = new PostgresqlDdlManager(entity);
+            Ddl ddl = new PostgresqlDdl();
+            ddlm = new PostgresqlDdlManager(entity, ddl);
         } else if ("Mysql".equals(dbType)) {
-            ddlm = new MysqlDdlManager(entity);
+            Ddl ddl = new MysqlDdl();
+            ddlm = new MysqlDdlManager(entity, ddl);
         } else if ("Oracle".equals(dbType)) {
-            ddlm = new OracleDdlManager(entity);
+            Ddl ddl = new OracleDdl();
+            ddlm = new OracleDdlManager(entity, ddl);
         }
         try {
             trp = ddlm.getPartitionParam();
@@ -815,6 +822,7 @@ public class DefaultManager implements DaoManager {
         code.append("import com.easyea.edao.Builder;").append(r(1));
         code.append("import com.easyea.edao.EntityDao;").append(r(1));
         code.append("import com.easyea.edao.ddls.").append(db).append("DdlManager;").append(r(1));
+        code.append("import com.easyea.edao.ddls.").append(db).append("Ddl;").append(r(1));
         code.append("import ").append(entityPack).append(".").append(entityName).append(";").append(r(1));
         code.append("import com.easyea.edao.exception.EntityException;").append(r(2));
         code.append("public class ").append(clsName).append("Factory")
@@ -824,7 +832,10 @@ public class DefaultManager implements DaoManager {
                 .append(t(3)).append("throws EntityException, Exception {").append(r(1));
         code.append(t(2)).append("EntityDao dao = new ").append(clsName).append("();").append(r(1));
         code.append(t(2)).append("if (ddlm == null) {").append(r(1));
-        code.append(t(3)).append("this.ddlm = new ").append(db).append("DdlManager(").append(entityName).append(".class);").append(r(1));
+        code.append(t(3)).append("this.ddlm = new ").append(db)
+                .append("DdlManager(").append(entityName).append(".class,")
+                .append("new ").append(db).append("Ddl()")
+                .append(");").append(r(1));
         code.append(t(2)).append("}").append(r(1));
         code.append(t(2)).append("dao.setDdlManager(ddlm);").append(r(1));
         code.append(t(2)).append("return dao;").append(r(1));

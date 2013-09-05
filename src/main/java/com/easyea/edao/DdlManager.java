@@ -7,6 +7,7 @@ package com.easyea.edao;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.partition.PartitionParam;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 
 /**
@@ -61,4 +62,9 @@ public interface DdlManager {
     public boolean getPartitionEnable();
     
     public boolean hasPartitionTable(String table);
+    
+    public Ddl getDdl();
+    
+    public void createPartitionTable(Class entity, String extName, Connection con) 
+            throws SQLException, Exception;
 }

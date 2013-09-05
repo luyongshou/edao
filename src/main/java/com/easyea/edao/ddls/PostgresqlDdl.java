@@ -371,11 +371,14 @@ public class PostgresqlDdl extends AbstractDdl {
 
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         String tbName = ClassUtil.getTableName(entity);
-        PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity);
+        logger.debug("tbName=[{}]extName=[{}]", tbName, extName);
+        PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity, null);
         PartitionParam pparam = ddlm.parsePartitionParam();
         List<String> sqls = new ArrayList<String>();
-        extName = extName.substring(2);
+        
+        logger.debug("extName=[{}]pparam=[{}]", extName, pparam);
         if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
+            extName = extName.substring(2);
             int count = 1;
             int index = extName.indexOf("_");
             String type  = "";
@@ -405,10 +408,11 @@ public class PostgresqlDdl extends AbstractDdl {
         ArrayList<String> sqls = new ArrayList<String>();
         String checkStr = field + ">=";
         if (ext.length() == 4) {
-            checkStr += "'" + ext + "-01-01 00:00:00' and field<='" + ext + 
+            checkStr += "'" + ext + "-01-01 00:00:00' and " + field + "<='" + ext + 
                     "-12-31 23:59:59'";
         } else if (ext.length() == 6) {
-            SimpleDateFormat monthF = new SimpleDateFormat("yyyyMM");
+            SimpleDateFormat monthF  = new SimpleDateFormat("yyyyMM");
+            SimpleDateFormat month2F = new SimpleDateFormat("yyyy-MM");
             Date nowm = new Date();
             try {
                 nowm = monthF.parse(ext);
@@ -418,14 +422,15 @@ public class PostgresqlDdl extends AbstractDdl {
             Calendar cnow = Calendar.getInstance();
             cnow.setTime(nowm);
             cnow.add(Calendar.MONTH, 1);
-            checkStr += "'" + ext + "-01 00:00:00' and field<'" 
-                    + monthF.format(cnow.getTime() + "-01 00:00:00'");
+            checkStr += "'" + ext.substring(0, 4) + "-" + ext.substring(4) + 
+                    "-01 00:00:00' and " + field + "<'" 
+                    + month2F.format(cnow.getTime()) + "-01 00:00:00'";
         } else {
-            checkStr += "'" + ext + " 00:00:00' and field<='" + ext + 
+            checkStr += "'" + ext + " 00:00:00' and " + field + "<='" + ext + 
                     " 23:59:59'";
         }
-        sqls.add("CREATE TABLE " + tbName + extName + " (check (" + checkStr + 
-                ")) INHERITS (" + extName + ");");
+        sqls.add("CREATE TABLE " + tbName + "__" + extName + " (check (" + checkStr + 
+                ")) INHERITS (" + tbName + ");");
         return sqls;
     }
     
@@ -438,8 +443,8 @@ public class PostgresqlDdl extends AbstractDdl {
         String checkStr = field + ">=(" + ext + "*" + (count*1000000) + 
                 ") and " + field + "<((" + ext + 
                 "+1)*" + (count*1000000) + ")";
-        sqls.add("CREATE TABLE " + tbName + extName + " (check (" + checkStr + 
-                ")) INHERITS (" + extName + ");");
+        sqls.add("CREATE TABLE " + tbName + "__" + extName + " (check (" + checkStr + 
+                ")) INHERITS (" + tbName + ");");
         return sqls;
     }
 }

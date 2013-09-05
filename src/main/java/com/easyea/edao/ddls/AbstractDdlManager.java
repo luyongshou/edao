@@ -43,12 +43,14 @@ public abstract class AbstractDdlManager implements DdlManager {
     protected Date           lastSyncTime;
     protected Date           nextSyncTime;
     protected Class          entity;
+    protected Ddl            ddl;
     
-    public AbstractDdlManager(Class entity) {
+    public AbstractDdlManager(Class entity, Ddl ddl) {
         this.tables      = null;
         this.entity      = entity;
         this.isSync      = false;
         this.isSyncField = false;
+        this.ddl         = ddl;
         boolean isPart   = false;
         PartitionParam   partParam = null;
         try {
@@ -114,6 +116,10 @@ public abstract class AbstractDdlManager implements DdlManager {
         }
     }
     
+    public Ddl getDdl() {
+        return this.ddl;
+    }
+    
     private boolean doSyncColumn(Ddl ddl, Connection con) throws Exception {
         boolean isFieldSync = false;
         List<String> sqls = ddl.getEntityUpdateDdl(entity, con);
@@ -150,7 +156,34 @@ public abstract class AbstractDdlManager implements DdlManager {
     }
     
     public boolean hasPartitionTable(String table) {
-        return tables.contains(table);
+        return tables.contains(table.toLowerCase(Locale.ENGLISH));
+    }
+    
+    public void createPartitionTable(Class entity, String extName, Connection con) 
+            throws SQLException, Exception {
+        if (ddl != null) {
+            List<String> sqls = ddl.getEntityPartitionDdl(entity, extName);
+            if (sqls != null && !sqls.isEmpty()) {
+                Statement stmt = null;
+                try {
+                    stmt = con.createStatement();
+                    for (String sql : sqls) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("partition table sql=[{}]", sql);
+                        }
+                        stmt.executeUpdate(sql);
+                    }
+                    String tableName = ClassUtil.getTableName(entity);
+                    tables.add(tableName + extName);
+                } catch (SQLException sqle) {
+                    throw sqle;
+                } finally {
+                    if (stmt != null) {
+                        try {stmt.close();} catch (Exception e) {}
+                    }
+                }
+            }
+        }
     }
     
     public PartitionParam parsePartitionParam() throws EntityException, Exception {
