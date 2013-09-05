@@ -347,11 +347,11 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(this.getList2(ecls));
         sb.append(this.getList3(ecls));
         sb.append(this.getList4(ecls));
-        sb.append(this.getListCode(ecls));
+        sb.append(this.getListCode(ecls, partManager));
         sb.append(this.getMerge(ecls));
         sb.append(this.getTotal1(ecls));
         sb.append(this.getTotal2(ecls));
-        sb.append(this.getTotal3(ecls));
+        sb.append(this.getTotal3(ecls, partManager));
         sb.append(this.getUpdate1(ecls));
         sb.append(this.getUpdate2(ecls));
         sb.append(this.getRemove1(ecls));
@@ -401,10 +401,10 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(this.getList2(vcls));
         sb.append(this.getList3(vcls));
         sb.append(this.getList4(vcls));
-        sb.append(this.getListCode(vcls));
+        sb.append(this.getListCode(vcls, null));
         sb.append(this.getTotal1(vcls));
         sb.append(this.getTotal2(vcls));
-        sb.append(this.getTotal3(vcls));
+        sb.append(this.getTotal3(vcls, null));
         sb.append("}");
         return sb.toString();
     }
@@ -569,7 +569,7 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getListCode(Class cls) {
+    public String getListCode(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         String tbName = getTableName(cls);
         sb.append(r(1));
@@ -599,6 +599,10 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(3)).append("logger.debug(\"sql=[{}]\", sql.toString());").append(r(1));
         sb.append(t(2)).append("}").append(r(1));
         sb.append(t(2)).append("try {").append(r(1));
+        if (partManager != null) {
+            sb.append(t(3)).append("pstmt = con.prepareStatement(\"SET constraint_exclusion = on\");").append(r(1));
+            sb.append(t(3)).append("pstmt.executeUpdate();").append(r(1));
+        }
         sb.append(t(3)).append("pstmt = con.prepareStatement(sql.toString());").append(r(1));
         sb.append(t(3)).append("if (params != null && params.size() > 0) {").append(r(1));
         sb.append(t(4)).append("for (QueryParam param : params) {").append(r(1));
@@ -2204,7 +2208,7 @@ public abstract class AbstractBuilder implements Builder {
      * @param cls
      * @return
      */
-    public String getTotal3(Class cls) {
+    public String getTotal3(Class cls, Class partManager) {
         StringBuilder sb = new StringBuilder();
         sb.append(r(1));
         sb.append(t(1)).append("@Override").append(r(1));
@@ -2230,6 +2234,10 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(2)).append("if (params != null && params.size() > 0) {").append(r(1));
         sb.append(t(3)).append("PreparedStatement pstmt = null;").append(r(1));
         sb.append(t(3)).append("try {").append(r(1));
+        if (partManager != null) {
+            sb.append(t(3)).append("pstmt = con.prepareStatement(\"SET constraint_exclusion = on\");").append(r(1));
+            sb.append(t(3)).append("pstmt.executeUpdate();").append(r(1));
+        }
         sb.append(t(4)).append("pstmt = con.prepareStatement(sql.toString());").append(r(1));
         sb.append(t(4)).append("for (QueryParam param : params) {").append(r(1));
         sb.append(t(5)).append("if (param.getValue() instanceof Date) {").append(r(1));
@@ -2295,6 +2303,9 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(2)).append("Statement stmt = null;").append(r(1));
         sb.append(t(2)).append("try {").append(r(1));
         sb.append(t(3)).append("stmt = con.createStatement();").append(r(1));
+        if (partManager != null) {
+            sb.append(t(3)).append("stmt.executeUpdate(\"SET constraint_exclusion = on\");").append(r(1));
+        }
         sb.append(t(3)).append("ResultSet rs = stmt.executeQuery(sql.toString());").append(r(1));
         sb.append(t(3)).append("if (rs.next()) {").append(r(1));
         sb.append(t(4)).append("total = rs.getLong(\"total\");").append(r(1));
