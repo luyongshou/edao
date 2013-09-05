@@ -161,9 +161,6 @@ public abstract class AbstractDdlManager implements DdlManager {
     }
     
     public boolean hasPartitionTable(String table) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("tables =[{}],table=[{}]", tables, table);
-        }
         return tables.contains(table.toLowerCase(Locale.ENGLISH));
     }
     
@@ -176,15 +173,9 @@ public abstract class AbstractDdlManager implements DdlManager {
                 try {
                     stmt = con.createStatement();
                     for (String sql : sqls) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("partition table sql=[{}]", sql);
-                        }
                         stmt.executeUpdate(sql);
                     }
                     String tableName = ClassUtil.getTableName(entity);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("partition table =[{}]", tableName + extName);
-                    }
                     tables.add((tableName + extName).toLowerCase(Locale.ENGLISH));
                 } catch (SQLException sqle) {
                     throw sqle;

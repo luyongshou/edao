@@ -16,6 +16,7 @@ import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
 import java.sql.Connection;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -413,7 +414,7 @@ public class PostgresqlDdl extends AbstractDdl {
             Date nowm = new Date();
             try {
                 nowm = monthF.parse(ext);
-            } catch (Exception e) {
+            } catch (ParseException e) {
                 logger.error("partition ext name format error!", e);
             }
             Calendar cnow = Calendar.getInstance();
