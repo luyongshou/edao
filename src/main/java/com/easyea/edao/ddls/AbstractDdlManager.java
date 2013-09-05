@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -98,6 +99,9 @@ public abstract class AbstractDdlManager implements DdlManager {
                 this.isSync = true;
             }
         }
+        if (tables == null) {
+            tables = new ArrayList<String>();
+        }
         if (!this.isSync) {
             List<String> sqls = ddl.getEntityCreateDdl(entity);
             if (logger.isDebugEnabled()) {
@@ -105,6 +109,7 @@ public abstract class AbstractDdlManager implements DdlManager {
             }
             try {
                 this.isSync = this.createTable(sqls, con);
+                tables.add(tbName.toLowerCase(Locale.ENGLISH));
             } catch (Exception e) {
                 throw e;
             }
@@ -156,6 +161,9 @@ public abstract class AbstractDdlManager implements DdlManager {
     }
     
     public boolean hasPartitionTable(String table) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("tables =[{}],table=[{}]", tables, table);
+        }
         return tables.contains(table.toLowerCase(Locale.ENGLISH));
     }
     
@@ -174,7 +182,10 @@ public abstract class AbstractDdlManager implements DdlManager {
                         stmt.executeUpdate(sql);
                     }
                     String tableName = ClassUtil.getTableName(entity);
-                    tables.add(tableName + extName);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("partition table =[{}]", tableName + extName);
+                    }
+                    tables.add((tableName + extName).toLowerCase(Locale.ENGLISH));
                 } catch (SQLException sqle) {
                     throw sqle;
                 } finally {

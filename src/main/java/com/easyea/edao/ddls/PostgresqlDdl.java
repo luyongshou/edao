@@ -371,12 +371,9 @@ public class PostgresqlDdl extends AbstractDdl {
 
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         String tbName = ClassUtil.getTableName(entity);
-        logger.debug("tbName=[{}]extName=[{}]", tbName, extName);
         PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity, null);
         PartitionParam pparam = ddlm.parsePartitionParam();
         List<String> sqls = new ArrayList<String>();
-        
-        logger.debug("extName=[{}]pparam=[{}]", extName, pparam);
         if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
             extName = extName.substring(2);
             int count = 1;
