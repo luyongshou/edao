@@ -59,4 +59,6 @@ public interface DdlManager {
      * @return 
      */
     public boolean getPartitionEnable();
+    
+    public boolean hasPartitionTable(String table);
 }

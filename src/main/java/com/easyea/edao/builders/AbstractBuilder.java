@@ -1266,7 +1266,8 @@ public abstract class AbstractBuilder implements Builder {
             sb.append(t(2)).append(partManager.getSimpleName())
                 .append(" partm = new ").append(partManager.getSimpleName())
                 .append("();").append(r(1));
-            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent, ddlManager.getPartitionParam());").append(r(1));
+            sb.append(t(2)).append("extTbName = partm.getExtTableString(ent,")
+                    .append(" ddlManager.getPartitionParam());").append(r(1));
             extName = "\" + extTbName + \"";
         }
         sb.append(t(2))

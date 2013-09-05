@@ -149,6 +149,10 @@ public abstract class AbstractDdlManager implements DdlManager {
         return isFieldSync;
     }
     
+    public boolean hasPartitionTable(String table) {
+        return tables.contains(table);
+    }
+    
     public PartitionParam parsePartitionParam() throws EntityException, Exception {
         Annotation[] anns = entity.getAnnotations();
         if (anns != null) {

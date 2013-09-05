@@ -10,12 +10,15 @@ import com.easyea.edao.annotation.Lob;
 import com.easyea.edao.annotation.Temporal;
 import com.easyea.edao.annotation.TemporalType;
 import com.easyea.edao.exception.EntityException;
+import com.easyea.edao.partition.PartitionParam;
 import com.easyea.edao.util.ClassUtil;
 import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -368,18 +371,75 @@ public class PostgresqlDdl extends AbstractDdl {
 
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         String tbName = ClassUtil.getTableName(entity);
+        PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity);
+        PartitionParam pparam = ddlm.parsePartitionParam();
         List<String> sqls = new ArrayList<String>();
         extName = extName.substring(2);
         if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
             int count = 1;
             int index = extName.indexOf("_");
-            String type = "";
-            String ext  = "";
+            String type  = "";
+            String ext   = "";
+            String field = pparam.getField();
             if (index != -1) {
                 type = extName.substring(0, index);
                 ext  = extName.substring(index + 1);
+                if (type.length() > 1) {
+                    count = Integer.parseInt(type.substring(1));
+                }
+                if (type.toUpperCase(Locale.ENGLISH).startsWith("T")) {
+                    sqls = getTimePartition(tbName, extName, field, count, ext);
+                } else if (type.toUpperCase(Locale.ENGLISH).startsWith("N")) {
+                    sqls = getNumberPartition(tbName, extName, field, count, ext);
+                }
             }
         }
+        return sqls;
+    }
+    
+    private List<String> getTimePartition(String tbName, 
+                                          String extName, 
+                                          String field, 
+                                          int    count, 
+                                          String ext) {
+        ArrayList<String> sqls = new ArrayList<String>();
+        String checkStr = field + ">=";
+        if (ext.length() == 4) {
+            checkStr += "'" + ext + "-01-01 00:00:00' and field<='" + ext + 
+                    "-12-31 23:59:59'";
+        } else if (ext.length() == 6) {
+            SimpleDateFormat monthF = new SimpleDateFormat("yyyyMM");
+            Date nowm = new Date();
+            try {
+                nowm = monthF.parse(ext);
+            } catch (Exception e) {
+                logger.error("partition ext name format error!", e);
+            }
+            Calendar cnow = Calendar.getInstance();
+            cnow.setTime(nowm);
+            cnow.add(Calendar.MONTH, 1);
+            checkStr += "'" + ext + "-01 00:00:00' and field<'" 
+                    + monthF.format(cnow.getTime() + "-01 00:00:00'");
+        } else {
+            checkStr += "'" + ext + " 00:00:00' and field<='" + ext + 
+                    " 23:59:59'";
+        }
+        sqls.add("CREATE TABLE " + tbName + extName + " (check (" + checkStr + 
+                ")) INHERITS (" + extName + ");");
+        return sqls;
+    }
+    
+    private List<String> getNumberPartition(String tbName, 
+                                            String extName, 
+                                            String field, 
+                                            int    count, 
+                                            String ext) {
+        ArrayList<String> sqls = new ArrayList<String>();
+        String checkStr = field + ">=(" + ext + "*" + (count*1000000) + 
+                ") and " + field + "<((" + ext + 
+                "+1)*" + (count*1000000) + ")";
+        sqls.add("CREATE TABLE " + tbName + extName + " (check (" + checkStr + 
+                ")) INHERITS (" + extName + ");");
         return sqls;
     }
 }

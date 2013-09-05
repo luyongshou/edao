@@ -37,7 +37,7 @@ public class PartitionUtil {
             code.a("import ").a(entity.getName()).a(";").r(2);
             
             code.a("public class ").a(className).a(" implements PartitionManager {").r(1);
-            code.t(1).a("public <T> String getExtTableString(T entity, PartitionParam param) {").r(1);
+            code.t(1).a("public <T> String getExtTableString(T entity, String field, PartitionParam param) {").r(1);
             code.t(2).a("String s = \"\";").r(1);
             code.t(2).a("if (param == null) {").r(1);
             code.t(3).a("return s;").r(1);
@@ -62,7 +62,7 @@ public class PartitionUtil {
             code.a("import java.text.SimpleDateFormat;").r(2);
             
             code.a("public class ").a(className).a(" implements PartitionManager {").r(1);
-            code.t(1).a("public <T> String getExtTableString(T entity, PartitionParam param) {").r(1);
+            code.t(1).a("public <T> String getExtTableString(T entity, String field, PartitionParam param) {").r(1);
             code.t(2).a("String s = \"\";").r(1);
             code.t(2).a("if (param == null) {").r(1);
             code.t(3).a("return s;").r(1);
