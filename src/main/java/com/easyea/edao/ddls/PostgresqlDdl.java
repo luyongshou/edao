@@ -125,7 +125,7 @@ public class PostgresqlDdl extends AbstractDdl {
                         sql.a(" INTEGER DEFAULT 0");
                     } else if (ftype.equals(Boolean.class) 
                             || ftype.toString().equals("boolean")) {
-                        sql.a(" ﻿BOOLEAN");
+                        sql.a(" BOOLEAN");
                     } else if (ftype.equals(Double.class) 
                             || ftype.toString().equals("double")) {
                         sql.a(" numeric(");
