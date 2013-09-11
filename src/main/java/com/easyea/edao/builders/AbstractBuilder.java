@@ -140,8 +140,74 @@ public abstract class AbstractBuilder implements Builder {
         code.a(this.getMapList());
         code.a(this.getMapMap1());
         code.a(this.getMapMap());
+        code.a(this.getMapUpdate1());
+        code.a(this.getMapUpdate());
         code.a("}");
         return code.toString();
+    }
+    
+    public String getMapUpdate1() throws Exception {
+        CodeBuilder c = new CodeBuilder();
+        c.r(1).t(1).a("@Override").r(1);
+        c.t(1).a("public int update(String sql) throws SQLException, Exception {").r(1);
+        c.t(2).a("return update(sql, null);").r(1);
+        c.t(1).a("}").r(1);
+        return c.toString();
+    }
+    
+    public String getMapUpdate() throws Exception {
+        CodeBuilder c = new CodeBuilder();
+        c.r(1).t(1).a("@Override").r(1);
+        c.t(1).a("public int update(String sql, List<QueryParam> params) ").r(1);
+        c.t(3).a("throws SQLException, Exception {").r(1);
+        c.t(2).a("int row = 0;").r(1);
+        c.t(2).a("PreparedStatement pstmt = null;").r(1);
+        c.t(2).a("try {").r(1);
+        c.t(3).a("pstmt = con.prepareStatement(sql.toString());").r(1);
+        c.t(3).a("if (params != null && params.size() > 0) {").r(1);
+        c.t(4).a("for (QueryParam param : params) {").r(1);
+        c.t(5).a("if (param.getValue() instanceof Date) {").r(1);
+        c.t(6).a("if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setTimestamp((Integer)param.getPosition(), new Timestamp(((Date)param.getValue()).getTime()));").r(1);
+        c.t(6).a("} else if (TemporalType.TIME.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setTime((Integer)param.getPosition(), new Time(((Date)param.getValue()).getTime()));").r(1);
+        c.t(6).a("} else if (TemporalType.DATE.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setDate((Integer)param.getPosition(), new java.sql.Date(((Date)param.getValue()).getTime()));").r(1);
+        c.t(6).a("}").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof Calendar) {").r(1);
+        c.t(6).a("if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setTimestamp((Integer)param.getPosition(), new Timestamp(((Calendar)param.getValue()).getTimeInMillis()), (Calendar)param.getValue());").r(1);
+        c.t(6).a("} else if (TemporalType.TIME.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setTime((Integer)param.getPosition(), new Time(((Calendar)param.getValue()).getTimeInMillis()), (Calendar)param.getValue());").r(1);
+        c.t(6).a("} else if (TemporalType.DATE.equals(param.getTemporalType())) {").r(1);
+        c.t(7).a("pstmt.setDate((Integer)param.getPosition(), new java.sql.Date(((Calendar)param.getValue()).getTimeInMillis()), (Calendar)param.getValue());").r(1);
+        c.t(6).a("}").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof String) {").r(1);
+        c.t(6).a("pstmt.setString((Integer)param.getPosition(), (String)param.getValue());").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof Integer) {").r(1);
+        c.t(6).a("pstmt.setInt((Integer)param.getPosition(), (Integer)param.getValue());").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof Long) {").r(1);
+        c.t(6).a("pstmt.setLong((Integer)param.getPosition(), (Long)param.getValue());").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof Boolean) {").r(1);
+        c.t(6).a("pstmt.setBoolean((Integer)param.getPosition(), (Boolean)param.getValue());").r(1);
+        c.t(5).a("} else if (param.getValue() instanceof Double) {").r(1);
+        c.t(6).a("pstmt.setDouble((Integer)param.getPosition(), (Double)param.getValue());").r(1);
+        c.t(5).a("} else {").r(1);
+        c.t(6).a("pstmt.setObject((Integer)param.getPosition(), param.getValue());").r(1);
+        c.t(5).a("}").r(1);
+        c.t(4).a("}").r(1);
+        c.t(3).a("}").r(1);
+        c.t(3).a("row = pstmt.executeUpdate();").r(1);
+        c.t(2).a("} catch (SQLException sqle) {").r(1);
+        c.t(3).a("throw sqle;").r(1);
+        c.t(2).a("} finally {").r(1);
+        c.t(3).a("if (pstmt != null) {").r(1);
+        c.t(4).a("try {pstmt.close();} catch (Exception e) {}").r(1);
+        c.t(3).a("}").r(1);
+        c.t(2).a("}").r(1);
+        c.t(2).a("return row;").r(1);
+        c.t(1).a("}").r(1);
+        return c.toString();
     }
     
     public String getMapMap1() throws Exception {

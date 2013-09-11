@@ -80,4 +80,22 @@ public interface MapDao {
      */
     public Map<String, Object> getMap(String sql, ArrayList<QueryParam> params)
             throws SQLException, Exception;
+    /**
+     * 执行insert 或者更新ddl相关sql的操作
+     * @param sql 要执行的sql语句
+     * @return 如果为添加和更新记录则返回更新行数
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public int update(String sql) throws SQLException, Exception;
+    /**
+     * 执行update、insert以及ddl相关sql的操作 
+     * @param sql 要执行的sql语句
+     * @param params 绑定位置的参数以及对应值
+     * @return 如果为添加和更新记录则返回更新行数
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public int update(String sql, List<QueryParam> params) 
+            throws SQLException, Exception;
 }
