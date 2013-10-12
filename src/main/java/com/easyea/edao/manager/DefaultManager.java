@@ -722,7 +722,7 @@ public class DefaultManager implements DaoManager {
         StringBuilder entity2 = new StringBuilder();
         if (apackage.length > 2 && "dao".equals(apackage[apackage.length-2])) {
             for (int i=0;i<apackage.length-1;i++) {
-                if (!"dao".equals(apackage[i])) {
+                if (i != apackage.length-2) {
                     entity1.append(apackage[i]).append(".");
                     entity2.append(apackage[i]).append(".");
                 } else {
@@ -785,7 +785,7 @@ public class DefaultManager implements DaoManager {
         if (apackage.length > 2
                 && "viewdao".equals(apackage[apackage.length-2])) {
             for (int i=0;i<apackage.length-1;i++) {
-                if (!"viewdao".equals(apackage[i])) {
+                if (i != apackage.length-2) {
                     view.append(apackage[i]).append(".");
                 } else {
                     view.append("view").append(".");
