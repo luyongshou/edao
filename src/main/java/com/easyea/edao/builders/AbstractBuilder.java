@@ -783,7 +783,7 @@ public abstract class AbstractBuilder implements Builder {
         sb.append(t(3)).append("logger.error(\"{}\",").append("ex").append(");").append(r(1));
         sb.append(t(3)).append("throw ex;").append(r(1));
         sb.append(t(2)).append("} finally {").append(r(1));
-        sb.append(t(3)).append("pstmt.close();").append(r(1));
+        sb.append(t(3)).append("if (pstmt!=null) {try{pstmt.close();} catch (Exception e) {}}").append(r(1));
         sb.append(t(2)).append("}").append(r(1));
         sb.append(t(2)).append("return l;").append(r(1));
         sb.append(t(1)).append("}").append(r(1));
