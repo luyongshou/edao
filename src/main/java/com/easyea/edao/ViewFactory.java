@@ -13,5 +13,12 @@ import com.easyea.edao.exception.ViewException;
  * @author louis
  */
 public interface ViewFactory {
-    public ViewDao getDao(String daoName) throws ViewException, Exception;
+    /**
+     * 根据持久化Bean以及视图的Bean全称获取Dao实现的方法
+     * @param beanName 持久化Bean全称或者试图Bean全称
+     * @return
+     * @throws ViewException
+     * @throws Exception 
+     */
+    public ViewDao getDao(String beanName) throws ViewException, Exception;
 }

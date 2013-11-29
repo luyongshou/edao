@@ -19,25 +19,25 @@ public interface DaoManager {
      * dao名称以及规则查找相应的持久化bean，如果持久化bean存在则反射持久化bean生成dao的实现
      * 代码，然后编译后由自定义的classloader载入。
      *
-     * @param daoName dao实现的名称，持久化bean的包名以entity或者entitybean结尾。
+     * @param entityCls dao实现的名称，持久化bean的包名以entity或者entitybean结尾。
      * @param builder 反射持久化bean生成dao实现代码的代码生成器。
      * @return 返回dao实现的class
      * @throws EntityException 如果持久化bean的包名、属性以及函数不符合规则的错误
      * @throws Exception 编译错误以及其他错误
      */
-    public Class getDaoClass(String daoName, Builder builder)
+    public Class getDaoClass(Class entityCls, Builder builder)
             throws EntityException, Exception;
 
     /**
      * 根据指定试图dao的名称以及指定
      *
-     * @param viewDaoName
+     * @param beanCls
      * @param builder
      * @return
      * @throws ViewException
      * @throws Exception
      */
-    public Class getViewDaoClass(String viewDaoName, Builder builder)
+    public Class getViewDaoClass(Class beanCls, Builder builder)
             throws ViewException, Exception;
     
     /**
@@ -51,25 +51,25 @@ public interface DaoManager {
     /**
      * 根据指定的持久化dao的名称获取一个dao实现的工厂类。该工厂类来返回dao的实现。
      *
-     * @param daoName 指定dao的名称
+     * @param entityCls 持久化Bean的全称
      * @param builder 
      * @param db      数据类型 
      * @return 返回dao的工厂类
      * @throws EntityException 持久化bean相关的错误，包名规范，属性以及函数错误。
      * @throws Exception 编译错误以及其他的错误
      */
-    public EntityFactory getEntityFactory(String daoName, Builder builder, String db)
-            throws EntityException, Exception;
+    public EntityFactory getEntityFactory(Class entityCls, Builder builder, 
+            String db) throws EntityException, Exception;
     /**
      * 根据指定的试图dao的名称返回试图dao的工厂类
      * 
-     * @param daoName
+     * @param beanCls
      * @param builder 
      * @return
      * @throws ViewException
      * @throws Exception 
      */
-    public ViewFactory getViewDaoFactory(String daoName, Builder builder)
+    public ViewFactory getViewDaoFactory(Class beanCls, Builder builder)
             throws ViewException, Exception;
     
     /**

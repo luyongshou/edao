@@ -99,17 +99,17 @@ public class DefaultManager implements DaoManager {
     }
     
     @Override
-    public EntityFactory getEntityFactory(String daoName, Builder builder, String db) 
-            throws EntityException,Exception {
+    public EntityFactory getEntityFactory(Class entityCls, Builder builder, 
+            String db) throws EntityException,Exception {
         Class fcls = null;
-        String factName = getEntityFactoryName(daoName);
+        String factName = getEntityFactoryName(entityCls);
         try {
             fcls = loader.loadClass(factName);
         } catch (ClassNotFoundException ex) {
             flock.lock();
             try {
-                this.getDaoClass(daoName, builder);
-                compileDaoFactory(factName, daoName, loader, db);
+                this.getDaoClass(entityCls, builder);
+                compileDaoFactory(factName, getDaoName(entityCls), loader, db);
                 fcls = loader.loadClass(factName);
             } catch (Exception e) {
                 throw e;
@@ -118,6 +118,15 @@ public class DefaultManager implements DaoManager {
             }
         }
         return (EntityFactory)fcls.newInstance();
+    }
+    
+    private static String getDaoName(Class entityCls) {
+        String dao = entityCls.getPackage().getName();
+        if (dao.endsWith(".entity")) {
+            dao = dao.substring(0, dao.length() - 6) + "dao." 
+                    + entityCls.getSimpleName() + "Dao";
+        }
+        return dao;
     }
     
     @Override
@@ -143,17 +152,17 @@ public class DefaultManager implements DaoManager {
     }
     
     @Override
-    public ViewFactory getViewDaoFactory(String daoName, Builder builder) 
+    public ViewFactory getViewDaoFactory(Class beanCls, Builder builder) 
             throws ViewException, Exception {
         Class fcls = null;
-        String factName = getViewFactoryName(daoName);
+        String factName = getViewFactoryName(beanCls);
         try {
             fcls = loader.loadClass(factName);
         } catch (ClassNotFoundException ex) {
             vflock.lock();
             try {
-                this.getViewDaoClass(daoName, builder);
-                compileViewDaoFactory(factName, daoName, loader);
+                this.getViewDaoClass(beanCls, builder);
+                compileViewDaoFactory(factName, beanCls, loader);
                 fcls = loader.loadClass(factName);
             } catch (Exception e) {
                 throw e;
@@ -162,6 +171,16 @@ public class DefaultManager implements DaoManager {
             }
         }
         return (ViewFactory)fcls.newInstance();
+    }
+    
+    private static String getViewDaoName(Class beanCls) {
+        String dao = beanCls.getPackage().getName();
+        if (dao.endsWith(".entity")) {
+            dao = dao.substring(0, dao.length() - 6) + "eviewdao";
+        } else if (dao.endsWith(".view")) {
+            dao = dao.substring(0, dao.length() - 4) + "viewdao";
+        }
+        return dao + "." + beanCls.getSimpleName() + "Dao";
     }
     
     public void compilePartManager(JavaCode           javaCode, 
@@ -265,8 +284,9 @@ public class DefaultManager implements DaoManager {
     
 
     @Override
-    public Class getDaoClass(String daoName, Builder builder) 
+    public Class getDaoClass(Class enityCls, Builder builder) 
             throws EntityException, Exception {
+        String daoName = getDaoName(enityCls);
         Class dao = cache.get(daoName);
         if (dao != null) {
             return dao;
@@ -321,8 +341,9 @@ public class DefaultManager implements DaoManager {
     }
 
     @Override
-    public Class getViewDaoClass(String daoName, Builder builder) 
+    public Class getViewDaoClass(Class beanCls, Builder builder) 
             throws ViewException, Exception {
+        String daoName = getViewDaoName(beanCls);
         Class dao = cache.get(daoName);
         if (dao != null) {
             return dao;
@@ -332,7 +353,7 @@ public class DefaultManager implements DaoManager {
         } catch (ClassNotFoundException ex) {
             vlock.lock();
             try {
-                compileViewDao(daoName, loader, builder);
+                compileViewDao(beanCls, loader, builder);
                 try {
                     dao = loader.loadClass(daoName);
                     cache.put(daoName, dao);
@@ -404,8 +425,9 @@ public class DefaultManager implements DaoManager {
         }
     }
     
-    public static void compileViewDaoFactory(String factName, String daoName, 
+    public static void compileViewDaoFactory(String factName, Class beanCls, 
             DynamicClassLoader loader) throws EntityException, Exception {
+        String daoName = getViewDaoName(beanCls);
         String packName  = "";
         String shortName = "";
         int lastDot = factName.lastIndexOf(".");
@@ -644,13 +666,13 @@ public class DefaultManager implements DaoManager {
         }
     }
     
-    public static void compileViewDao(String daoName, DynamicClassLoader loader,
+    public static void compileViewDao(Class ecls, DynamicClassLoader loader,
             Builder builder) 
             throws ViewException, Exception {
+        String daoName = getViewDaoName(ecls);
         if (daoName == null) {
             throw new ViewException("Dao package name is null");
         }
-        Class ecls = DefaultManager.getViewClass(daoName);
         String packName  = "";
         String shortName = "";
         int lastDot = daoName.lastIndexOf(".");
@@ -753,11 +775,12 @@ public class DefaultManager implements DaoManager {
         return ecls;
     }
     
-    public static String getEntityFactoryName(String daoName) {
-        int lastDot = daoName.lastIndexOf(".");
-        String packName = daoName.substring(0, lastDot);
-        String clsName  = daoName.substring(lastDot + 1);
-        return packName + "f." + clsName + "Factory";
+    public static String getEntityFactoryName(Class entityCls) {
+        String packName = entityCls.getPackage().getName();
+        if (packName.endsWith(".entity")) {
+            packName = packName.substring(0, packName.length() - 6) + "daof";
+        }
+        return packName + "." + entityCls.getSimpleName() + "DaoFactory";
     }
     
     public static String getMapFactoryName(String daoName) {
@@ -767,45 +790,14 @@ public class DefaultManager implements DaoManager {
         return packName + "f." + clsName + "Factory";
     }
     
-    public static String getViewFactoryName(String daoName) {
-        int lastDot = daoName.lastIndexOf(".");
-        String packName = daoName.substring(0, lastDot);
-        String clsName  = daoName.substring(lastDot + 1);
-        return packName + "f." + clsName + "Factory";
-    }
-    
-    public static Class getViewClass(String daoName) throws ViewException {
-        Class vcls = null;
-        if (daoName == null || daoName.trim().length() == 0 
-                || daoName.startsWith(".") || daoName.endsWith(".")) {
-            throw new ViewException("Dao package name not well rule");
+    public static String getViewFactoryName(Class beanCls) {
+        String packName = beanCls.getPackage().getName();
+        if (packName.endsWith(".view")) {
+            packName = packName.substring(0, packName.length() - 4) + "viewdaof";
+        } else if (packName.endsWith(".entity")) {
+            packName = packName.substring(0, packName.length() - 6) + "eviewdaof";
         }
-        String[] apackage = daoName.split("\\.");
-        StringBuilder view = new StringBuilder();
-        if (apackage.length > 2
-                && "viewdao".equals(apackage[apackage.length-2])) {
-            for (int i=0;i<apackage.length-1;i++) {
-                if (i != apackage.length-2) {
-                    view.append(apackage[i]).append(".");
-                } else {
-                    view.append("view").append(".");
-                }
-            }
-            String sname = apackage[apackage.length-1];
-            if (sname.length() > 3) {
-                view.append(sname.substring(0, sname.length()-3));
-                try {
-                    vcls = Class.forName(view.toString());
-                } catch (ClassNotFoundException e) {
-                        throw new ViewException("[" + view +  "] not found!");
-                }
-            } else {
-                throw new ViewException("Dao must endwith \"Dao\"");
-            }
-        } else {
-            throw new ViewException("Dao package name not well rule");
-        }
-        return vcls;
+        return packName + "." + beanCls.getSimpleName() + "DaoFactory";
     }
     
     public static String getEntityFactoryCode(String daoName, String db) {

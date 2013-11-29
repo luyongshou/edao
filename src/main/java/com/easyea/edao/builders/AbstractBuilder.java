@@ -522,7 +522,8 @@ public abstract class AbstractBuilder implements Builder {
             pack = "";
         }
         String[] apackage = pack.split("\\.");
-        if (pack.length() > 0 && "view".equals(apackage[apackage.length-1])) {
+        if (pack.length() > 0 && ("view".equals(apackage[apackage.length-1]) 
+                || "entity".equals(apackage[apackage.length-1]))) {
             if (apackage.length > 1) {
                 for (int i = 0; i < apackage.length - 1; i++) {
                     if (sb.length() > 0) {
@@ -533,9 +534,13 @@ public abstract class AbstractBuilder implements Builder {
             }
         } else {
             throw new ViewException("package name not well rule!" 
-                    + " package must end with \"view\"");
+                    + " package must end with \"view\" or \"entity\"");
         }
-        sb.append(".viewdao");
+        sb.append(".");
+        if ("entity".equals(apackage[apackage.length-1])) {
+            sb.append("e");
+        }
+        sb.append("viewdao");
         return sb.toString();
     }
 

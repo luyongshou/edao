@@ -17,11 +17,11 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DaoFactory {
 
-    private static ConcurrentHashMap<String, EntityFactory> entityFacts =
+    private static final ConcurrentHashMap<String, EntityFactory> entityFacts =
             new ConcurrentHashMap<String, EntityFactory>();
-    private static ConcurrentHashMap<String, ViewFactory> viewFacts =
+    private static final ConcurrentHashMap<String, ViewFactory> viewFacts =
             new ConcurrentHashMap<String, ViewFactory>();
-    private static ConcurrentHashMap<String, MapFactory> mapFacts =
+    private static final ConcurrentHashMap<String, MapFactory> mapFacts =
             new ConcurrentHashMap<String, MapFactory>();
     /**
      * EntityFactory缓存的锁，如果缓存中没有该dao实现的工厂类，在获取工厂类的时候加锁防止
@@ -43,7 +43,7 @@ public class DaoFactory {
     /**
      * 根据dao实现的名称获取一个持久化dao的实现对象，dao实现的名称为包名为dao结尾，类名以Dao结尾。
      * 持久化bean的命名规则包名以entity或者entitybean结尾。
-     *
+     * @deprecated
      * @param name dao实现的类名（包含包名的全名）
      * @return dao实现的对象
      * @throws Exception 如果获取dao实现时出现的各类错误，包括类不符合规范，以及编译的错误等等
@@ -55,7 +55,7 @@ public class DaoFactory {
     /**
      * 根据dao实现的名称获取一个持久化dao的实现对象，dao实现的名称为包名为dao结尾，类名以Dao结尾。
      * 持久化bean的命名规则包名以entity或者entitybean结尾。
-     *
+     * @deprecated 
      * @param name dao实现的类名（包含包名的全名）
      * @return dao实现的对象
      * @throws Exception 如果获取dao实现时出现的各类错误，包括类不符合规范，以及编译的错误等等
@@ -80,24 +80,57 @@ public class DaoFactory {
      * @throws Exception 
      */
     public static EntityDao getDao(Class entity, String db) throws Exception {
+        if (entity == null) {
+            return null;
+        }
+        if (db == null) {
+            db = "";
+        }
+        if (db.length() < 1) {
+            return null;
+        }
         String packName = entity.getPackage().getName();
         if (!packName.endsWith(".entity")) {
             throw new EntityException("package not endwith \"entity\"!");
         }
-        int lastDot = packName.lastIndexOf("entity");
-        if (lastDot == -1) {
-            throw new EntityException("package not endwith \"entity\"!");
-        } else {
-            packName = packName.substring(0, lastDot) + "dao";
+        EntityDao dao = null;
+        String factName = db + "_" + entity.getName();
+        EntityFactory fact = entityFacts.get(factName);
+        if (fact == null) {
+            elock.lock();
+            try {
+                fact = entityFacts.get(factName);
+                if (fact == null) {
+                    DefaultManager manager = DefaultManager.getInstance();
+                    Class bcls = Class.forName("com.easyea.edao.builders." 
+                                + db.substring(0, 1).toUpperCase() 
+                                + db.substring(1) + "Builder");
+                    Builder builder = (Builder)bcls.newInstance();
+                    fact = manager.getEntityFactory(entity, builder, db);
+                    if (fact != null) {
+                        entityFacts.put(factName, fact);
+                    }
+                    EntityFactory tfact = entityFacts.putIfAbsent(factName, fact);
+                    if (tfact != null) {
+                        fact = tfact;
+                    }
+                }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                elock.unlock();
+            }
         }
-        String name = packName + "." + entity.getSimpleName() + "Dao";
-        return getEntityDao(name, db);
+        if (fact != null) {
+            dao = fact.getDao(entity.getName());
+        }
+        return dao;
     }
     
     /**
      * 根据dao实现的名称获取一个持久化dao的实现对象，dao实现的名称为包名为dao结尾，类名以Dao结尾。
      * 持久化bean的命名规则包名以entity或者entitybean结尾。
-     *
+     * @deprecated 
      * @param name dao实现的类名（包含包名的全名）
      * @param con 应用于改Dao的数据库连接
      * @return dao实现的对象
@@ -110,6 +143,7 @@ public class DaoFactory {
     /**
      * 根据dao实现的名称获取一个持久化dao的实现对象，dao实现的名称为包名为dao结尾，类名以Dao结尾。
      * 持久化bean的命名规则包名以entity或者entitybean结尾。
+     * @deprecated 
      * @param name dao实现的类名（包含包名的全名）
      * @param con 应用于改Dao的数据库连接
      * @return dao实现的对象
@@ -124,6 +158,7 @@ public class DaoFactory {
     
     /**
      * 根据制定的数据库类型获取一个制定名称的Dao实现
+     * @deprecated 
      * @param name dao的名称
      * @param db 数据库累心
      * @return
@@ -137,6 +172,7 @@ public class DaoFactory {
         if (db.length() == 0) {
             return null;
         }
+        Class entity = null;
         String factName = db + "_" + name;
         EntityFactory fact = entityFacts.get(factName);
         if (fact == null) {
@@ -149,7 +185,7 @@ public class DaoFactory {
                                 + db.substring(0, 1).toUpperCase() 
                                 + db.substring(1) + "Builder");
                     Builder builder = (Builder)bcls.newInstance();
-                    fact = manager.getEntityFactory(name, builder, db);
+                    fact = manager.getEntityFactory(entity, builder, db);
                     if (fact != null) {
                         entityFacts.put(factName, fact);
                     }
@@ -190,20 +226,44 @@ public class DaoFactory {
         if (!packName.endsWith(".view") && !packName.endsWith(".entity")) {
             throw new EntityException("package not endwith \"entity\" and \"view\"!");
         }
-        int lastDot = packName.lastIndexOf(".");
-        if (lastDot == -1) {
-            throw new EntityException("package not endwith \"entity\" and \"view\"!");
-        } else {
-            packName = packName.substring(0, lastDot) + ".viewdao";
+        ViewDao dao = null;
+        if (db == null || db.length() == 0) {
+            return null;
         }
-        String name = packName + "." + view.getSimpleName() + "Dao";
-        return getViewDao(name, db);
+        String factName = db + "_" + view.getName();
+        ViewFactory fact = viewFacts.get(factName);
+        if (fact == null) {
+            vlock.lock();
+            try {
+                fact = viewFacts.get(factName);
+                if (fact == null) {
+                    DefaultManager manager = DefaultManager.getInstance();
+                    Class bcls = Class.forName("com.easyea.edao.builders." 
+                                + db.substring(0, 1).toUpperCase() 
+                                + db.substring(1) + "Builder");
+                    Builder builder = (Builder)bcls.newInstance();
+                    fact = manager.getViewDaoFactory(view, builder);
+                    ViewFactory tfact = viewFacts.putIfAbsent(factName, fact);
+                    if (tfact != null) {
+                        fact = tfact;
+                    }
+                }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                vlock.unlock();
+            }
+        }
+        if (fact != null) {
+            dao = fact.getDao(view.getName());
+        }
+        return dao;
     }
 
     /**
      * 根据视图dao实现的名称获取一个视图dao的实现对象，dao实现的名称为包名为viewdao结尾，
      * 类名以Dao结尾。视图bean的命名规则包名以view结尾。
-     * 
+     * @deprecated 
      * @param name 视图dao实现的类名(包含包名的全名)
      * @return 返回视图dao实现的对象
      * @throws Exception 获取试图dao实现时的错误，包含视图bean不符合规范，以及编译时出现的错误。
@@ -215,7 +275,7 @@ public class DaoFactory {
     /**
      * 根据视图dao实现的名称获取一个视图dao的实现对象，dao实现的名称为包名为viewdao结尾，
      * 类名以Dao结尾。视图bean的命名规则包名以view结尾。
-     * 
+     * @deprecated 
      * @param name 视图dao实现的类名(包含包名的全名)
      * @Param con 应用于改ViewDao的数据库连接
      * @return 返回视图dao实现的对象
@@ -292,6 +352,7 @@ public class DaoFactory {
     
     /**
      * 根据指定的ViewDao的名称以及改ViewDao的数据库类型，生成一个ViewDao的实现对象
+     * @deprecated 
      * @param name ViewDao的全名
      * @param db 数据库类型
      * @return
@@ -302,6 +363,7 @@ public class DaoFactory {
         if (db == null || db.length() == 0) {
             return null;
         }
+        Class beanCls = null;
         String factName = db + "_" + name;
         ViewFactory fact = viewFacts.get(factName);
         if (fact == null) {
@@ -314,7 +376,7 @@ public class DaoFactory {
                                 + db.substring(0, 1).toUpperCase() 
                                 + db.substring(1) + "Builder");
                     Builder builder = (Builder)bcls.newInstance();
-                    fact = manager.getViewDaoFactory(name, builder);
+                    fact = manager.getViewDaoFactory(beanCls, builder);
                     ViewFactory tfact = viewFacts.putIfAbsent(factName, fact);
                     if (tfact != null) {
                         fact = tfact;
