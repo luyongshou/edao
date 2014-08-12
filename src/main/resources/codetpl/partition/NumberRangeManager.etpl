@@ -1,0 +1,29 @@
+<%
+var entityPackage, count, method, entity;
+%>
+package numrm.${entityPackage};
+
+import com.easyea.edao.PartitionManager;
+import ${entity.name};
+
+/**
+ *
+ * @author edao platform
+ */
+public class ${entity.simpleName}Manager implements PartitionManager<${entity.simpleName}> {
+
+    @Override
+    public String getExtTableString(${entity.simpleName} entity) {
+        
+        if (entity == null) {
+            return "";
+        }
+        String ext;
+        int interv = ${count} * 1000000;
+        long index = entity.${method}()/interv;
+        index++;
+        ext = "__N${count}M" + index;
+        return ext;
+    }
+    
+}

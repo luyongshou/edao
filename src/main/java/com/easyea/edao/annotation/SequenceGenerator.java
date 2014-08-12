@@ -27,5 +27,5 @@ public @interface SequenceGenerator {
    */
   String schema() default "";
   int initialValue() default 1;
-  int allocationSize() default 50;
+  int allocationSize() default 1;
 }

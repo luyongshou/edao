@@ -13,10 +13,10 @@ import com.easyea.edao.partition.NumberRange;
 import com.easyea.edao.partition.PartitionParam;
 import com.easyea.edao.partition.TimeRange;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -198,9 +198,9 @@ public abstract class AbstractDdlManager implements DdlManager {
                     Class  ftype = null;
                     NumberRange param = new NumberRange();
                     param.setField(field);
-                    List<FieldInfo> fis = ClassUtil.getFields(entity);
+                    List<Field> fis = ClassUtil.getFields(entity);
                     if (fis != null && !fis.isEmpty()) {
-                        for (FieldInfo fi : fis) {
+                        for (Field fi : fis) {
                             if (fi.getName().equals(field)) {
                                 ftype = fi.getType();
                             }
@@ -224,9 +224,9 @@ public abstract class AbstractDdlManager implements DdlManager {
                     Class  ftype = null;
                     TimeRange param = new TimeRange();
                     param.setField(field);
-                    List<FieldInfo> fis = ClassUtil.getFields(entity);
+                    List<Field> fis = ClassUtil.getFields(entity);
                     if (fis != null && !fis.isEmpty()) {
-                        for (FieldInfo fi : fis) {
+                        for (Field fi : fis) {
                             if (fi.getName().equals(field)) {
                                 ftype = fi.getType();
                             }

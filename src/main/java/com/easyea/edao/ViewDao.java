@@ -12,20 +12,17 @@ import java.util.List;
 /**
  *
  * @author louis
+ * @param <T>
  */
-public interface ViewDao {
+public interface ViewDao<T> {
     
     /**
-     * 返回改ViewDAO持有的数据库连接
-     * @return 数据库连接
-     */
-    public Connection getConnect();
-    
-    /**
-     * 设置改ViewDAO持有的数据库连接
-     * @param con 数据库连接
+     * @deprecated 
+     * @param con 
      */
     public void setConnect(Connection con);
+    
+    public void setStatementSession(StatementSession sessioin);
     
     /**
      * 获取所有该类持久化对象列表
@@ -34,7 +31,7 @@ public interface ViewDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList() throws SQLException, Exception;
+    public List<T> getList() throws SQLException, Exception;
 
     /**
      * 根据hq sql 语句获取所有符合qlString的持久化对象
@@ -45,7 +42,7 @@ public interface ViewDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString) throws SQLException, Exception;
+    public List<T> getList(String qlString) throws SQLException, Exception;
 
     /**
      * 获取一定数量符合条件的持久化对象列表
@@ -60,7 +57,8 @@ public interface ViewDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, long start, int counts) throws SQLException, Exception;
+    public List<T> getList(String qlString, long start, int counts) 
+            throws SQLException, Exception;
 
     /**
      * 根据设置位置和名称参数的qlString条件的持久化对象
@@ -73,7 +71,7 @@ public interface ViewDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, ArrayList<QueryParam> params)
+    public List<T> getList(String qlString, ArrayList<QueryParam> params)
              throws SQLException, Exception;
 
     /**
@@ -91,7 +89,7 @@ public interface ViewDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, ArrayList<QueryParam> params,
+    public List<T> getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception;
     
     /**

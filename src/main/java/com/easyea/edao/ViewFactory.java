@@ -15,10 +15,9 @@ import com.easyea.edao.exception.ViewException;
 public interface ViewFactory {
     /**
      * 根据持久化Bean以及视图的Bean全称获取Dao实现的方法
-     * @param beanName 持久化Bean全称或者试图Bean全称
      * @return
      * @throws ViewException
      * @throws Exception 
      */
-    public ViewDao getDao(String beanName) throws ViewException, Exception;
+    public ViewDao getDao() throws ViewException, Exception;
 }

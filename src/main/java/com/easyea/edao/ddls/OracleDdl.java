@@ -11,9 +11,9 @@ import com.easyea.edao.annotation.Temporal;
 import com.easyea.edao.annotation.TemporalType;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +36,10 @@ public class OracleDdl extends AbstractDdl {
             String tbName = ClassUtil.getTableName(entity).toUpperCase();
             //List tbs = ddlM.getTables();
             
-            List<FieldInfo> fields = ClassUtil.getFields(entity);
+            List<Field> fields = ClassUtil.getFields(entity);
             ArrayList aF = new ArrayList();
             String id = "";
-            for (FieldInfo fi : fields) {
+            for (Field fi : fields) {
                 String f = fi.getName();
                 if (!f.equals("id")) {
                     aF.add(f);
@@ -58,7 +58,7 @@ public class OracleDdl extends AbstractDdl {
                 String flength   = "";
                 String prikey    = "";
                 Column dcolumn   = null;
-                for (FieldInfo fi : fields) {
+                for (Field fi : fields) {
                     isPrikey = false;
 
                     String       f        = fi.getName();
@@ -204,6 +204,7 @@ public class OracleDdl extends AbstractDdl {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
     public List<String> getTables(Class entity, Connection con) 
             throws EntityException, Exception {
         String tbName = ClassUtil.getTableName(entity);
@@ -216,6 +217,7 @@ public class OracleDdl extends AbstractDdl {
         return tbs;
     }
     
+    @Override
     protected void appendBooleanColumSqls(String       tableName, 
                                           String       colName, 
                                           Column       fCol,
@@ -228,6 +230,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendDateColumSqls(String       tableName, 
                                        String       colName, 
                                        Annotation[] anns,
@@ -269,6 +272,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendStringColumSqls(String       tableName, 
                                        String       colName, 
                                        Annotation[] anns,
@@ -310,6 +314,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendDoubleColumSqls(String       tableName, 
                                        String       colName, 
                                        Column       fCol,
@@ -342,6 +347,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendFloatColumSqls(String       tableName, 
                                         String       colName, 
                                         Column       fCol,
@@ -374,6 +380,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendLongColumSqls(String       tableName, 
                                        String       colName, 
                                        Column       fCol,
@@ -403,6 +410,7 @@ public class OracleDdl extends AbstractDdl {
         sqls.add(sql.toString());
     }
     
+    @Override
     protected void appendIntColumSqls(String tableName, 
                                  String colName, 
                                  Column fCol,
@@ -438,11 +446,13 @@ public class OracleDdl extends AbstractDdl {
         return tb.toUpperCase(Locale.ENGLISH);
     }
 
+    @Override
     public List<String> getColumns(Class entity, Connection con) 
             throws EntityException, Exception {
         return this.getFieldsByJdbc(con, this.getTableName(entity));
     }
 
+    @Override
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

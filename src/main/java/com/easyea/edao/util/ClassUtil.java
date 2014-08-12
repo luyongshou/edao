@@ -10,11 +10,15 @@ import com.easyea.edao.annotation.GenerationType;
 import com.easyea.edao.annotation.Id;
 import com.easyea.edao.annotation.SequenceGenerator;
 import com.easyea.edao.annotation.Table;
+import com.easyea.edao.annotation.Temporal;
+import com.easyea.edao.annotation.TemporalType;
 import com.easyea.edao.annotation.View;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +27,12 @@ import java.util.List;
  * @author louis
  */
 public class ClassUtil {
+    
+    public final static String daoPackPre  = "edaop."; //EntityDao包名前缀
+    public final static String vdaoPackPre = "evdaop."; //ViewDao包名前缀
+    public final static String daoFactPackPre  = "edaofp."; //ViewDao包名前缀
+    public final static String vdaoFactPackPre = "evdaofp."; //ViewDao包名前缀
+    public final static String MAPDAO_PACKAGE = "com.easyea.mapdao";
     
     public static String getTableName(Class cls) {
         Annotation[] clsAnns = cls.getAnnotations();
@@ -41,6 +51,54 @@ public class ClassUtil {
         }
         return tbName;
     }
+    
+    /**
+     * 根据java属性的数据类型获取jdbc设置字段值的函数名
+     * @param field java对象的属性对象
+     * @return jdbc绑定的函数名称
+     */
+    public static String typeToJdbc(Field field) {
+        String set = "";
+        Class otype = field.getType();
+        if (otype.equals(Long.class) || otype.toString().equals("long")) {
+            set = "Long";
+        } else if (otype.equals(Integer.class) || otype.toString().equals("int")) {
+            set = "Int";
+        } else if (otype.equals(String.class)) {
+            set = "String";
+        } else if (otype.equals(Boolean.class) || otype.toString().equals("boolean")) {
+            set = "Boolean";
+        } else if (otype.equals(Double.class) || otype.toString().equals("double")) {
+            set = "Double";
+        } else if (otype.equals(Float.class) || otype.toString().equals("float")) {
+            set = "Float";
+        } else if (otype.equals(Date.class)) {
+            Annotation[] ans = field.getAnnotations();
+            Temporal tpo = null;
+            for (Annotation an : ans) {
+                if (an instanceof Temporal) {
+                    tpo = (Temporal)an;
+                }
+            }
+            if (tpo == null) {
+                set = "Timestamp";
+            } else {
+                if (tpo.value().equals(TemporalType.TIMESTAMP)) {
+                    set = "Timestamp";
+                } else if (tpo.value().equals(TemporalType.DATE)) {
+                    set = "Date";
+                } else if (tpo.value().equals(TemporalType.TIME)) {
+                    set = "Time";
+                } else {
+                    set = "Timestamp";
+                }
+            }
+        } else {
+            set = "Object";
+        }
+        return set;
+    }
+    
     /**
      * 获取一个实体类序列的名称
      * @param cls
@@ -49,7 +107,7 @@ public class ClassUtil {
     public static String getSeqName(Class cls) {
         String       seq  = getTableName(cls) + "_id_seq";
         Annotation[] anns = cls.getAnnotations();
-        HashMap<String, String> aSeq = new HashMap<String, String>();
+        HashMap<String, String> aSeq = new HashMap<>();
         if (anns != null) {
             for (int i=0;i<anns.length;i++) {
                 if (anns[i] instanceof SequenceGenerator) {
@@ -62,10 +120,10 @@ public class ClassUtil {
                 }
             }
             if (!aSeq.isEmpty()) {
-                List<FieldInfo> fs = getFields(cls);
-                FieldInfo idf = null;
+                List<Field> fs = getFields(cls);
+                Field idf = null;
                 if (fs != null && !fs.isEmpty()) {
-                    for (FieldInfo f : fs) {
+                    for (Field f : fs) {
                         if (f.getName().equals("id") || idf == null) {
                             idf = f;
                         }
@@ -105,23 +163,26 @@ public class ClassUtil {
      * @param cls
      * @return
      */
-    public static List<FieldInfo> getFields(Class cls) {
+    public static List<Field> getFields(Class cls) {
         Field[] fields = cls.getDeclaredFields();
-        List<FieldInfo> afs = new ArrayList<FieldInfo>();
-        for (Field field : fields) {
-            FieldInfo finfo = new FieldInfo(field.getName(), field.getType());
-            Annotation[] fAnns = field.getAnnotations();
-            if (fAnns != null && fAnns.length > 0) {
-                finfo.setAnnotations(fAnns);
-            }
-            afs.add(finfo);
-        }
+        List<Field> afs = new ArrayList<>();
+        afs.addAll(Arrays.asList(fields));
 
         appendSuperFields(cls, afs);
         return afs;
     }
     
-    public static String getColumnName(FieldInfo field) {
+    private static void appendSuperFields(Class cls, List<Field> aFields) {
+        Class sup = cls.getSuperclass();
+        if (sup != null) {
+            if (!sup.getName().equals("java.lang.Object")) {
+                aFields.addAll(ClassUtil.getFields(sup));
+                appendSuperFields(sup, aFields);
+            }
+        }
+    }
+    
+    public static String getColumnName(Field field) {
         String       colName = field.getName();
         Annotation[] fanns   = field.getAnnotations();
         if (fanns != null) {
@@ -136,41 +197,24 @@ public class ClassUtil {
         }
         return colName;
     }
-    
-    private static void appendSuperFields(Class cls, List<FieldInfo> aFields) {
-        Class sup = cls.getSuperclass();
-        if (sup != null) {
-            if (!sup.getName().equals("java.lang.Object")) {
-                aFields.addAll(ClassUtil.getFields(sup));
-                appendSuperFields(sup, aFields);
-            }
-        }
-    }
 
     /**
      * 获取一个类的所有方法
      * @param cls
      * @return 
      */
-    public static List<MethodInfo> getMethods(Class cls) {
-        List<MethodInfo> ms = new ArrayList<MethodInfo>();
+    public static List<Method> getMethods(Class cls) {
+        List<Method> ms = new ArrayList<>();
         Method[] methods = cls.getMethods();
-        for (Method method : methods) {
-            MethodInfo minfo = new MethodInfo(method.getName(), method.getReturnType());
-            minfo.setParams(method.getParameterTypes());
-            minfo.setAnnotations(method.getAnnotations());
-            ms.add(minfo);
-        }
+        ms.addAll(Arrays.asList(methods));
         return ms;
     }
     
     public static List<Method> getMethodList(Class cls) {
-        ArrayList<Method> l = new ArrayList<Method>();
+        ArrayList<Method> l = new ArrayList<>();
         Method[] methods = cls.getMethods();
         if (methods != null) {
-            for (int i=0;i<methods.length;i++) {
-                l.add(methods[i]);
-            }
+            l.addAll(Arrays.asList(methods));
         }
         getSuperMethods(cls, l);
         return l;
@@ -182,9 +226,7 @@ public class ClassUtil {
             if (!sup.getName().equals("java.lang.Object")) {
                 Method[] methods = cls.getMethods();
                 if (methods != null) {
-                    for (int i=0;i<methods.length;i++) {
-                        l.add(methods[i]);
-                    }
+                    l.addAll(Arrays.asList(methods));
                 }
                 getSuperMethods(sup, l);
             }

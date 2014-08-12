@@ -1,0 +1,230 @@
+<%
+var mapdaoPackage, dbProductName;
+%>
+package ${mapdaoPackage};
+
+import com.easyea.edao.MapDao;
+import com.easyea.edao.QueryParam;
+import com.easyea.edao.StatementSession;
+import com.easyea.edao.SingleStatementSession;
+import com.easyea.edao.annotation.TemporalType;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ${dbProductName}MapDao implements MapDao {
+    
+    static Logger logger = LoggerFactory.getLogger(${dbProductName}MapDao.class);
+
+    private StatementSession session;
+
+    public ${dbProductName}MapDao() {
+        session = null;
+    }
+
+    @Override
+    public void setConnect(Connection con) {
+        if (session == null) {
+            session = new SingleStatementSession();
+            session.setConnection(con);
+        }
+    }
+
+    @Override
+    public void setStatementSession(StatementSession session) {
+        this.session = session;
+    }
+
+    @Override
+    public List<Map<String, Object>> getList(String qlString) 
+            throws SQLException, Exception {
+        return this.getList(qlString, null, 0, -1);
+    }
+
+    @Override
+    public List<Map<String, Object>> getList(String qlString, long start, int counts)
+            throws SQLException, Exception {
+        return this.getList(qlString, null, start, counts);
+    }
+
+    @Override
+    public List<Map<String, Object>> getList(String qlString, 
+            ArrayList<QueryParam> params)
+            throws SQLException, Exception {
+        return this.getList(qlString, params, 0, -1);
+    }
+
+    @Override
+    public List<Map<String, Object>> getList(String qlString, 
+            ArrayList<QueryParam> params, long start, int counts) 
+            throws SQLException, Exception {
+        boolean isAll = false;
+        List<Map<String, Object>> l = null;
+        StringBuilder sql = new StringBuilder();
+        sql.append(qlString);
+        String ssql = "";
+        if (counts > 0) {
+            sql.append(" limit  ").append(counts).append(" offset ").append(start);
+        }
+        ssql = sql.toString();
+        PreparedStatement pstmt = null;
+        if (logger.isDebugEnabled()) {
+            logger.debug("sql=[{}]", sql.toString());
+        }
+        try {
+            pstmt = session.prepareStatement(sql.toString());
+            if (params != null && params.size() > 0) {
+                for (QueryParam param : params) {
+                    if (param.getValue() instanceof Date) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Date) param.getValue()).getTime()));
+                        }
+                    } else if (param.getValue() instanceof Calendar) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        }
+                    } else if (param.getValue() instanceof String) {
+                        pstmt.setString((Integer) param.getPosition(), (String) param.getValue());
+                    } else if (param.getValue() instanceof Integer) {
+                        pstmt.setInt((Integer) param.getPosition(), (Integer) param.getValue());
+                    } else if (param.getValue() instanceof Long) {
+                        pstmt.setLong((Integer) param.getPosition(), (Long) param.getValue());
+                    } else if (param.getValue() instanceof Boolean) {
+                        pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
+                    } else if (param.getValue() instanceof Double) {
+                        pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else {
+                        pstmt.setObject((Integer) param.getPosition(), param.getValue());
+                    }
+                }
+            }
+            ResultSet rs = pstmt.executeQuery();
+            l = new ArrayList<>();
+            ArrayList<String> aColumn = new ArrayList<>();
+            if (!isAll) {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int colSize = rsmd.getColumnCount();
+                for (int i = 1; i <= colSize; i++) {
+                    aColumn.add(rsmd.getColumnLabel(i).toLowerCase());
+                }
+            }
+            while (rs.next()) {
+                Map<String, Object> t = new HashMap<>();
+                for (String col : aColumn) {
+                    t.put(col, rs.getObject(col));
+                }
+                l.add(t);
+            }
+        } catch (SQLException ex) {
+            logger.error("{}", ex);
+            throw ex;
+        } finally {
+            if (!session.enableBatch()) {
+                session.closeStatements();
+            }
+        }
+        return l;
+    }
+
+    @Override
+    public Map<String, Object> getMap(String sql) throws SQLException, Exception {
+        List<Map<String, Object>> maps = getList(sql, null, 0, 1);
+        if (maps != null && !maps.isEmpty()) {
+            return maps.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Map<String, Object> getMap(String sql, ArrayList<QueryParam> params) throws SQLException, Exception {
+        List<Map<String, Object>> maps = getList(sql, params, 0, 1);
+        if (maps != null && !maps.isEmpty()) {
+            return maps.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public int update(String sql) throws SQLException, Exception {
+        return update(sql, null);
+    }
+
+    @Override
+    public int update(String sql, List<QueryParam> params) throws SQLException, Exception {
+        int row = -1;
+        if (!sql.trim().toLowerCase().startsWith("update")) {
+            return row;
+        }
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = session.prepareStatement(sql);
+            if (params != null && params.size() > 0) {
+                for (QueryParam param : params) {
+                    if (param.getValue() instanceof Date) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Date) param.getValue()).getTime()));
+                        }
+                    } else if (param.getValue() instanceof Calendar) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        }
+                    } else if (param.getValue() instanceof String) {
+                        pstmt.setString((Integer) param.getPosition(), (String) param.getValue());
+                    } else if (param.getValue() instanceof Integer) {
+                        pstmt.setInt((Integer) param.getPosition(), (Integer) param.getValue());
+                    } else if (param.getValue() instanceof Long) {
+                        pstmt.setLong((Integer) param.getPosition(), (Long) param.getValue());
+                    } else if (param.getValue() instanceof Boolean) {
+                        pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
+                    } else if (param.getValue() instanceof Double) {
+                        pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else {
+                        pstmt.setObject((Integer) param.getPosition(), param.getValue());
+                    }
+                }
+            }
+            row = pstmt.executeUpdate();
+        } catch (SQLException sqlex) {
+            logger.error(sqlex.getMessage());
+            throw sqlex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw ex;
+        } finally {
+            if (!session.enableBatch()) {
+                session.closeStatements();
+            }
+        }
+        return row;
+    }
+}

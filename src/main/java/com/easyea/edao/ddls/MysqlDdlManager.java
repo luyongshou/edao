@@ -17,11 +17,13 @@ public class MysqlDdlManager extends AbstractDdlManager {
         super(entity, ddl);
     }
 
+    @Override
     public void syncDdl(Connection con) throws Exception {
         Ddl ddl = new MysqlDdl();
         this.syncDdl(ddl, con);
     }
 
+    @Override
     public boolean getPartitionEnable() {
         return false;
     }

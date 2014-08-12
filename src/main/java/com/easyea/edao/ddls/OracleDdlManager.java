@@ -17,11 +17,13 @@ public class OracleDdlManager extends AbstractDdlManager {
         super(entity, ddl);
     }
 
+    @Override
     public void syncDdl(Connection con) throws Exception {
         Ddl ddl = new OracleDdl();
         this.syncDdl(ddl, con);
     }
 
+    @Override
     public boolean getPartitionEnable() {
         return false;
     }

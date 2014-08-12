@@ -17,16 +17,12 @@ import java.util.Map;
 public interface MapDao {
     
     /**
-     * 设置该接口持有的数据库连接
-     * @param con 数据库连接
+     * @deprecated 
+     * @param con 
      */
     public void setConnect(Connection con);
-
-    /**
-     * 返回该DAO持有的数据库连接
-     * @return 数据库连接
-     */
-    public Connection getConnect();
+    
+    public void setStatementSession(StatementSession session);
     
     /**
      * 获取一个Map的列表，用于一些简单结果集的数据返回
@@ -48,6 +44,18 @@ public interface MapDao {
      */
     public List<Map<String, Object>> getList(String sql, 
             ArrayList<QueryParam> params) throws SQLException, Exception;
+    
+    /**
+     * 根据查询条件从某个开始位置获取制定数量的记录集
+     * @param sql 查询的SQL语句
+     * @param start 开始取数据的位置
+     * @param counts 去数据的数量
+     * @return 
+     * @throws java.sql.SQLException 
+     * @throws java.lang.Exception 
+     */
+    public List<Map<String, Object>> getList(String sql, long start, int counts)
+            throws SQLException, Exception;
     
     /**
      * 根据查询条件从某个开始位置获取制定数量的记录集

@@ -5,7 +5,7 @@
 package com.easyea.edao;
 
 import com.easyea.edao.exception.EntityException;
-import com.easyea.edao.util.FieldInfo;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.List;
 
@@ -37,7 +37,7 @@ public interface Ddl {
      * @param field 持久化Bean的字段对象
      * @return 
      */
-    public List<String> getAddColumnSqls(String tableName, FieldInfo field);
+    public List<String> getAddColumnSqls(String tableName, Field field);
     
     /**
      * 定义由持久化Bean获取创建对应数据表的SQL语句集合

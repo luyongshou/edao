@@ -12,14 +12,16 @@ import com.easyea.edao.exception.ViewException;
  * @author louis
  */
 public interface Builder {
+    
+    public DaoManager getManager();
+    
     /**
      * 根据给定的持久化的Bean反射bean并生成实现EntityDao接口实现类的Java代码
      * @param entityCls 持久化的javabean
-     * @param partitionManager 分区表管理器
      * @return 生成的DAO实现的Java代码
      * @throws com.easyea.edao.exception.EntityException
      */
-    public String getDaoCode(Class entityCls, Class partitionManager) throws EntityException;
+    public String getDaoCode(Class entityCls) throws EntityException;
 
     /**
      * 根据指定的View的javabean生成ViewDao实现类的Java代码
@@ -40,5 +42,5 @@ public interface Builder {
      * 获取数据库类型的名称比如Postgresql,Oracle,Mysql
      * @return 
      */
-    public String getDbTypeName();
+    public DbProductName getDbProductName();
 }

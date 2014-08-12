@@ -1,0 +1,22 @@
+<%
+var mapdaoPackage, dbProductName;
+%>
+package com.easyea.mapdaof;
+
+import com.easyea.edao.MapDao;
+import com.easyea.edao.MapFactory;
+import ${mapdaoPackage}.${dbProductName}MapDao;
+
+/**
+ *
+ * @author edap platform
+ */
+public class ${dbProductName}DaoFactory implements MapFactory {
+
+    @Override
+    public MapDao getDao() throws Exception {
+        MapDao dao = new ${dbProductName}MapDao();
+        return dao;
+    }
+    
+}

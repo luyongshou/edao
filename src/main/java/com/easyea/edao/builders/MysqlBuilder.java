@@ -1,10 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package com.easyea.edao.builders;
 
-import com.easyea.edao.annotation.GenerationType;
+import com.easyea.edao.DaoManager;
+import com.easyea.edao.DbProductName;
 
 /**
  *
@@ -12,25 +15,23 @@ import com.easyea.edao.annotation.GenerationType;
  */
 public class MysqlBuilder extends AbstractBuilder {
     
-    @Override
-    public GenerationType getGenerationType() {
-        return GenerationType.IDENTITY;
+    public MysqlBuilder(DaoManager manager) {
+        super(manager);
     }
 
     @Override
-    public String getLimitSql(String sql, String start, String count) {
-        return sql + ".append(\" limit  \").append(" + start 
-                + ").append(\",\").append(" + count + ");";
-    }
-
-    @Override
-    public String getNextId(Class cls) {
+    protected String getNextIdSql(String seqName) {
         return "";
     }
 
     @Override
-    public String getDbTypeName() {
-        return "Mysql";
+    public String getMapDaoCode() throws Exception {
+        return super.getMapDaoCode("Mysql");
+    }
+
+    @Override
+    public DbProductName getDbProductName() {
+        return DbProductName.Mysql;
     }
     
 }

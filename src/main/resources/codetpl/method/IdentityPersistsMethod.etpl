@@ -1,0 +1,117 @@
+<%
+var entity, columns, tableName, fieldTypes;
+var idInfo;
+for(column : columns){
+    var info = fieldTypes[column];
+    if (info.isId) {
+        idInfo = info;
+    }
+}
+%>
+    @Override
+    public void persist(List<${entity.simpleName}> entities) throws SQLException, Exception {
+        if (entities == null) {
+            return;
+        }
+        PreparedStatement pstmt = null;
+        boolean initAuto = false;
+        try {
+            if (session.getAutoCommit()) {
+                initAuto = true;
+                session.setAutoCommit(false);
+            }
+            int i = 0;
+            String sql = "insert into ${tableName} ("
+                    + "<%
+                    var i = 0;
+                    for(column : columns){%>
+                    <%
+                    var info = fieldTypes[column];
+                    if (!info.isId) {
+                    %>
+                    <%if (i%4==0 && i > 0) {%>" 
+                    + "<%}%>${column}<%if (for.iter.index!=columns.size-1) {%>,<%}%><% i++;}} %>"
+                    + ") values (" 
+                    + "<%
+                    i = 0;
+                    for(column : columns){
+                        var info = fieldTypes[column];
+                        if (!info.isId) {
+                    %>
+                    <%if (for.iter.index>0) {%>,<%}%>?<% i++;}} %>"
+                    + ")";
+            if (logger.isTraceEnabled()) {
+                logger.trace("insert sql = {{}}", sql);
+            }
+            pstmt = session.prepareStatement(sql, 
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            int row;
+            for (${entity.simpleName} entity : entities) {
+                <%
+                for (column : columns) {
+                    var info = fieldTypes[column];
+                    if (!info.isId) {
+                        if ("TIMESTAMP" == info.temporal) {
+                %>
+                Timestamp ts${for.iter.index+1} = null;
+                if (entity.get${info.method}() != null) {
+                    ts${for.iter.index+1} = new Timestamp(entity.get${info.method}().getTime());
+                }
+                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                <%
+                        } else if ("DATE" == info.temporal) {
+                %>
+                java.sql.Date ts${for.iter.index+1} = null;
+                if (entity.get${info.method}() != null) {
+                    ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
+                }
+                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                <%
+                        } else if ("TIME" == info.temporal) {
+                %>
+                java.sql.Time ts${for.iter.index+1} = null;
+                if (entity.get${info.method}() != null) {
+                    ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}.getTime());
+                }
+                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                <%
+                        } else {
+                %>
+                pstmt.set${info.setMethod}(${for.iter.index+1}, entity.get${info.method}());
+                <%
+                        }
+                    }
+                }
+                %>
+                row = pstmt.executeUpdate();
+                if (row > 0) {
+                    ResultSet prs = pstmt.getGeneratedKeys();
+                    <%
+                    var idType = idInfo.type;
+                    %>
+                    ${idType.simpleName} nid = null;
+                    if (prs.next()) {
+                        nid = prs.get${idInfo.setMethod}(1);
+                    }
+                    entity.setId(nid);
+                }
+                i++;
+            }
+            if (initAuto) {
+                session.commit();
+            }
+            if (initAuto) {
+                session.commit();
+            }
+        } catch (SQLException ex) {
+            logger.error("persist error", ex);
+            throw ex;
+        } finally {
+            if (!session.enableBatch()) {
+                session.closeStatements();
+            }
+            if (initAuto) {
+                session.setAutoCommit(true);
+            }
+        }
+    }

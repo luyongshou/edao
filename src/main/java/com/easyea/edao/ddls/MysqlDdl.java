@@ -11,9 +11,9 @@ import com.easyea.edao.annotation.Temporal;
 import com.easyea.edao.annotation.TemporalType;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +27,7 @@ import java.util.Locale;
  */
 public class MysqlDdl extends AbstractDdl {
 
+    @Override
     public List<String> getEntityCreateDdl(Class entity) throws EntityException, Exception {
         List<String> l = null;
         try {
@@ -35,10 +36,10 @@ public class MysqlDdl extends AbstractDdl {
             String tbName = ClassUtil.getTableName(entity).toUpperCase();
             //List tbs = ddlM.getTables();
             
-            List<FieldInfo> fields = ClassUtil.getFields(entity);
+            List<Field> fields = ClassUtil.getFields(entity);
             ArrayList aF = new ArrayList();
             String id = "";
-            for (FieldInfo fi : fields) {
+            for (Field fi : fields) {
                 String f = fi.getName();
                 if (!f.equals("id")) {
                     aF.add(f);
@@ -57,7 +58,7 @@ public class MysqlDdl extends AbstractDdl {
                 String flength   = "";
                 String prikey    = "";
                 Column dcolumn   = null;
-                for (FieldInfo fi : fields) {
+                for (Field fi : fields) {
                     isPrikey = false;
 
                     String       f        = fi.getName();
@@ -168,20 +169,24 @@ public class MysqlDdl extends AbstractDdl {
         return l;
     }
 
+    @Override
     public List<String> getEntityUpdateDdl(Class entity, Connection con) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
     public List<String> getViewCreateDdl(Class view) throws EntityException, Exception {
         return null;
         //
     }
 
+    @Override
     public List<String> getViewUpdateDdl(Class view, Connection con) 
             throws EntityException, Exception {
         return null;
     }
 
+    @Override
     public List<String> getTables(Class entity, Connection con) throws EntityException, Exception {
         String           tbName = ClassUtil.getTableName(entity);
         tbName = tbName.toLowerCase(Locale.ENGLISH);
@@ -193,6 +198,7 @@ public class MysqlDdl extends AbstractDdl {
         return tbs;
     }
 
+    @Override
     protected void appendBooleanColumSqls(String       tableName, 
                                           String       colName, 
                                           Column       fCol,
@@ -202,6 +208,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendDateColumSqls(String       tableName, 
                                        String       colName, 
                                        Annotation[] anns,
@@ -241,6 +248,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendStringColumSqls(String       tableName, 
                                          String       colName, 
                                          Annotation[] anns,
@@ -280,6 +288,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendDoubleColumSqls(String       tableName, 
                                          String       colName, 
                                          Column       fCol,
@@ -310,6 +319,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendFloatColumSqls(String       tableName, 
                                         String       colName, 
                                         Column       fCol,
@@ -340,6 +350,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendLongColumSqls(String       tableName, 
                                        String       colName, 
                                        Column       fCol,
@@ -353,6 +364,7 @@ public class MysqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendIntColumSqls(String       tableName, 
                                       String       colName, 
                                       Column       fCol,
@@ -371,11 +383,13 @@ public class MysqlDdl extends AbstractDdl {
         return ClassUtil.getTableName(entity);
     }
 
+    @Override
     public List<String> getColumns(Class entity, Connection con) 
             throws EntityException, Exception {
         return this.getFieldsByJdbc(con, this.getTableName(entity));
     }
 
+    @Override
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

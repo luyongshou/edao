@@ -9,9 +9,19 @@ import java.util.List;
  * 操作持久化对象的DAO接口
  * 
  * @author <a href="mailto:louis@easyea.com">louis</a>
+ * @param <T>
  * 
  */
-public interface EntityDao {
+public interface EntityDao<T> {
+    
+    /**
+     * @deprecated 
+     * @param con 
+     */
+    public void setConnect(Connection con);
+    
+    public void setStatementSession(StatementSession sesion);
+    
     /**
      * 获取持久化Dao的Ddl管理器
      * @return 
@@ -24,27 +34,13 @@ public interface EntityDao {
     public void setDdlManager(DdlManager ddlManager);
 
     /**
-     * 设置该接口持有的数据库连接
-     * @param con 数据库连接
-     */
-    public void setConnect(Connection con);
-
-    /**
-     * 返回该DAO持有的数据库连接
-     * @return 数据库连接
-     */
-    public Connection getConnect();
-
-    /**
      * 把一个角色的对象保存到容器或者数据库中去
-     *
-     * @param <T>
      * @param entity
      *            持久化对象
      * @return 如果保存成功返回持久化对象如果失败返回null
      * @throws java.sql.SQLException
      */
-    public <T> T persist(T entity) throws SQLException, Exception;
+    public T persist(T entity) throws SQLException, Exception;
     
     /**
      * 批量保存数据
@@ -52,19 +48,17 @@ public interface EntityDao {
      * @throws SQLException 执行SQL语句如果有错则返回错误
      * @throws Exception 如果有其他的错误则返回相应的错误
      */
-    public void persist(List<?> entities) throws SQLException, Exception;
+    public void persist(List<T> entities) throws SQLException, Exception;
 
     /**
      * 根据主键获取一个持久化的对象
-     *
-     * @param <T>
      * @param primaryKey
      *            角色的主键
      * @return 如果成功返回一个角色对象如果失败返回null
      * @throws SQLException
      * @throws Exception
      */
-    public <T> T getEntityById(Object primaryKey) throws SQLException, Exception;
+    public T getEntityById(Object primaryKey) throws SQLException, Exception;
 
     /**
      * 获取所有该类持久化对象列表
@@ -73,7 +67,7 @@ public interface EntityDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList() throws SQLException, Exception;
+    public List<T> getList() throws SQLException, Exception;
 
     /**
      * 根据hq sql 语句获取所有符合qlString的持久化对象
@@ -84,7 +78,7 @@ public interface EntityDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString) throws SQLException, Exception;
+    public List<T> getList(String qlString) throws SQLException, Exception;
 
     /**
      * 获取一定数量符合条件的持久化对象列表
@@ -99,7 +93,7 @@ public interface EntityDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, long start, int counts) 
+    public List<T> getList(String qlString, long start, int counts) 
             throws SQLException, Exception;
 
     /**
@@ -113,7 +107,7 @@ public interface EntityDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, ArrayList<QueryParam> params) 
+    public List<T> getList(String qlString, ArrayList<QueryParam> params) 
             throws SQLException, Exception;
 
     /**
@@ -131,19 +125,18 @@ public interface EntityDao {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List getList(String qlString, ArrayList<QueryParam> params,
+    public List<T> getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception;
 
     /**
      * 更新一个持久化对象到持久化容器或者数据库中
      *
-     * @param <T> 需要更新的持久化Bean的类型
      * @param entity 需要持久化的持久化对象
      * @return 返回修改成功的持久化bean
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public <T> T merge(T entity) throws SQLException, Exception;
+    public T merge(T entity) throws SQLException, Exception;
 
     /**
      * 获取该类所有持久化对象的个数

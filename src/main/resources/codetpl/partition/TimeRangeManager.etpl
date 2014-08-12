@@ -1,0 +1,56 @@
+<%
+var entityPackage, entity, method, count, calendarField, dateFormat;
+%>
+package numrm.${entityPackage};
+
+import com.easyea.edao.PartitionManager;
+import ${entity.name};
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+/**
+ *
+ * @author edao platform
+ */
+public class ${entity.simpleName}Manager implements PartitionManager<${entity.simpleName}> {
+
+    private static final Calendar timet = Calendar.getInstance();
+    
+    @Override
+    public String getExtTableString(${entity.simpleName} entity) {
+        String ext = "";
+        if (entity == null) {
+            return ext;
+        }
+        int index = 0;
+        Calendar time = (Calendar)timet.clone();
+        time.setTime(entity.${method}());
+        
+        String format = "${dateFormat}";
+        <%
+        if (count > 1) {
+        %>
+        SimpleDateFormat tf = new SimpleDateFormat(format);
+        int datei = time.get(${calendarField});
+        <%
+        if (calendarField == "Calendar.DAY_OF_MONTH") {
+        %>
+        datei++;
+        <% } %>
+        index = datei/${count};
+        index++;
+        <%} else {%>
+        SimpleDateFormat tf = new SimpleDateFormat(format);
+        <%}%>
+
+        ext = "__T${count}";
+        if (tf.format(time.getTime()).length() > 0) {
+            ext += "_" + tf.format(time.getTime());
+        }
+        if (index > 0) {
+            ext += "_N" + index;
+        }
+        return ext;
+    }
+    
+}

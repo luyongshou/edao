@@ -8,5 +8,5 @@ package com.easyea.edao.annotation;
  * The GenerationType enumeration
  */
 public enum GenerationType {
-  TABLE, SEQUENCE, IDENTITY, AUTO
+  SEQUENCE, IDENTITY, AUTO, GENERATION
 }

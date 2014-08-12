@@ -13,14 +13,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DdlFactory {
     
-    private static ConcurrentHashMap<String, Ddl> ddlFacts =
-            new ConcurrentHashMap<String, Ddl>();
+    private static final ConcurrentHashMap<String, Ddl> ddlFacts =
+            new ConcurrentHashMap<>();
     private final static ReentrantLock lock = new ReentrantLock();
     
     /**
      * 根据数据库类型获取对应数据的Ddl用来操作DDL语句
      * @param dbType
      * @return 
+     * @throws java.lang.Exception 
      */
     public static Ddl getDdl(String dbType) throws Exception {
         Ddl ddl = ddlFacts.get(dbType);

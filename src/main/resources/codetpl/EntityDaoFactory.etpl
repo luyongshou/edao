@@ -1,0 +1,38 @@
+<%
+var dbProductName, daoFactPackPre, entity, entityPackage;
+%>
+package ${daoFactPackPre}${entityPackage};
+
+import com.easyea.edao.exception.EntityException;
+import ${entity.name};
+import edaop.${entity.name}Dao;
+import com.easyea.edao.DdlManager;
+import com.easyea.edao.EntityFactory;
+import com.easyea.edao.EntityDao;
+import com.easyea.edao.ddls.${dbProductName}Ddl;
+import com.easyea.edao.ddls.${dbProductName}DdlManager;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ *
+ * @author platform
+ */
+public class ${entity.simpleName}DaoFactory implements EntityFactory {
+
+    private static final ReentrantLock  lock = new ReentrantLock();
+    private static DdlManager ddlManager = null;
+
+    public ${entity.simpleName}DaoFactory() {
+        ddlManager = new ${dbProductName}DdlManager(${entity.simpleName}.class, 
+                new ${dbProductName}Ddl());
+    }
+
+    @Override
+    public EntityDao getDao() throws EntityException, Exception {
+        
+        EntityDao dao = new ${entity.simpleName}Dao();
+        dao.setDdlManager(ddlManager);
+        return dao;
+    }
+    
+}

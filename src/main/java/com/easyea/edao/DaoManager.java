@@ -14,6 +14,8 @@ import com.easyea.edao.exception.ViewException;
  */
 public interface DaoManager {
 
+    public Class getPartitionManager(Class entityCls);
+    
     /**
      * 根据制定的Dao名称，以及制定数据库的代码生成器获取一个Dao的实现，如果该实现不存在在根据
      * dao名称以及规则查找相应的持久化bean，如果持久化bean存在则反射持久化bean生成dao的实现
@@ -53,13 +55,12 @@ public interface DaoManager {
      *
      * @param entityCls 持久化Bean的全称
      * @param builder 
-     * @param db      数据类型 
      * @return 返回dao的工厂类
      * @throws EntityException 持久化bean相关的错误，包名规范，属性以及函数错误。
      * @throws Exception 编译错误以及其他的错误
      */
-    public EntityFactory getEntityFactory(Class entityCls, Builder builder, 
-            String db) throws EntityException, Exception;
+    public EntityFactory getEntityFactory(Class entityCls, Builder builder) 
+            throws EntityException, Exception;
     /**
      * 根据指定的试图dao的名称返回试图dao的工厂类
      * 

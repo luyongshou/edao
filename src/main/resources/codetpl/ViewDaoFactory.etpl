@@ -1,0 +1,23 @@
+<%
+var vdaoFactPackPre, entity, entityPackage;
+%>
+package ${vdaoFactPackPre}${entityPackage};
+
+import com.easyea.edao.exception.ViewException;
+import evdaop.${entity.name}Dao;
+import com.easyea.edao.ViewFactory;
+import com.easyea.edao.ViewDao;
+
+/**
+ *
+ * @author platform
+ */
+public class ${entity.simpleName}DaoFactory implements ViewFactory {
+
+    @Override
+    public ViewDao getDao() throws ViewException, Exception {
+        ViewDao dao = new ${entity.simpleName}Dao();
+        return dao;
+    }
+    
+}

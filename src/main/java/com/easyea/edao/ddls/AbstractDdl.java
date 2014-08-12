@@ -8,10 +8,10 @@ import com.easyea.edao.Ddl;
 import com.easyea.edao.annotation.Column;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -65,7 +65,7 @@ public abstract class AbstractDdl implements Ddl {
             tableName = tableName.toLowerCase(Locale.ENGLISH);
             while (rs.next()) {
                 if (tbs == null) {
-                    tbs = new ArrayList<String>();
+                    tbs = new ArrayList<>();
                 }
                 String tname = rs.getString(tbNameIndex);
                 if (tname != null && tname.length() > 0) {
@@ -83,6 +83,7 @@ public abstract class AbstractDdl implements Ddl {
         return tbs;
     }
     
+    @Override
     public abstract String getTableName(Class entity) 
             throws EntityException, Exception;
     
@@ -95,7 +96,7 @@ public abstract class AbstractDdl implements Ddl {
      */
     public List<String> getFieldsByJdbc(Connection con, String tableName)
             throws Exception {
-        List<String> fields = new ArrayList<String>();
+        List<String> fields = new ArrayList<>();
         try {
             ResultSet rs = con.getMetaData().getColumns(null, null, tableName, null);
             if (rs != null) {
@@ -116,8 +117,9 @@ public abstract class AbstractDdl implements Ddl {
         return fields;
     }
     
-    public List<String> getAddColumnSqls(String tableName, FieldInfo field) {
-        List<String> sqls = new ArrayList<String>();
+    @Override
+    public List<String> getAddColumnSqls(String tableName, Field field) {
+        List<String> sqls = new ArrayList<>();
         if (field != null) {
             Class  ftype   = field.getType();
             String colName = ClassUtil.getColumnName(field);
@@ -150,10 +152,11 @@ public abstract class AbstractDdl implements Ddl {
         return sqls;
     }
     
+    @Override
     public List<String> getEntityUpdateDdl(Class entity, Connection con) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<String>();
-        List<FieldInfo> fields = ClassUtil.getFields(entity);
+        List<String> sqls = new ArrayList<>();
+        List<Field> fields = ClassUtil.getFields(entity);
         if (fields != null) {
             List<String> cols = null;
             try {
@@ -163,7 +166,7 @@ public abstract class AbstractDdl implements Ddl {
             }
             
             if (cols != null) {
-                for (FieldInfo fi : fields) {
+                for (Field fi : fields) {
                     String col = ClassUtil.getColumnName(fi);
                     col = col.toLowerCase(Locale.ENGLISH);
                     if (!cols.contains(col)) {

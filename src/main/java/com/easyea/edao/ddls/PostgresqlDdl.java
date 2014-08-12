@@ -12,9 +12,9 @@ import com.easyea.edao.annotation.TemporalType;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.partition.PartitionParam;
 import com.easyea.edao.util.ClassUtil;
-import com.easyea.edao.util.FieldInfo;
 import com.easyea.internal.CodeBuilder;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,17 +34,17 @@ public class PostgresqlDdl extends AbstractDdl {
     @Override
     public List<String> getEntityCreateDdl(Class entity) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
         CodeBuilder sql = new CodeBuilder();
 
         //DDLManager ddlM = DDLManagerFactory.getDDLManager(con);
         String tbName = ClassUtil.getTableName(entity).toLowerCase();
         //List tbs = ddlM.getTables();
         
-        List<FieldInfo> aField = ClassUtil.getFields(entity);
+        List<Field> aField = ClassUtil.getFields(entity);
         ArrayList aF = new ArrayList();
         String    id = "";
-        for (FieldInfo finfo : aField) {
+        for (Field finfo : aField) {
             String f = finfo.getName();
             if (!f.equals("id")) {
                 aF.add(f);
@@ -63,7 +63,7 @@ public class PostgresqlDdl extends AbstractDdl {
             String  flength  = "";
             String  prikey   = "";
             Column  dcolumn  = null;
-            for (FieldInfo finfo : aField) {
+            for (Field finfo : aField) {
                 isPrikey = false;
 
                 String       f     = finfo.getName();
@@ -166,14 +166,14 @@ public class PostgresqlDdl extends AbstractDdl {
     @Override
     public List<String> getViewCreateDdl(Class view) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
         return sqls;
     }
 
     @Override
     public List<String> getViewUpdateDdl(Class view, Connection con) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
         return sqls;
     }
 
@@ -190,6 +190,7 @@ public class PostgresqlDdl extends AbstractDdl {
         return tbs;
     }
 
+    @Override
     protected void appendBooleanColumSqls(String       tableName, 
                                           String       colName, 
                                           Column       fCol,
@@ -199,6 +200,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendDateColumSqls(String       tableName, 
                                        String       colName, 
                                        Annotation[] anns,
@@ -238,6 +240,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendStringColumSqls(String       tableName, 
                                          String       colName, 
                                          Annotation[] anns,
@@ -277,6 +280,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendDoubleColumSqls(String       tableName, 
                                          String       colName, 
                                          Column       fCol,
@@ -307,6 +311,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendFloatColumSqls(String       tableName, 
                                         String       colName, 
                                         Column       fCol,
@@ -337,6 +342,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendLongColumSqls(String       tableName, 
                                        String       colName, 
                                        Column       fCol,
@@ -346,6 +352,7 @@ public class PostgresqlDdl extends AbstractDdl {
         sqls.add(sql);
     }
     
+    @Override
     protected void appendIntColumSqls(String       tableName, 
                                       String       colName, 
                                       Column       fCol,
@@ -360,6 +367,7 @@ public class PostgresqlDdl extends AbstractDdl {
         return ClassUtil.getTableName(entity);
     }
 
+    @Override
     public List<String> getColumns(Class entity, Connection con) 
             throws EntityException, Exception {
         String tb = this.getTableName(entity);
@@ -370,11 +378,12 @@ public class PostgresqlDdl extends AbstractDdl {
         return this.getFieldsByJdbc(con, tb);
     }
 
+    @Override
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         String tbName = ClassUtil.getTableName(entity);
         PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity, null);
         PartitionParam pparam = ddlm.parsePartitionParam();
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
         if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
             extName = extName.substring(2);
             int count = 1;
@@ -403,7 +412,7 @@ public class PostgresqlDdl extends AbstractDdl {
                                           String field, 
                                           int    count, 
                                           String ext) {
-        ArrayList<String> sqls = new ArrayList<String>();
+        ArrayList<String> sqls = new ArrayList<>();
         String checkStr = field + ">=";
         if (ext.length() == 4) {
             checkStr += "'" + ext + "-01-01 00:00:00' and " + field + "<='" + ext + 
@@ -437,7 +446,7 @@ public class PostgresqlDdl extends AbstractDdl {
                                             String field, 
                                             int    count, 
                                             String ext) {
-        ArrayList<String> sqls = new ArrayList<String>();
+        ArrayList<String> sqls = new ArrayList<>();
         String checkStr = field + ">=(" + ext + "*" + (count*1000000) + 
                 ") and " + field + "<((" + ext + 
                 "+1)*" + (count*1000000) + ")";

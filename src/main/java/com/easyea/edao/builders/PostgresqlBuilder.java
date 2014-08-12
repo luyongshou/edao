@@ -1,49 +1,51 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package com.easyea.edao.builders;
 
-import com.easyea.edao.util.ClassUtil;
+import com.easyea.edao.DaoManager;
+import com.easyea.edao.DbProductName;
+import com.easyea.edao.exception.EntityException;
+import com.easyea.edao.exception.ViewException;
+import com.easyea.edao.managers.DefaultManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * 定义Postgresql的代码拼接的实现类，主要是实现一些特殊SQL的函数，多数的代码实现由
- * AbstractBuilder来实现
+ *
  * @author louis
  */
 public class PostgresqlBuilder extends AbstractBuilder {
+    
+    public PostgresqlBuilder(DaoManager manager) {
+        super(manager);
+    }
 
     @Override
-    public String getLimitSql(String sql, String start, String count) {
-        return sql + ".append(\" limit  \").append(" + count 
-                + ").append(\" offset \").append(" + start + ");";
+    public String getMapDaoCode() throws Exception {
+        return super.getMapDaoCode("Postgresql");
     }
     
     @Override
-    public String getNextId(Class cls) {
-        StringBuilder sb = new StringBuilder();
-        String seqName = ClassUtil.getSeqName(cls);
-        
-        sb.append(t(3)).append("String sId = \"SELECT NEXTVAL('").append(seqName)
-                .append("') AS nid\";").append(r(1));
-        sb.append(t(3)).append("pstmt = con.prepareStatement(sId);")
-                .append(r(1));
-        sb.append(t(3)).append("ResultSet rs = pstmt.executeQuery();").append(r(1));
-        sb.append(t(3)).append("if (rs.next()) {").append(r(1));
-        sb.append(t(4)).append("nid = rs.getLong(\"nid\");").append(r(1));
-        sb.append(t(3)).append("}").append(r(1));
-        sb.append(t(3)).append("try {pstmt.close();}catch (Exception e) {}").append(r(1));
-        return sb.toString();
+    public DbProductName getDbProductName() {
+        return DbProductName.Postgresql;
     }
     
     public static void main(String[] args) {
-        PostgresqlBuilder pb = new PostgresqlBuilder();
-        System.out.println(pb.getLimitSql("sql", "start", "count"));
+        DefaultManager manager = DefaultManager.getInstance();
+        
+        MysqlBuilder builder = new MysqlBuilder(manager);
+        
+        
     }
 
     @Override
-    public String getDbTypeName() {
-        return "Postgresql";
+    protected String getNextIdSql(String seqName) {
+        return "SELECT NEXTVAL('" + seqName + "') AS nid";
     }
+
     
 }
