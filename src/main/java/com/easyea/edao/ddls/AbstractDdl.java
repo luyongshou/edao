@@ -65,7 +65,7 @@ public abstract class AbstractDdl implements Ddl {
             tableName = tableName.toLowerCase(Locale.ENGLISH);
             while (rs.next()) {
                 if (tbs == null) {
-                    tbs = new ArrayList<>();
+                    tbs = new ArrayList<String>();
                 }
                 String tname = rs.getString(tbNameIndex);
                 if (tname != null && tname.length() > 0) {
@@ -96,7 +96,7 @@ public abstract class AbstractDdl implements Ddl {
      */
     public List<String> getFieldsByJdbc(Connection con, String tableName)
             throws Exception {
-        List<String> fields = new ArrayList<>();
+        List<String> fields = new ArrayList<String>();
         try {
             ResultSet rs = con.getMetaData().getColumns(null, null, tableName, null);
             if (rs != null) {
@@ -119,7 +119,7 @@ public abstract class AbstractDdl implements Ddl {
     
     @Override
     public List<String> getAddColumnSqls(String tableName, Field field) {
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         if (field != null) {
             Class  ftype   = field.getType();
             String colName = ClassUtil.getColumnName(field);
@@ -155,7 +155,7 @@ public abstract class AbstractDdl implements Ddl {
     @Override
     public List<String> getEntityUpdateDdl(Class entity, Connection con) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         List<Field> fields = ClassUtil.getFields(entity);
         if (fields != null) {
             List<String> cols = null;

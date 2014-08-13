@@ -27,8 +27,8 @@ public class SingleStatementSession implements StatementSession {
     
     public SingleStatementSession() {
         this.con = null;
-        this.statements = new ArrayList<>();
-        this.preparedStatements = new HashMap<>();
+        this.statements = new ArrayList<Statement>();
+        this.preparedStatements = new HashMap<String, PreparedStatement>();
     }
 
     @Override

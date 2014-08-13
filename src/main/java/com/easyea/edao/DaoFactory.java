@@ -22,11 +22,11 @@ public class DaoFactory {
     private static Logger logger = LoggerFactory.getLogger(DaoFactory.class);
     
     private static final ConcurrentHashMap<String, EntityFactory> entityFacts =
-            new ConcurrentHashMap<>();
+            new ConcurrentHashMap<String, EntityFactory>();
     private static final ConcurrentHashMap<String, ViewFactory> viewFacts =
-            new ConcurrentHashMap<>();
+            new ConcurrentHashMap<String, ViewFactory>();
     private static final ConcurrentHashMap<String, MapFactory> mapFacts =
-            new ConcurrentHashMap<>();
+            new ConcurrentHashMap<String, MapFactory>();
     
     /**
      * EntityFactory缓存的锁，如果缓存中没有该dao实现的工厂类，在获取工厂类的时候加锁防止

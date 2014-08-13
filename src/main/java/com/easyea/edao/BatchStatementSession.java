@@ -28,8 +28,8 @@ public class BatchStatementSession implements StatementSession {
     public BatchStatementSession() {
         Class cls = this.getClass();
         this.con = null;
-        this.statements         = new ArrayList<>();
-        this.preparedStatements = new HashMap<>();
+        this.statements         = new ArrayList<Statement>();
+        this.preparedStatements = new HashMap<String, PreparedStatement>();
     }
 
     @Override

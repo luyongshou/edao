@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DdlFactory {
     
     private static final ConcurrentHashMap<String, Ddl> ddlFacts =
-            new ConcurrentHashMap<>();
+            new ConcurrentHashMap<String, Ddl>();
     private final static ReentrantLock lock = new ReentrantLock();
     
     /**

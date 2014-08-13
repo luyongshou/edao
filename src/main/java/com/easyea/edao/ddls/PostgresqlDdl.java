@@ -34,7 +34,7 @@ public class PostgresqlDdl extends AbstractDdl {
     @Override
     public List<String> getEntityCreateDdl(Class entity) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         CodeBuilder sql = new CodeBuilder();
 
         //DDLManager ddlM = DDLManagerFactory.getDDLManager(con);
@@ -166,14 +166,14 @@ public class PostgresqlDdl extends AbstractDdl {
     @Override
     public List<String> getViewCreateDdl(Class view) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         return sqls;
     }
 
     @Override
     public List<String> getViewUpdateDdl(Class view, Connection con) 
             throws EntityException, Exception {
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         return sqls;
     }
 
@@ -383,7 +383,7 @@ public class PostgresqlDdl extends AbstractDdl {
         String tbName = ClassUtil.getTableName(entity);
         PostgresqlDdlManager ddlm = new PostgresqlDdlManager(entity, null);
         PartitionParam pparam = ddlm.parsePartitionParam();
-        List<String> sqls = new ArrayList<>();
+        List<String> sqls = new ArrayList<String>();
         if (extName != null && extName.length() > 2 && extName.startsWith("__")) {
             extName = extName.substring(2);
             int count = 1;
@@ -412,7 +412,7 @@ public class PostgresqlDdl extends AbstractDdl {
                                           String field, 
                                           int    count, 
                                           String ext) {
-        ArrayList<String> sqls = new ArrayList<>();
+        ArrayList<String> sqls = new ArrayList<String>();
         String checkStr = field + ">=";
         if (ext.length() == 4) {
             checkStr += "'" + ext + "-01-01 00:00:00' and " + field + "<='" + ext + 
@@ -446,7 +446,7 @@ public class PostgresqlDdl extends AbstractDdl {
                                             String field, 
                                             int    count, 
                                             String ext) {
-        ArrayList<String> sqls = new ArrayList<>();
+        ArrayList<String> sqls = new ArrayList<String>();
         String checkStr = field + ">=(" + ext + "*" + (count*1000000) + 
                 ") and " + field + "<((" + ext + 
                 "+1)*" + (count*1000000) + ")";

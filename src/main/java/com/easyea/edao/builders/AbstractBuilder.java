@@ -45,8 +45,9 @@ public abstract class AbstractBuilder implements Builder {
     
     public AbstractBuilder(DaoManager manager) {
         this.manager   = manager;
-        this.imps      = new ArrayList<>();
-        this.fields    = new HashMap<>();
+        this.imps      = new ArrayList<String>();
+        this.fields    = new HashMap<String, Field>();
+        this.methods   = new HashMap<String, Method>();
     }
     
     @Override
@@ -107,8 +108,8 @@ public abstract class AbstractBuilder implements Builder {
         }
         WebitTemplate tpl = new WebitTemplate();
         
-        List<String> columns = new ArrayList<>();
-        Map<String, TypeInfo> fieldTypes = new HashMap<>();
+        List<String> columns = new ArrayList<String>();
+        Map<String, TypeInfo> fieldTypes = new HashMap<String, TypeInfo>();
         if (fields != null && !fields.isEmpty()) {
             String mName;
             boolean isId;
@@ -136,7 +137,7 @@ public abstract class AbstractBuilder implements Builder {
             }
         }
         Collections.sort(columns);
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         String tplPath = "/codetpl/method/SequencePersistMethod.etpl";
         if (this.getDbProductName() == DbProductName.Mysql) {
             tplPath = "/codetpl/method/IdentityPersistMethod.etpl";
@@ -188,8 +189,8 @@ public abstract class AbstractBuilder implements Builder {
         String tableName = ClassUtil.getTableName(entityCls);
         initFields();
         
-        List<String> columns = new ArrayList<>();
-        Map<String, TypeInfo> fieldTypes = new HashMap<>();
+        List<String> columns = new ArrayList<String>();
+        Map<String, TypeInfo> fieldTypes = new HashMap<String, TypeInfo>();
         if (fields != null && !fields.isEmpty()) {
             String mName;
             for (Map.Entry<String, Field> entry : fields.entrySet()) {
@@ -216,7 +217,7 @@ public abstract class AbstractBuilder implements Builder {
         }
         Collections.sort(columns);
         
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         String tplPath = "/codetpl/ViewDao.etpl";
         context.put("vdaoPackPre", ClassUtil.vdaoPackPre);
         context.put("entityPackage", entityCls.getPackage().getName());
@@ -239,7 +240,7 @@ public abstract class AbstractBuilder implements Builder {
         String code = "";
         String dbName = dbProductName.substring(0, 1)
                 .toUpperCase(Locale.ENGLISH) + dbProductName.substring(1);
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         String tplPath = "/codetpl/MapDao.etpl";
         context.put("mapdaoPackage", ClassUtil.MAPDAO_PACKAGE);
         context.put("dbProductName", dbName);

@@ -107,7 +107,7 @@ public class ClassUtil {
     public static String getSeqName(Class cls) {
         String       seq  = getTableName(cls) + "_id_seq";
         Annotation[] anns = cls.getAnnotations();
-        HashMap<String, String> aSeq = new HashMap<>();
+        HashMap<String, String> aSeq = new HashMap<String, String>();
         if (anns != null) {
             for (int i=0;i<anns.length;i++) {
                 if (anns[i] instanceof SequenceGenerator) {
@@ -165,7 +165,7 @@ public class ClassUtil {
      */
     public static List<Field> getFields(Class cls) {
         Field[] fields = cls.getDeclaredFields();
-        List<Field> afs = new ArrayList<>();
+        List<Field> afs = new ArrayList<Field>();
         afs.addAll(Arrays.asList(fields));
 
         appendSuperFields(cls, afs);
@@ -204,14 +204,14 @@ public class ClassUtil {
      * @return 
      */
     public static List<Method> getMethods(Class cls) {
-        List<Method> ms = new ArrayList<>();
+        List<Method> ms = new ArrayList<Method>();
         Method[] methods = cls.getMethods();
         ms.addAll(Arrays.asList(methods));
         return ms;
     }
     
     public static List<Method> getMethodList(Class cls) {
-        ArrayList<Method> l = new ArrayList<>();
+        ArrayList<Method> l = new ArrayList<Method>();
         Method[] methods = cls.getMethods();
         if (methods != null) {
             l.addAll(Arrays.asList(methods));

@@ -12,6 +12,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
 
   <dependencies>
@@ -25,6 +27,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.zqq90.webit-script</groupId>
+      <artifactId>webit-script</artifactId>
+      <version>1.4.2</version>
     </dependency>
   </dependencies>
 </project>

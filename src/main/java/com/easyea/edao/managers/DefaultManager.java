@@ -83,7 +83,7 @@ public class DefaultManager implements DaoManager {
     
     private DynamicClassLoader loader;
     private ConcurrentHashMap<String, Class> cache = 
-            new ConcurrentHashMap<>();
+            new ConcurrentHashMap<String, Class>();
     
     private DefaultManager() {
         final ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
@@ -124,7 +124,8 @@ public class DefaultManager implements DaoManager {
         }
         if (isp) {
             List<Field> fields = ClassUtil.getFields(entityCls);
-            Map<String, java.lang.reflect.Type> aType = new HashMap<>();
+            Map<String, java.lang.reflect.Type> aType = 
+                    new HashMap<String, java.lang.reflect.Type>();
             if (fields != null && !fields.isEmpty()) {
                 for (Field f : fields) {
                     aType.put(f.getName(), f.getGenericType());
@@ -163,7 +164,7 @@ public class DefaultManager implements DaoManager {
     private Class getPartitionManager(Class entityCls, PartitionParam param) {
         Class pm = null;
         WebitTemplate tpl = new WebitTemplate();
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         context.put("entity", entityCls);
         String tmpPath = "";
         if (param instanceof TimeRange) {
@@ -691,7 +692,7 @@ public class DefaultManager implements DaoManager {
     public static String getEntityFactoryCode(Class entityCls, DbProductName db) {
         String code = "";
         WebitTemplate tpl = new WebitTemplate();
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         context.put("daoFactPackPre", ClassUtil.daoFactPackPre);
         context.put("entity", entityCls);
         context.put("entityPackage", entityCls.getPackage().getName());
@@ -789,7 +790,7 @@ public class DefaultManager implements DaoManager {
     public static String getViewFactoryCode(Class entityCls) {
         String code = "";
         WebitTemplate tpl = new WebitTemplate();
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         context.put("vdaoFactPackPre", ClassUtil.vdaoFactPackPre);
         context.put("entity", entityCls);
         context.put("entityPackage", entityCls.getPackage().getName());
@@ -890,7 +891,7 @@ public class DefaultManager implements DaoManager {
     public static String getMapFactoryCode(DbProductName dbProductName) {
         String code = "";
         WebitTemplate tpl = new WebitTemplate();
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new HashMap<String, Object>();
         context.put("mapdaoPackage", ClassUtil.MAPDAO_PACKAGE);
         context.put("dbProductName", dbProductName);
         try {
