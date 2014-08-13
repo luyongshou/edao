@@ -248,7 +248,7 @@ public class DaoFactory {
         } catch (Exception e) {
             logger.debug("dao=[{}]clsName=[{}]", dao, clsName);
             e.printStackTrace();
-            clsName = name.substring(0, daoStr) + ".entitybean." + 
+            clsName = name.substring(0, daoStr) + ".view." + 
                 entityName.substring(0, entityName.length()-3);
             try {
                 Class cls = Class.forName(clsName);
