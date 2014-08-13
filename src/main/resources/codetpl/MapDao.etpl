@@ -36,10 +36,10 @@ public class ${dbProductName}MapDao implements MapDao {
 
     @Override
     public void setConnect(Connection con) {
-        if (session == null) {
+        //if (session == null) {
             session = new SingleStatementSession();
             session.setConnection(con);
-        }
+        //}
     }
 
     @Override
