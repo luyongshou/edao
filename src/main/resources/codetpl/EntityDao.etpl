@@ -39,10 +39,10 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
 
     @Override
     public void setConnect(Connection con) {
-        if (session == null) {
+        //if (session == null) {
             session = new SingleStatementSession();
             session.setConnection(con);
-        }
+        //}
     }
 
     @Override
@@ -223,15 +223,27 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 if (!info.isId) {
                     if ("TIMESTAMP" == info.temporal) {
             %>
-            pstmt.set${info.setMethod}(${i}, new java.sql.Timestamp(entity.get${info.method}().getTime()));
+            java.sql.Timestamp ts${for.iter.index+1} = null;
+            if (entity.get${info.method}() != null) {
+                ts${for.iter.index+1} = new java.sql.Timestamp(entity.get${info.method}().getTime());
+            }
+            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("DATE" == info.temporal) {
             %>
-            pstmt.set${info.setMethod}(${i}, new java.sql.Date(entity.get${info.method}().getTime()));
+            java.sql.Date ts${for.iter.index+1} = null;
+            if (entity.get${info.method}() != null) {
+                ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
+            }
+            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("TIME" == info.temporal) {
             %>
-            pstmt.set${info.setMethod}(${i}, new java.sql.Time(entity.get${info.method}().getTime()));
+            java.sql.Time ts${for.iter.index+1} = null;
+            if (entity.get${info.method}() != null) {
+                ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}().getTime());
+            }
+            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else {
             %>
