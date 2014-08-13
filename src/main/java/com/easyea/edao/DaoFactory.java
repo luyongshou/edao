@@ -10,6 +10,7 @@ import com.easyea.edao.managers.DefaultManager;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
 import java.lang.reflect.Constructor;
+import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -104,6 +105,34 @@ public class DaoFactory {
         }
         if (fact != null) {
             dao = fact.getDao();
+        }
+        return dao;
+    }
+    
+    /**
+     * @throws java.lang.Exception
+     * @deprecated
+     * @param name
+     * @param con
+     * @return 
+     */
+    public static EntityDao getDao(String name, Connection con) 
+            throws Exception {
+        return getEntityDao(name, con);
+    }
+    
+    /**
+     * @throws java.lang.Exception
+     * @deprecated
+     * @param name
+     * @param con
+     * @return 
+     */
+    public static EntityDao getEntityDao(String name, Connection con) 
+            throws Exception {
+        EntityDao dao = getEntityDao(name, "Postgresql");
+        if (dao != null) {
+            dao.setConnect(con);
         }
         return dao;
     }
