@@ -40,8 +40,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     @Override
     public void setConnect(Connection con) {
         //if (session == null) {
-            session = new SingleStatementSession();
+            SingleStatementSession session = new SingleStatementSession();
             session.setConnection(con);
+            setStatementSession(session);
         //}
     }
 
