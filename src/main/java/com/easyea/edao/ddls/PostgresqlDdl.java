@@ -65,11 +65,11 @@ public class PostgresqlDdl extends AbstractDdl {
             Column  dcolumn  = null;
             for (Field finfo : aField) {
                 isPrikey = false;
-
+                flength  = "255";
                 String       f     = finfo.getName();
                 Annotation[] aann  = finfo.getAnnotations();
                 Object       ftype = finfo.getType();
-                String       fname = "";
+                String       fname = ClassUtil.getColumnName(finfo);
                 boolean      isLob = false;
                 TemporalType tempType = null;
                 if (aann != null) {
@@ -80,8 +80,9 @@ public class PostgresqlDdl extends AbstractDdl {
                         }
                         if (ann instanceof Column) {
                             Column cann = (Column)ann;
-                            fname = cann.name();
-                            flength = cann.length() + "";
+                            if (cann.length() > 0) {
+                                flength = cann.length() + "";
+                            }
                             dcolumn = cann;
                         }
                         if (ann instanceof Lob) {
@@ -91,16 +92,12 @@ public class PostgresqlDdl extends AbstractDdl {
                             Temporal tann = (Temporal)ann;
                             tempType = tann.value();
                         }
-                        if (fname.length() == 0) {
-                            fname = f;
-                        }
                     }
                 } else {
                     if (f.equals("id")) {
                         isPrikey = true;
                     }
                     isLob = false;
-                    fname = f;
                     flength = "255";
                     tempType = TemporalType.TIMESTAMP;
                 }
