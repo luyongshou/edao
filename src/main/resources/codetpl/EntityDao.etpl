@@ -1,11 +1,12 @@
 <%
 var daoPackPre, entityPackage, entity, columns, tableName, generationType;
-var seqName, persistMethod, persistsMethod, fieldTypes;
+var seqName, persistMethod, persistsMethod, fieldTypes, hasPartition;
 %>
 package ${daoPackPre}${entityPackage};
 
 import com.easyea.edao.DdlManager;
 import com.easyea.edao.EntityDao;
+import com.easyea.edao.PartitionManager;
 import com.easyea.edao.QueryParam;
 import com.easyea.edao.StatementSession;
 import com.easyea.edao.SingleStatementSession;
@@ -25,16 +26,25 @@ import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import partrm.${entity.name}Manager;
 
 public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> {
 
     static Logger logger = LoggerFactory.getLogger(${entity.simpleName}Dao.class);
 
     private StatementSession session;
-    private DdlManager ddlManager = null;
+    private DdlManager       ddlManager = null;
+    private PartitionManager partm      = null;
 
     public ${entity.simpleName}Dao() {
         session = null;
+        <%
+        if (hasPartition == "1") {
+        %>
+        partm = new ${entity.simpleName}Manager();
+        <%
+        }
+        %>
     }
 
     @Override
@@ -51,7 +61,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         this.session = session;
         if (ddlManager != null && !ddlManager.isSync()) {
             try {
-                ddlManager.syncDdl(session.getConnetion());
+                ddlManager.syncDdl(session.getConnection());
             } catch (Exception e) {
                 logger.error("{}", e);
             }

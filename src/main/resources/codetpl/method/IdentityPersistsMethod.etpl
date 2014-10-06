@@ -1,5 +1,5 @@
 <%
-var entity, columns, tableName, fieldTypes;
+var entity, columns, tableName, fieldTypes, hasPartition;
 var idInfo;
 for(column : columns){
     var info = fieldTypes[column];
@@ -21,6 +21,7 @@ for(column : columns){
                 session.setAutoCommit(false);
             }
             int i = 0;
+            String tbName = "${tableName}";
             String sql = "insert into ${tableName} ("
                     + "<%
                     var i = 0;

@@ -42,7 +42,7 @@ public class SingleStatementSession implements StatementSession {
     }
     
     @Override
-    public Connection getConnetion() {
+    public Connection getConnection() {
         return this.con;
     }
     

@@ -1,5 +1,5 @@
 <%
-var entity, nextIdSql, columns, tableName, fieldTypes;
+var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
 %>    
     @Override
     public ${entity.simpleName} persist(${entity.simpleName} entity) throws SQLException, Exception {
@@ -23,7 +23,22 @@ var entity, nextIdSql, columns, tableName, fieldTypes;
             }
             int row = 0;
             if (nid != null) {
-                String sql = "insert into ${tableName} ("
+                String tbName = "${tableName}";
+                <%
+                if (hasPartition == "1") {
+                %>
+                if (partm != null) {
+                    String extName = partm.getExtTableString(entity);
+                    tbName += extName;
+                    if (!ddlManager.hasPartitionTable(tbName)) {
+                        ddlManager.createPartitionTable(${entity.simpleName}.class, 
+                            extName, session.getConnection());
+                    }
+                }
+                <%
+                }
+                %>
+                String sql = "insert into " + tbName + " ("
                         + "<%for(column : columns){%>
                         <%if (for.iter.index%4==0 && for.iter.index > 0) {%>" 
                         + "<%}%>${column}<%if (for.iter.index!=columns.size-1) {%>,<%}%><% } %>"

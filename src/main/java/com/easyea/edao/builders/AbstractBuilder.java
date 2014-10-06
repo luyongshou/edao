@@ -20,6 +20,8 @@ import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.exception.ViewException;
 import com.easyea.edao.util.ClassUtil;
 import com.easyea.edao.util.TypeInfo;
+import com.easyea.logger.Logger;
+import com.easyea.logger.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -36,6 +38,8 @@ import java.util.Map;
  * @author louis
  */
 public abstract class AbstractBuilder implements Builder {
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private final DaoManager manager;
     protected     Class      entityCls;
@@ -60,6 +64,7 @@ public abstract class AbstractBuilder implements Builder {
             throws EntityException {
         this.entityCls = entityCls;
         Class partitionManager = manager.getPartitionManager(entityCls);
+        logger.info("partitionManager=[{}]", partitionManager);
         String tableName = ClassUtil.getTableName(entityCls);
         String seqName = tableName + "_id_seq";
         initFields();
@@ -150,6 +155,12 @@ public abstract class AbstractBuilder implements Builder {
         context.put("nextIdSql", this.getNextIdSql(seqName));
         context.put("generationType", genType);
         context.put("fieldTypes", fieldTypes);
+        if (partitionManager != null) {
+            context.put("hasPartition", "1");
+        } else {
+            context.put("hasPartition", "0");
+        }
+        
         
         String persistMethod = "";
         try {

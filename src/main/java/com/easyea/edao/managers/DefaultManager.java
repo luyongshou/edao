@@ -35,7 +35,6 @@ import com.easyea.edao.partition.TimeRange;
 import com.easyea.edao.partition.Type;
 import com.easyea.edao.util.ClassUtil;
 import com.easyea.edao.util.JavaCode;
-import com.easyea.edao.util.PartitionUtil;
 import com.easyea.internal.util.ClassUtils;
 import java.io.File;
 import java.io.IOException;
@@ -115,6 +114,7 @@ public class DefaultManager implements DaoManager {
         Class pm = null;
         Annotation[] ans = entityCls.getAnnotations();
         boolean isp = false;
+        logger.info("ans.length=[{}]", ans.length);
         if (ans.length > 0) {
             for (Annotation an : ans) {
                 if (an instanceof Partition) {
@@ -122,6 +122,7 @@ public class DefaultManager implements DaoManager {
                 }
             }
         }
+        logger.info("isp=[{}]", isp);
         if (isp) {
             List<Field> fields = ClassUtil.getFields(entityCls);
             Map<String, java.lang.reflect.Type> aType = 
@@ -129,11 +130,14 @@ public class DefaultManager implements DaoManager {
             if (fields != null && !fields.isEmpty()) {
                 for (Field f : fields) {
                     aType.put(f.getName(), f.getGenericType());
+                    logger.info("[{}]=[{}]", f.getName(), f.getGenericType());
                 }
             }
+            
             for (Annotation an : ans) {
                 if (an instanceof NumberRangePartition) {
                     NumberRangePartition numAn = (NumberRangePartition)an;
+                    logger.info("numAn.field()=[{}]", numAn.field());
                     if (aType.containsKey(numAn.field())) {
                         NumberRange numRange = new NumberRange();
                         numRange.setCount(numAn.count());
@@ -146,6 +150,7 @@ public class DefaultManager implements DaoManager {
 
                 } else if (an instanceof TimeRangePartition) {
                     TimeRangePartition timeAn = (TimeRangePartition)an;
+                    logger.info("timeAn.field()=[{}]", timeAn.field());
                     if (aType.containsKey(timeAn.field())) {
                         TimeRange timeRange = new TimeRange();
                         timeRange.setCount(timeAn.count());
@@ -158,6 +163,7 @@ public class DefaultManager implements DaoManager {
                 }
             }
         }
+        logger.info("pm=[{}]", pm);
         return pm;
     }
     
@@ -217,11 +223,24 @@ public class DefaultManager implements DaoManager {
             context.put("method", method);
             tmpPath = "/codetpl/partition/NumberRangeManager.etpl";
         }
+        String code = "";
         try {
-            String code = tpl.render(tmpPath, context);
-            System.out.println(code);
+            code = tpl.render(tmpPath, context);
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+        logger.info("code=[{}]", code);
+        if (code.length() > 0) {
+            JavaCode java = new JavaCode();
+            java.setCode(code);
+            java.setClassName(entityCls.getSimpleName() + "Manager");
+            java.setPackName("partrm." + entityCls.getPackage().getName());
+            try {
+                compilePartManager(java, loader);
+                pm = loader.loadClass(java.getPackName() + "." + java.getClassName());
+            } catch (Exception e) {
+                logger.error("", e);
+            }
         }
         return pm;
     }
@@ -244,7 +263,7 @@ public class DefaultManager implements DaoManager {
         } catch (ClassNotFoundException ex) {
             daolock.lock();
             try {
-                compileDao(entityCls, loader, builder);
+                compileDao (entityCls, loader, builder);
                 try {
                     dao = loader.loadClass(daoName);
                     cache.put(cacheKey, dao);
@@ -347,8 +366,7 @@ public class DefaultManager implements DaoManager {
         } catch (Exception e) {
             
         }
-        String partmName = PartitionUtil.getPartManagerPackage(entity) + 
-                "." + PartitionUtil.getPartManagerName(entity);
+        String partmName = "partm." + entity.getName();
         Class partm = cache.get(partmName);
         if (partm != null) {
             return partm;
@@ -356,22 +374,15 @@ public class DefaultManager implements DaoManager {
         try {
             partm = loader.loadClass(partmName);
         } catch (ClassNotFoundException ex) {
-            JavaCode java = PartitionUtil.getPartitionManager(entity, trp);
-            if (java != null) {
                 pmlock.lock();
                 try {
-
-                    compilePartManager(java, loader);
-                    try {
-                        partm = loader.loadClass(partmName);
+                    partm = this.getPartitionManager(entity);
+                    if (partm != null) {
                         cache.put(partmName, partm);
-                    } catch (ClassNotFoundException e) {
-                        throw e;
                     }
                 } finally {
                     pmlock.unlock();
                 }
-            }
         }
         return partm;
     }

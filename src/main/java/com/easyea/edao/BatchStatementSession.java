@@ -43,7 +43,7 @@ public class BatchStatementSession implements StatementSession {
     }
 
     @Override
-    public Connection getConnetion() {
+    public Connection getConnection() {
         return this.con;
     }
     

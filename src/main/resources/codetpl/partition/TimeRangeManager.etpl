@@ -1,7 +1,7 @@
 <%
 var entityPackage, entity, method, count, calendarField, dateFormat;
 %>
-package numrm.${entityPackage};
+package partrm.${entityPackage};
 
 import com.easyea.edao.PartitionManager;
 import ${entity.name};
@@ -33,7 +33,7 @@ public class ${entity.simpleName}Manager implements PartitionManager<${entity.si
         SimpleDateFormat tf = new SimpleDateFormat(format);
         int datei = time.get(${calendarField});
         <%
-        if (calendarField == "Calendar.DAY_OF_MONTH") {
+        if (calendarField == "Calendar.MONTH") {
         %>
         datei++;
         <% } %>

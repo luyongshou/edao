@@ -24,7 +24,7 @@ public interface StatementSession {
     
     public void setConnection(Connection con);
     
-    public Connection getConnetion();
+    public Connection getConnection();
     
     public boolean getAutoCommit() throws SQLException;
     
