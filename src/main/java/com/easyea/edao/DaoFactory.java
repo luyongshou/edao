@@ -232,6 +232,20 @@ public class DaoFactory {
      * 根据指定的ViewDao的名称以及改ViewDao的数据库类型，生成一个ViewDao的实现对象
      * @deprecated 
      * @param name ViewDao的全名
+     * @param con 数据库链接
+     * @return
+     * @throws Exception 
+     */
+    public static ViewDao getViewDao(String name, Connection con) throws Exception {
+        ViewDao dao = getViewDao(name, "Postgresql");
+        dao.setConnect(con);
+        return dao;
+    }
+    
+    /**
+     * 根据指定的ViewDao的名称以及改ViewDao的数据库类型，生成一个ViewDao的实现对象
+     * @deprecated 
+     * @param name ViewDao的全名
      * @param db 数据库类型
      * @return
      * @throws Exception 
