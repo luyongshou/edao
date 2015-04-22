@@ -127,7 +127,7 @@ public class PostgresqlDdl extends AbstractDdl {
                             || ftype.toString().equals("double")) {
                         sql.a(" numeric(");
                         if (dcolumn == null) {
-                            sql.a("20,20");
+                            sql.a("24,4");
                         } else {
                             sql.a(dcolumn.precision()).a(",");
                             sql.a(dcolumn.scale());
