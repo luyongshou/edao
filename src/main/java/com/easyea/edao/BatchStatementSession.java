@@ -21,13 +21,16 @@ import java.util.Map;
  */
 public class BatchStatementSession implements StatementSession {
     
-    private Connection con;
+    private       Connection con;
+    private       SqlStat    stat;
+    private       boolean    enableStat;
     private final List<Statement>                statements;
     private final Map<String, PreparedStatement> preparedStatements;
     
     public BatchStatementSession() {
-        Class cls = this.getClass();
-        this.con = null;
+        this.con        = null;
+        this.enableStat = false;
+        this.stat       = null;
         this.statements         = new ArrayList<Statement>();
         this.preparedStatements = new HashMap<String, PreparedStatement>();
     }
@@ -137,5 +140,46 @@ public class BatchStatementSession implements StatementSession {
                 throw new SQLException("Connection is null!");
             }
         }
+    }
+
+    public boolean enableStat() {
+        return enableStat;
+    }
+
+    public void addSelect(int count) {
+        if (enableStat) {
+            stat.setSelect(stat.getSelect() + count);
+        }
+    }
+
+    public void addInsert(int count) {
+        if (enableStat) {
+            stat.setInsert(stat.getInsert() + 1);
+        }
+    }
+
+    public void addUpdate(int count) {
+        if (enableStat) {
+            stat.setUpdate(stat.getUpdate() + count);
+        }
+    }
+
+    public void clearSqlStat() {
+        if (stat != null) {
+            stat.setInsert(0);
+            stat.setSelect(0);
+            stat.setUpdate(0);
+        }
+    }
+
+    public void setEnableStat(boolean enable) {
+        if (enable && stat == null) {
+            stat = new SqlStat();
+        }
+        this.enableStat = enable;
+    }
+
+    public SqlStat getSqlStat() {
+        return stat;
     }
 }

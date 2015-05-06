@@ -17,6 +17,24 @@ import java.sql.Statement;
  */
 public interface StatementSession {
     /**
+     * 是否支持统计执行sql的数量
+     * @return 
+     */
+    public boolean enableStat();
+    
+    public void setEnableStat(boolean enable);
+    
+    public void addSelect(int count);
+    
+    public void addInsert(int count);
+    
+    public void addUpdate(int count);
+    
+    public void clearSqlStat();
+    
+    public SqlStat getSqlStat();
+    
+    /**
      * 是否支持批量处理
      * @return 
      */
