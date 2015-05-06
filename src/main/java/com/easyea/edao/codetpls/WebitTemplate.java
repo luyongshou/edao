@@ -28,7 +28,7 @@ public class WebitTemplate implements CodeTemplate {
         if (engine == null) {
             lock.lock();
             try {
-                engine = Engine.createEngine("/webit-script-default.props");
+                engine = Engine.create("/default.wim");
             } finally {
                 lock.unlock();
             }
