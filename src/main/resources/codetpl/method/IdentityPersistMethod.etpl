@@ -89,6 +89,9 @@ var entity, columns, tableName, fieldTypes;
             if (initAuto) {
                 session.commit();
             }
+            if (session.enableStat()) {
+                session.addInsert(1);
+            }
         } catch (SQLException ex) {
             logger.error("{}", ex.getMessage());
             throw ex;

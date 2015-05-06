@@ -199,6 +199,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 %>
                 l.add(t);
             }
+            if (session.enableStat()) {
+                session.addSelect(1);
+            }
         } catch (SQLException ex) {
             logger.error("{}", ex);
             throw ex;
@@ -272,6 +275,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             } %>
             pstmt.set${idInfo.setMethod}(${i}, entity.get${idInfo.method}());
             pstmt.executeUpdate();
+            if (session.enableStat()) {
+                session.addUpdate(1);
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;
@@ -361,6 +367,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                     session.closeStatements();
                 }
             }
+            if (session.enableStat()) {
+                session.addSelect(1);
+            }
             return total;
         }
         Statement stmt = null;
@@ -369,6 +378,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             ResultSet rs = stmt.executeQuery(sql.toString());
             if (rs.next()) {
                 total = rs.getLong("total");
+            }
+            if (session.enableStat()) {
+                session.addSelect(1);
             }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
@@ -433,6 +445,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 }
             }
             row = pstmt.executeUpdate();
+            if (session.enableStat()) {
+                session.addUpdate(1);
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;
@@ -509,6 +524,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 }
             }
             row = pstmt.executeUpdate();
+            if (session.enableStat()) {
+                session.addUpdate(1);
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;

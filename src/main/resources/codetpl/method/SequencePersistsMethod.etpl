@@ -92,8 +92,8 @@ var entity, nextIdSql, columns, tableName, fieldTypes;
             if (initAuto) {
                 session.commit();
             }
-            if (initAuto) {
-                session.commit();
+            if (session.enableStat()) {
+                session.addInsert(i);
             }
         } catch (SQLException ex) {
             logger.error("persist error", ex);

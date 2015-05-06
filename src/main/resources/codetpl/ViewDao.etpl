@@ -150,6 +150,9 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
                 %>
                 l.add(t);
             }
+            if (session.enableStat()) {
+                session.addSelect(1);
+            }
         } catch (SQLException ex) {
             logger.error("{}", ex);
             throw ex;
@@ -225,6 +228,9 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
                 if (rs.next()) {
                     total = rs.getLong("total");
                 }
+                if (session.enableStat()) {
+                    session.addSelect(1);
+                }
             } catch (SQLException sqlex) {
                 logger.error(sqlex.getMessage());
                 throw sqlex;
@@ -244,6 +250,9 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
             ResultSet rs = stmt.executeQuery(sql.toString());
             if (rs.next()) {
                 total = rs.getLong("total");
+            }
+            if (session.enableStat()) {
+                session.addSelect(1);
             }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());

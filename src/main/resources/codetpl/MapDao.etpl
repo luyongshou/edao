@@ -135,6 +135,9 @@ public class ${dbProductName}MapDao implements MapDao {
                 }
                 l.add(t);
             }
+            if (session.enableStat()) {
+                session.addSelect(1);
+            }
         } catch (SQLException ex) {
             logger.error("{}", ex);
             throw ex;
@@ -214,6 +217,9 @@ public class ${dbProductName}MapDao implements MapDao {
                 }
             }
             row = pstmt.executeUpdate();
+            if (session.enableStat()) {
+                session.addUpdate(1);
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;
