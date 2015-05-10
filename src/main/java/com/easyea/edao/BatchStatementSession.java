@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -68,8 +69,33 @@ public class BatchStatementSession implements StatementSession {
 
     @Override
     public void commit() throws SQLException {
+        for (Map.Entry<String, PreparedStatement> entry : preparedStatements.entrySet()) {
+            try {
+                entry.getValue().executeBatch();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new SQLException(e);
+            }
+        }
         if (con != null) {
             con.commit();
+        }
+        Set<String> keys = preparedStatements.keySet();
+        if (keys.isEmpty()) {
+            return;
+        }
+        String[] skeys = new String[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            skeys[i] = key;
+            i++;
+        }
+        for (String key : skeys) {
+            PreparedStatement pstmt = preparedStatements.remove(key);
+            if (pstmt != null) {
+                pstmt.close();
+                pstmt = null;
+            }
         }
     }
 
@@ -77,7 +103,7 @@ public class BatchStatementSession implements StatementSession {
     public Statement statement() throws SQLException {
         if (this.con != null) {
             Statement stmt = con.createStatement();
-            statements.add(stmt);
+            //statements.add(stmt);
             return stmt;
         } else {
             throw new SQLException("Connection is null!");
