@@ -18,6 +18,8 @@ var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
                 if (rs.next()) {
                     nid = rs.getLong("nid");
                 }
+                rs.close();
+                rs = null;
             } else {
                 nid = entity.getId();
             }
@@ -90,9 +92,14 @@ var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
                     }
                 }
                 %>
-                row = pstmt.executeUpdate();
-                if (row > 0) {
+                if (session.enableBatch()) {
+                    pstmt.addBatch();
                     entity.setId(nid);
+                } else {
+                    row = pstmt.executeUpdate();
+                    if (row > 0) {
+                        entity.setId(nid);
+                    }
                 }
             }
             if (initAuto) {
@@ -110,7 +117,7 @@ var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
             }
             if (initAuto) {
                 session.setAutoCommit(true);
-            }
+            }  
         }
         return entity;
     }
