@@ -83,10 +83,8 @@ var entity, nextIdSql, columns, tableName, fieldTypes;
                     }
                 }
                 %>
-                row = pstmt.executeUpdate();
-                if (row > 0) {
-                    entity.setId(aId[i]);
-                }
+                pstmt.addBatch();
+                entity.setId(aId[i]);
                 i++;
             }
             if (initAuto) {

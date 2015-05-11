@@ -216,7 +216,11 @@ public class ${dbProductName}MapDao implements MapDao {
                     }
                 }
             }
-            row = pstmt.executeUpdate();
+            if (session.enableBatch()) {
+                pstmt.addBatch();
+            } else {
+                row = pstmt.executeUpdate();
+            }
             if (session.enableStat()) {
                 session.addUpdate(1);
             }

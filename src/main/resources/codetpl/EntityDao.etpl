@@ -274,7 +274,11 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 }
             } %>
             pstmt.set${idInfo.setMethod}(${i}, entity.get${idInfo.method}());
-            pstmt.executeUpdate();
+            if (session.enableBatch()) {
+                pstmt.addBatch();
+            } else {
+                pstmt.executeUpdate();
+            }
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
@@ -444,7 +448,11 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                     }
                 }
             }
-            row = pstmt.executeUpdate();
+            if (session.enableBatch()) {
+                pstmt.addBatch();
+            } else {
+                row = pstmt.executeUpdate();
+            }
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
@@ -523,7 +531,11 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                     }
                 }
             }
-            row = pstmt.executeUpdate();
+            if (session.enableBatch()) {
+                pstmt.addBatch();
+            } else {
+                row = pstmt.executeUpdate();
+            }
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
