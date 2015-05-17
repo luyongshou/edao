@@ -1,5 +1,7 @@
 <%
-var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
+var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition, idColumnName;
+var idInfo = fieldTypes[idColumnName];
+var idClass = idInfo.type;
 %>    
     @Override
     public ${entity.simpleName} persist(${entity.simpleName} entity) throws SQLException, Exception {
@@ -10,13 +12,13 @@ var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition;
                 initAuto = true;
                 session.setAutoCommit(false);
             }
-            Long nid = null;
+            ${idClass.simpleName} nid = null;
             if (entity.getId() == null || entity.getId() <= 0) {
                 String sId = "${nextIdSql}";
                 pstmt = session.prepareStatement(sId);
                 ResultSet rs = pstmt.executeQuery();
                 if (rs.next()) {
-                    nid = rs.getLong("nid");
+                    nid = rs.get${idInfo.setMethod}("nid");
                 }
                 rs.close();
                 rs = null;

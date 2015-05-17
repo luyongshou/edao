@@ -1,5 +1,7 @@
 <%
-var entity, nextIdSql, columns, tableName, fieldTypes;
+var entity, nextIdSql, columns, tableName, fieldTypes, idColumnName;
+var idInfo = fieldTypes[idColumnName];
+var idClass = idInfo.type;
 %>
     @Override
     public void persist(List<${entity.simpleName}> entities) throws SQLException, Exception {
@@ -14,14 +16,14 @@ var entity, nextIdSql, columns, tableName, fieldTypes;
                 session.setAutoCommit(false);
             }
             int i = 0;
-            Long[] aId = new Long[entities.size()];
+            ${idClass.simpleName}[] aId = new ${idClass.simpleName}[entities.size()];
             String sId = "${nextIdSql}";
             pstmt = session.prepareStatement(sId);
             for (${entity.simpleName} entity : entities) {
                 if (entity.getId() == null || entity.getId() <= 0) {
                     ResultSet rs = pstmt.executeQuery();
                     if (rs.next()) {
-                        aId[i] = rs.getLong("nid");
+                        aId[i] = rs.get${idInfo.setMethod}("nid");
                     }
                 } else {
                     aId[i] = entity.getId();

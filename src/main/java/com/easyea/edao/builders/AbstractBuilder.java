@@ -155,6 +155,7 @@ public abstract class AbstractBuilder implements Builder {
         context.put("nextIdSql", this.getNextIdSql(seqName));
         context.put("generationType", genType);
         context.put("fieldTypes", fieldTypes);
+        context.put("idColumnName", ClassUtil.getColumnName(idField));
         if (partitionManager != null) {
             context.put("hasPartition", "1");
         } else {
