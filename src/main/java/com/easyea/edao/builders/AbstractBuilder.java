@@ -187,7 +187,6 @@ public abstract class AbstractBuilder implements Builder {
         String code;
         try {
             code = tpl.render(tplPath, context);
-            System.out.println(code);
         } catch (Exception ex) {
             throw new EntityException(ex);
         }
@@ -241,7 +240,6 @@ public abstract class AbstractBuilder implements Builder {
         WebitTemplate tpl = new WebitTemplate();
         try {
             code = tpl.render(tplPath, context);
-            System.out.println(code);
         } catch (Exception ex) {
             throw new ViewException(ex);
         }
@@ -260,7 +258,6 @@ public abstract class AbstractBuilder implements Builder {
         WebitTemplate tpl = new WebitTemplate();
         try {
             code = tpl.render(tplPath, context);
-            System.out.println(code);
         } catch (Exception ex) {
             throw new ViewException(ex);
         }

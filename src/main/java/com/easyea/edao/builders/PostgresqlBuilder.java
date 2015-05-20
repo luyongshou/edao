@@ -8,11 +8,6 @@ package com.easyea.edao.builders;
 
 import com.easyea.edao.DaoManager;
 import com.easyea.edao.DbProductName;
-import com.easyea.edao.exception.EntityException;
-import com.easyea.edao.exception.ViewException;
-import com.easyea.edao.managers.DefaultManager;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -32,14 +27,6 @@ public class PostgresqlBuilder extends AbstractBuilder {
     @Override
     public DbProductName getDbProductName() {
         return DbProductName.Postgresql;
-    }
-    
-    public static void main(String[] args) {
-        DefaultManager manager = DefaultManager.getInstance();
-        
-        MysqlBuilder builder = new MysqlBuilder(manager);
-        
-        
     }
 
     @Override

@@ -303,7 +303,6 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }
-        System.out.println(source);
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -655,7 +654,6 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Factory's java source [{}]", daoName, source);
         }
-        System.out.println(source);
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -850,8 +848,6 @@ public class DefaultManager implements DaoManager {
         packName  = factName.substring(0, lastDot);
         shortName = factName.substring(lastDot+1);
         String source = getMapFactoryCode(dbProductName);
-        System.out.println("[" + factName + "]");
-        System.out.println(source);
         if (logger.isDebugEnabled()) {
             logger.debug("MapDaoFactory's source [\n{}]", source);
         }
