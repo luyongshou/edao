@@ -1,6 +1,10 @@
 <%
 var daoPackPre, entityPackage, entity, columns, tableName, generationType;
 var seqName, persistMethod, persistsMethod, fieldTypes, hasPartition;
+
+var idColumnName;
+var idInfo2 = fieldTypes[idColumnName];
+var idClass2 = idInfo2.type;
 %>
 package ${daoPackPre}${entityPackage};
 
@@ -91,7 +95,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     @Override
     public ${entity.simpleName} getEntityById(Object primaryKey) throws SQLException, Exception {
         ${entity.simpleName} t = null;
-        List l = this.getList(" where  id=" + (Long) primaryKey);
+        List l = this.getList(" where  id=" + (${idClass2.simpleName}) primaryKey);
         if (l != null && l.size() > 0) {
             t = (${entity.simpleName}) l.get(0);
         }
