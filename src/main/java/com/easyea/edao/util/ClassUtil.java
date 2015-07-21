@@ -166,8 +166,11 @@ public class ClassUtil {
     public static List<Field> getFields(Class cls) {
         Field[] fields = cls.getDeclaredFields();
         List<Field> afs = new ArrayList<Field>();
-        afs.addAll(Arrays.asList(fields));
-
+        for (Field f : fields) {
+            if (!"serialVersionUID".equals(f.getName())) {
+                afs.add(f);
+            }
+        }
         appendSuperFields(cls, afs);
         return afs;
     }
