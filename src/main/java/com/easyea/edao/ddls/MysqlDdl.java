@@ -55,7 +55,7 @@ public class MysqlDdl extends AbstractDdl {
                 aF.add(0, id);
 
                 boolean isPrikey = false;
-                String flength   = "";
+                String flength   = "255";
                 String prikey    = "";
                 Column dcolumn   = null;
                 for (Field fi : fields) {
@@ -64,10 +64,10 @@ public class MysqlDdl extends AbstractDdl {
                     String       f        = fi.getName();
                     Annotation[] aann     = fi.getAnnotations();
                     Class        ftype    = fi.getType();
-                    String       fname    = "";
+                    String       fname    = f;
                     boolean      isLob    = false;
                     TemporalType tempType = null;
-                    if (aann != null) {
+                    if (aann != null && aann.length > 0) {
                         //System.out.println(f);
                         int slength = 4000;
                         for (Annotation ann : aann) {
@@ -76,7 +76,10 @@ public class MysqlDdl extends AbstractDdl {
                             }
                             if (ann instanceof Column) {
                                 Column cann = (Column)ann;
-                                fname   = cann.name();
+                                if (cann.name() != null 
+                                        && cann.name().trim().length() > 0) {
+                                    fname   = cann.name();
+                                }
                                 flength = cann.length() + "";
                                 slength = cann.length();
                                 dcolumn = cann;
@@ -107,6 +110,7 @@ public class MysqlDdl extends AbstractDdl {
                     }
                     //System.out.println(isLob);
                     sql.t(1).a(fname).a(" ");
+
                     if (isPrikey) {
                         prikey = fname;
                         if (ftype.equals(Long.class) 
