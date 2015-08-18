@@ -237,7 +237,12 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         + "<%}%>${column}=?<%if (i!=columns.size-2) {%>,<%}%><% i++;}} %>");
         sql.append(" WHERE ${idColumn}=?");
         PreparedStatement pstmt = null;
+        boolean initAuto = false;
         try {
+            if (session.getAutoCommit()) {
+                initAuto = true;
+                session.setAutoCommit(false);
+            }
             pstmt = session.prepareStatement(sql.toString());
             
             <%
@@ -283,6 +288,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             } else {
                 pstmt.executeUpdate();
             }
+            if (initAuto) {
+                session.commit();
+            }
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
@@ -295,6 +303,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         } finally {
             if (!session.enableBatch()) {
                 session.closeStatements();
+            }
+            if (initAuto) {
+                session.setAutoCommit(true);
             }
         }
         return entity;
@@ -417,7 +428,12 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             return row;
         }
         PreparedStatement pstmt = null;
+        boolean initAuto = false;
         try {
+            if (session.getAutoCommit()) {
+                initAuto = true;
+                session.setAutoCommit(false);
+            }
             pstmt = session.prepareStatement(qlString);
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
@@ -460,6 +476,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
+            if (initAuto) {
+                session.commit();
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;
@@ -469,6 +488,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         } finally {
             if (!session.enableBatch()) {
                 session.closeStatements();
+            }
+            if (initAuto) {
+                session.setAutoCommit(true);
             }
         }
         return row;
@@ -500,7 +522,12 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         }
         sql.append(qlString);
         PreparedStatement pstmt = null;
+        boolean initAuto = false;
         try {
+            if (session.getAutoCommit()) {
+                initAuto = true;
+                session.setAutoCommit(false);
+            }
             pstmt = session.prepareStatement(sql.toString());
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
@@ -543,6 +570,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             if (session.enableStat()) {
                 session.addUpdate(1);
             }
+            if (initAuto) {
+                session.commit();
+            }
         } catch (SQLException sqlex) {
             logger.error(sqlex.getMessage());
             throw sqlex;
@@ -552,6 +582,9 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         } finally {
             if (!session.enableBatch()) {
                 session.closeStatements();
+            }
+            if (initAuto) {
+                session.setAutoCommit(true);
             }
         }
         return row;
