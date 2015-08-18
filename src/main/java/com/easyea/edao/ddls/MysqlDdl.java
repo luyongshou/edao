@@ -164,7 +164,7 @@ public class MysqlDdl extends AbstractDdl {
                     sql.a(",").r(1);
                 }
                 sql.t(1).a("primary key(id)").r(1);
-                sql.a(")").r(1);
+                sql.a(") ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_bin").r(1);
                 l.add(sql.toString());
             }
         } catch (Exception e) {
@@ -175,7 +175,7 @@ public class MysqlDdl extends AbstractDdl {
 
     @Override
     public List<String> getEntityUpdateDdl(Class entity, Connection con) throws EntityException, Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
