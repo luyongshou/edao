@@ -1,5 +1,5 @@
 <%
-var vdaoPackPre, entityPackage, entity, columns, tableName, fieldTypes;
+var vdaoPackPre, entityPackage, entity, columns, tableName, fieldTypes, limitFun;
 %>
 package ${vdaoPackPre}${entityPackage};
 
@@ -71,6 +71,8 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
         return this.getList(qlString, params, 0, -1);
     }
 
+    ${limitFun}
+
     @Override
     public List<${entity.simpleName}> getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception {
@@ -82,17 +84,16 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
             isAll = true;
         }
         sql.append(qlString);
-        String ssql = "";
+        String ssql = sql.toString();
         if (counts > 0) {
-            sql.append(" limit  ").append(counts).append(" offset ").append(start);
+            ssql = getLimitSql(ssql, start, counts);
         }
-        ssql = sql.toString();
         PreparedStatement pstmt = null;
         if (logger.isDebugEnabled()) {
-            logger.debug("sql=[{}]", sql.toString());
+            logger.debug("sql=[{}]", ssql);
         }
         try {
-            pstmt = session.prepareStatement(sql.toString());
+            pstmt = session.prepareStatement(ssql);
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
                     if (param.getValue() instanceof Date) {

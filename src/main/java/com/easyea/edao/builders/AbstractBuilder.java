@@ -156,6 +156,7 @@ public abstract class AbstractBuilder implements Builder {
         context.put("generationType", genType);
         context.put("fieldTypes", fieldTypes);
         context.put("idColumnName", ClassUtil.getColumnName(idField));
+        context.put("limitFun", getLimitSQLFun());
         if (partitionManager != null) {
             context.put("hasPartition", "1");
         } else {
@@ -236,6 +237,7 @@ public abstract class AbstractBuilder implements Builder {
         context.put("columns", columns);
         context.put("tableName", tableName);
         context.put("fieldTypes", fieldTypes);
+        context.put("limitFun", getLimitSQLFun());
         
         WebitTemplate tpl = new WebitTemplate();
         try {
@@ -254,6 +256,7 @@ public abstract class AbstractBuilder implements Builder {
         String tplPath = "/codetpl/MapDao.etpl";
         context.put("mapdaoPackage", ClassUtil.MAPDAO_PACKAGE);
         context.put("dbProductName", dbName);
+        context.put("limitFun", getLimitSQLFun());
         
         WebitTemplate tpl = new WebitTemplate();
         try {
@@ -293,6 +296,8 @@ public abstract class AbstractBuilder implements Builder {
     }
     
     protected abstract String getNextIdSql(String seqName);
+    
+    protected abstract String getLimitSQLFun();
     
     /**
      * 初始化一个bean中定义的所有的Field信息，包含器父类声明的信息

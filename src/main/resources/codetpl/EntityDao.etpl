@@ -1,6 +1,6 @@
 <%
 var daoPackPre, entityPackage, entity, columns, tableName, generationType;
-var seqName, persistMethod, persistsMethod, fieldTypes, hasPartition;
+var seqName, persistMethod, persistsMethod, fieldTypes, hasPartition, limitFun;
 
 var idColumnName;
 var idInfo2 = fieldTypes[idColumnName];
@@ -124,6 +124,8 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         return this.getList(qlString, params, 0, -1);
     }
 
+    ${limitFun}
+
     @Override
     public List<${entity.simpleName}> getList(String qlString, ArrayList<QueryParam> params,
             long start, int counts) throws SQLException, Exception {
@@ -135,17 +137,16 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             isAll = true;
         }
         sql.append(qlString);
-        String ssql = "";
+        String ssql = sql.toString();
         if (counts > 0) {
-            sql.append(" limit  ").append(counts).append(" offset ").append(start);
+            ssql = getLimitSql(ssql, start, counts);
         }
-        ssql = sql.toString();
         PreparedStatement pstmt = null;
         if (logger.isDebugEnabled()) {
-            logger.debug("sql=[{}]", sql.toString());
+            logger.debug("sql=[{}]", ssql);
         }
         try {
-            pstmt = session.prepareStatement(sql.toString());
+            pstmt = session.prepareStatement(ssql);
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
                     if (param.getValue() instanceof Date) {
@@ -207,6 +208,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 session.addSelect(1);
             }
         } catch (SQLException ex) {
+            ex.printStackTrace();
             logger.error("{}", ex);
             throw ex;
         } finally {

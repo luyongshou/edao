@@ -33,5 +33,10 @@ public class OracleBuilder extends AbstractBuilder {
     public DbProductName getDbProductName() {
         return DbProductName.Oracle;
     }
+
+    @Override
+    protected String getLimitSQLFun() {
+        return "";
+    }
     
 }

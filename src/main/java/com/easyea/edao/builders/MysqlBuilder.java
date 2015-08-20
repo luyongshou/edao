@@ -33,5 +33,14 @@ public class MysqlBuilder extends AbstractBuilder {
     public DbProductName getDbProductName() {
         return DbProductName.Mysql;
     }
+
+    @Override
+    protected String getLimitSQLFun() {
+        StringBuilder fun = new StringBuilder();
+        fun.append("private String getLimitSql(String sql, long start, int count) {\n");
+        fun.append("\t\treturn sql += \" limit \" + start + \",\" + count;\n");
+        fun.append("\t}");
+        return fun.toString();
+    }
     
 }

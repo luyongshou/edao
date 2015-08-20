@@ -1,5 +1,5 @@
 <%
-var mapdaoPackage, dbProductName;
+var mapdaoPackage, dbProductName, limitFun;
 %>
 package ${mapdaoPackage};
 
@@ -66,6 +66,8 @@ public class ${dbProductName}MapDao implements MapDao {
         return this.getList(qlString, params, 0, -1);
     }
 
+    ${limitFun}
+
     @Override
     public List<Map<String, Object>> getList(String qlString, 
             ArrayList<QueryParam> params, long start, int counts) 
@@ -74,17 +76,16 @@ public class ${dbProductName}MapDao implements MapDao {
         List<Map<String, Object>> l = null;
         StringBuilder sql = new StringBuilder();
         sql.append(qlString);
-        String ssql = "";
+        String ssql = sql.toString();
         if (counts > 0) {
-            sql.append(" limit  ").append(counts).append(" offset ").append(start);
+            ssql = getLimitSql(ssql, start, counts);
         }
-        ssql = sql.toString();
         PreparedStatement pstmt = null;
         if (logger.isDebugEnabled()) {
-            logger.debug("sql=[{}]", sql.toString());
+            logger.debug("sql=[{}]", ssql);
         }
         try {
-            pstmt = session.prepareStatement(sql.toString());
+            pstmt = session.prepareStatement(ssql);
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
                     if (param.getValue() instanceof Date) {
