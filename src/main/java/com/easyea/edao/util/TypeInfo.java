@@ -16,22 +16,26 @@ public class TypeInfo {
     private Class  type;
     private String temporal;
     private boolean isId;
+    private boolean isObject;
     
-    public TypeInfo(String setMethod, String method, Class type, boolean isId) {
+    public TypeInfo(String setMethod, String method, Class type, boolean isId, 
+            boolean isObject) {
         this.setMethod = setMethod;
         this.method   = method;
         this.type     = type;
         this.temporal = "";
-        this.isId      = isId;
+        this.isId     = isId;
+        this.isObject = isObject;
     }
     
     public TypeInfo(String setMethod, String method, Class type, String temporal, 
-            boolean isId) {
+            boolean isId, boolean isObject) {
         this.setMethod = setMethod;
-        this.method = method;
+        this.method    = method;
         this.type      = type;
         this.temporal  = temporal;
         this.isId      = isId;
+        this.isObject  = isObject;
     }
 
     /**
