@@ -126,7 +126,7 @@ public abstract class AbstractBuilder implements Builder {
                         + f.getName().substring(1);
                 String setMethod = ClassUtil.typeToJdbc(f);
                 isId = f.getName().equals(idField.getName());
-                TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), isId, false);
+                TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), isId);
                 if (f.getType().equals(Date.class)) {
                     Annotation[] atns = f.getAnnotations();
                     for (Annotation atn : atns) {
@@ -207,13 +207,13 @@ public abstract class AbstractBuilder implements Builder {
         if (fields != null && !fields.isEmpty()) {
             String mName;
             for (Map.Entry<String, Field> entry : fields.entrySet()) {
-                Field f = entry.getValue();
+                Field  f      = entry.getValue();
                 String column = ClassUtil.getColumnName(f);
                 columns.add(column.toLowerCase(Locale.ENGLISH));
                 mName = f.getName().substring(0, 1).toUpperCase(Locale.ENGLISH)
                         + f.getName().substring(1);
                 String setMethod = ClassUtil.typeToJdbc(f);
-                TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), false, false);
+                TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), false);
                 if (f.getType().equals(Date.class)) {
                     Annotation[] atns = f.getAnnotations();
                     for (Annotation atn : atns) {

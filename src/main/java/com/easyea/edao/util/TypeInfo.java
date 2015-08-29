@@ -11,31 +11,30 @@ package com.easyea.edao.util;
  * @author louis
  */
 public class TypeInfo {
-    private String setMethod;
-    private String method;
-    private Class  type;
-    private String temporal;
+    private String  setMethod;
+    private String  method;
+    private Class   type;
+    private String  temporal;
     private boolean isId;
     private boolean isObject;
     
-    public TypeInfo(String setMethod, String method, Class type, boolean isId, 
-            boolean isObject) {
+    public TypeInfo(String setMethod, String method, Class type, boolean isId) {
         this.setMethod = setMethod;
-        this.method   = method;
-        this.type     = type;
-        this.temporal = "";
-        this.isId     = isId;
-        this.isObject = isObject;
+        this.method    = method;
+        this.type      = type;
+        this.temporal  = "";
+        this.isId      = isId;
+        this.isObject  = type.toString().startsWith("class ");
     }
     
     public TypeInfo(String setMethod, String method, Class type, String temporal, 
-            boolean isId, boolean isObject) {
+            boolean isId) {
         this.setMethod = setMethod;
         this.method    = method;
         this.type      = type;
         this.temporal  = temporal;
         this.isId      = isId;
-        this.isObject  = isObject;
+        this.isObject  = type.toString().startsWith("class ");
     }
 
     /**
@@ -106,5 +105,19 @@ public class TypeInfo {
      */
     public void setIsId(boolean isId) {
         this.isId = isId;
+    }
+
+    /**
+     * @return the isObject
+     */
+    public boolean getIsObject() {
+        return isObject;
+    }
+
+    /**
+     * @param isObject the isObject to set
+     */
+    public void setIsObject(boolean isObject) {
+        this.isObject = isObject;
     }
 }
