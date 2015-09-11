@@ -32,13 +32,13 @@ public class QueryParam implements Serializable {
     public QueryParam() {
         this.position = null;
         this.value = null;
-        this.temporalType = null;
+        this.temporalType = TemporalType.TIMESTAMP;
     }
 
     public QueryParam(Object position, Object value) {
         this.position = position;
         this.value = value;
-        this.temporalType = null;
+        this.temporalType = TemporalType.TIMESTAMP;
     }
 
     public QueryParam(Object position, Object value, TemporalType temporalType) {
