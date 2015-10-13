@@ -191,7 +191,6 @@ public abstract class AbstractBuilder implements Builder {
         } catch (Exception ex) {
             throw new EntityException(ex);
         }
-        System.out.println(code);
         return code;
     }
     
