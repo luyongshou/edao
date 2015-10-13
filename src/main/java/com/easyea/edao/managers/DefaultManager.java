@@ -15,6 +15,7 @@ import com.easyea.edao.DbProductName;
 import com.easyea.edao.Ddl;
 import com.easyea.edao.DdlManager;
 import com.easyea.edao.EntityFactory;
+import com.easyea.edao.MapDao;
 import com.easyea.edao.MapFactory;
 import com.easyea.edao.ViewFactory;
 import com.easyea.edao.annotation.Partition;
@@ -80,11 +81,14 @@ public class DefaultManager implements DaoManager {
     private static final ReentrantLock vdaofactlock   = new ReentrantLock();
     private static final ReentrantLock mapdaofactlock = new ReentrantLock();
     
-    private DynamicClassLoader loader;
+    //private DynamicClassLoader loader;
     private ConcurrentHashMap<String, Class> cache = 
             new ConcurrentHashMap<String, Class>();
+    private ConcurrentHashMap<Class, DynamicClassLoader> cacheLoader = 
+            new ConcurrentHashMap<Class, DynamicClassLoader>();
     
     private DefaultManager() {
+        /*
         final ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
         this.loader = AccessController.doPrivileged(
                 new PrivilegedAction<DynamicClassLoader>() {
@@ -93,6 +97,7 @@ public class DefaultManager implements DaoManager {
                     }
                 }
             );
+        */
     }
     
     public static DefaultManager getInstance() {
@@ -236,6 +241,7 @@ public class DefaultManager implements DaoManager {
             java.setClassName(entityCls.getSimpleName() + "Manager");
             java.setPackName("partrm." + entityCls.getPackage().getName());
             try {
+                DynamicClassLoader loader = this.getEntityLoader(entityCls);
                 compilePartManager(java, loader);
                 pm = loader.loadClass(java.getPackName() + "." + java.getClassName());
             } catch (Exception e) {
@@ -248,6 +254,31 @@ public class DefaultManager implements DaoManager {
     public static void main(String[] args) {
         System.out.println(DefaultManager.getMapFactoryCode(DbProductName.Oracle));
     }
+    
+    public DynamicClassLoader getEntityLoader(Class entityCls) {
+        if (entityCls == null) {
+            return null;
+        }
+        DynamicClassLoader loader = cacheLoader.get(entityCls);
+        if (loader != null) {
+            Thread.currentThread().setContextClassLoader(loader.getParent());
+            return loader;
+        }
+        final ClassLoader entityLoader = entityCls.getClassLoader();
+        
+        loader = AccessController.doPrivileged(
+                new PrivilegedAction<DynamicClassLoader>() {
+                    public DynamicClassLoader run() {
+                        return new DynamicClassLoader(entityLoader);
+                    }
+                }
+            );
+        if (loader != null) {
+            Thread.currentThread().setContextClassLoader(loader.getParent());
+            cacheLoader.put(entityCls, loader);
+        }
+        return loader;
+    }
 
     @Override
     public Class getDaoClass(Class entityCls, Builder builder) 
@@ -258,6 +289,7 @@ public class DefaultManager implements DaoManager {
         if (dao != null) {
             return dao;
         }
+        DynamicClassLoader loader = this.getEntityLoader(entityCls);
         try {
             dao = loader.loadClass(daoName);
         } catch (ClassNotFoundException ex) {
@@ -371,6 +403,7 @@ public class DefaultManager implements DaoManager {
             return partm;
         }
         try {
+            DynamicClassLoader loader = this.getEntityLoader(entity);
             partm = loader.loadClass(partmName);
         } catch (ClassNotFoundException ex) {
                 pmlock.lock();
@@ -446,6 +479,7 @@ public class DefaultManager implements DaoManager {
         if (dao != null) {
             return dao;
         }
+        DynamicClassLoader loader = this.getEntityLoader(beanCls);
         try {
             dao = loader.loadClass(daoName);
         } catch (ClassNotFoundException ex) {
@@ -539,6 +573,7 @@ public class DefaultManager implements DaoManager {
         if (dao != null) {
             return dao;
         }
+        DynamicClassLoader loader = this.getEntityLoader(MapDao.class);
         try {
             dao = loader.loadClass(daoName);
         } catch (ClassNotFoundException ex) {
@@ -621,6 +656,7 @@ public class DefaultManager implements DaoManager {
         String factName = ClassUtil.daoFactPackPre + entityCls.getName() + 
                 "DaoFactory";
         String daoName  = ClassUtil.daoPackPre + entityCls.getName() + "Dao";
+        DynamicClassLoader loader = this.getEntityLoader(entityCls);
         try {
             fcls = loader.loadClass(factName);
         } catch (ClassNotFoundException ex) {
@@ -720,6 +756,17 @@ public class DefaultManager implements DaoManager {
         Class fcls = null;
         String factName = ClassUtil.vdaoFactPackPre + beanCls.getName() + 
                 "DaoFactory";
+        /*
+        final ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+        this.loader = AccessController.doPrivileged(
+                new PrivilegedAction<DynamicClassLoader>() {
+                    public DynamicClassLoader run() {
+                        return new DynamicClassLoader(contextLoader);
+                    }
+                }
+            );
+        */
+        DynamicClassLoader loader = this.getEntityLoader(beanCls);
         try {
             fcls = loader.loadClass(factName);
         } catch (ClassNotFoundException ex) {
@@ -817,6 +864,7 @@ public class DefaultManager implements DaoManager {
         String daoName = ClassUtil.MAPDAO_PACKAGE + "f." + 
                     builder.getDbProductName() + "Dao";
         String factName = daoName + "Factory";
+        DynamicClassLoader loader = this.getEntityLoader(MapDao.class);
         try {
             fcls = loader.loadClass(factName);
         } catch (ClassNotFoundException ex) {
