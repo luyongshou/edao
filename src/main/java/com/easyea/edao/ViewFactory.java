@@ -11,13 +11,14 @@ import com.easyea.edao.exception.ViewException;
  * "new daoclass()"操作使效率提高2个数量级。每个Dao的实现由一个dao的工厂类进行调用。该工厂类
  * 动态生成编译后由载入Dao实现类的classloader载入，直接返回new操作符对象。
  * @author louis
+ * @param <T>
  */
-public interface ViewFactory {
+public interface ViewFactory<T> {
     /**
      * 根据持久化Bean以及视图的Bean全称获取Dao实现的方法
      * @return
      * @throws ViewException
      * @throws Exception 
      */
-    public ViewDao getDao() throws ViewException, Exception;
+    public ViewDao<T> getDao() throws ViewException, Exception;
 }
