@@ -12,11 +12,11 @@ import com.easyea.edao.ViewDao;
  *
  * @author platform
  */
-public class ${entity.simpleName}DaoFactory implements ViewFactory {
+public class ${entity.simpleName}DaoFactory implements ViewFactory<${entity.simpleName}> {
 
     @Override
-    public ViewDao getDao() throws ViewException, Exception {
-        ViewDao dao = new ${entity.simpleName}Dao();
+    public ViewDao<${entity.simpleName}> getDao() throws ViewException, Exception {
+        ViewDao<${entity.simpleName}> dao = new ${entity.simpleName}Dao();
         return dao;
     }
     

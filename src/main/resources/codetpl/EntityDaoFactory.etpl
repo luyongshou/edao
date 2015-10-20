@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author platform
  */
-public class ${entity.simpleName}DaoFactory implements EntityFactory {
+public class ${entity.simpleName}DaoFactory implements EntityFactory<${entity.simpleName}> {
 
     private static final ReentrantLock  lock = new ReentrantLock();
     private static DdlManager ddlManager = null;
@@ -28,9 +28,9 @@ public class ${entity.simpleName}DaoFactory implements EntityFactory {
     }
 
     @Override
-    public EntityDao getDao() throws EntityException, Exception {
+    public EntityDao<${entity.simpleName}> getDao() throws EntityException, Exception {
         
-        EntityDao dao = new ${entity.simpleName}Dao();
+        EntityDao<${entity.simpleName}> dao = new ${entity.simpleName}Dao();
         dao.setDdlManager(ddlManager);
         return dao;
     }
