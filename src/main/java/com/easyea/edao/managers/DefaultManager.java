@@ -119,7 +119,6 @@ public class DefaultManager implements DaoManager {
         Class pm = null;
         Annotation[] ans = entityCls.getAnnotations();
         boolean isp = false;
-        logger.info("ans.length=[{}]", ans.length);
         if (ans.length > 0) {
             for (Annotation an : ans) {
                 if (an instanceof Partition) {
@@ -127,7 +126,6 @@ public class DefaultManager implements DaoManager {
                 }
             }
         }
-        logger.info("isp=[{}]", isp);
         if (isp) {
             List<Field> fields = ClassUtil.getFields(entityCls);
             Map<String, java.lang.reflect.Type> aType = 
@@ -135,14 +133,12 @@ public class DefaultManager implements DaoManager {
             if (fields != null && !fields.isEmpty()) {
                 for (Field f : fields) {
                     aType.put(f.getName(), f.getGenericType());
-                    logger.info("[{}]=[{}]", f.getName(), f.getGenericType());
                 }
             }
             
             for (Annotation an : ans) {
                 if (an instanceof NumberRangePartition) {
                     NumberRangePartition numAn = (NumberRangePartition)an;
-                    logger.info("numAn.field()=[{}]", numAn.field());
                     if (aType.containsKey(numAn.field())) {
                         NumberRange numRange = new NumberRange();
                         numRange.setCount(numAn.count());
@@ -155,7 +151,6 @@ public class DefaultManager implements DaoManager {
 
                 } else if (an instanceof TimeRangePartition) {
                     TimeRangePartition timeAn = (TimeRangePartition)an;
-                    logger.info("timeAn.field()=[{}]", timeAn.field());
                     if (aType.containsKey(timeAn.field())) {
                         TimeRange timeRange = new TimeRange();
                         timeRange.setCount(timeAn.count());
@@ -168,7 +163,6 @@ public class DefaultManager implements DaoManager {
                 }
             }
         }
-        logger.info("pm=[{}]", pm);
         return pm;
     }
     
@@ -234,7 +228,6 @@ public class DefaultManager implements DaoManager {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        logger.info("code=[{}]", code);
         if (code.length() > 0) {
             JavaCode java = new JavaCode();
             java.setCode(code);
