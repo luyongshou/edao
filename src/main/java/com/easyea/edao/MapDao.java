@@ -43,7 +43,7 @@ public interface MapDao {
      * @throws java.lang.Exception 
      */
     public List<Map<String, Object>> getList(String sql, 
-            ArrayList<QueryParam> params) throws SQLException, Exception;
+            List<QueryParam> params) throws SQLException, Exception;
     
     /**
      * 根据查询条件从某个开始位置获取制定数量的记录集
@@ -68,7 +68,7 @@ public interface MapDao {
      * @throws java.lang.Exception 
      */
     public List<Map<String, Object>> getList(String sql, 
-            ArrayList<QueryParam> params, long start, int counts)
+            List<QueryParam> params, long start, int counts)
             throws SQLException, Exception;
     /**
      * 获取一个单条记录的简单的Map字段名为键，字段的值为Map的值
@@ -86,7 +86,7 @@ public interface MapDao {
      * @throws java.sql.SQLException 
      * @throws java.lang.Exception 
      */
-    public Map<String, Object> getMap(String sql, ArrayList<QueryParam> params)
+    public Map<String, Object> getMap(String sql, List<QueryParam> params)
             throws SQLException, Exception;
     /**
      * 执行insert 或者更新ddl相关sql的操作

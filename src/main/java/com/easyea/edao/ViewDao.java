@@ -71,7 +71,7 @@ public interface ViewDao<T> {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List<T> getList(String qlString, ArrayList<QueryParam> params)
+    public List<T> getList(String qlString, List<QueryParam> params)
              throws SQLException, Exception;
 
     /**
@@ -89,7 +89,7 @@ public interface ViewDao<T> {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public List<T> getList(String qlString, ArrayList<QueryParam> params,
+    public List<T> getList(String qlString, List<QueryParam> params,
             long start, int counts) throws SQLException, Exception;
     
     /**
@@ -119,7 +119,7 @@ public interface ViewDao<T> {
      * @throws java.sql.SQLException
      * @throws java.lang.Exception
      */
-    public long getTotal(String qlString, ArrayList<QueryParam> params)
+    public long getTotal(String qlString, List<QueryParam> params)
              throws SQLException, Exception;
 
 }

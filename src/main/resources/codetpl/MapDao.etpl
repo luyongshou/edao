@@ -61,7 +61,7 @@ public class ${dbProductName}MapDao implements MapDao {
 
     @Override
     public List<Map<String, Object>> getList(String qlString, 
-            ArrayList<QueryParam> params)
+            List<QueryParam> params)
             throws SQLException, Exception {
         return this.getList(qlString, params, 0, -1);
     }
@@ -70,7 +70,7 @@ public class ${dbProductName}MapDao implements MapDao {
 
     @Override
     public List<Map<String, Object>> getList(String qlString, 
-            ArrayList<QueryParam> params, long start, int counts) 
+            List<QueryParam> params, long start, int counts) 
             throws SQLException, Exception {
         boolean isAll = false;
         List<Map<String, Object>> l = null;
@@ -161,7 +161,7 @@ public class ${dbProductName}MapDao implements MapDao {
     }
 
     @Override
-    public Map<String, Object> getMap(String sql, ArrayList<QueryParam> params) throws SQLException, Exception {
+    public Map<String, Object> getMap(String sql, List<QueryParam> params) throws SQLException, Exception {
         List<Map<String, Object>> maps = getList(sql, params, 0, 1);
         if (maps != null && !maps.isEmpty()) {
             return maps.get(0);

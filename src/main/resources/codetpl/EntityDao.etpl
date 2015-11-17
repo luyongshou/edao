@@ -119,7 +119,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     }
 
     @Override
-    public List<${entity.simpleName}> getList(String qlString, ArrayList<QueryParam> params)
+    public List<${entity.simpleName}> getList(String qlString, List<QueryParam> params)
             throws SQLException, Exception {
         return this.getList(qlString, params, 0, -1);
     }
@@ -127,7 +127,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     ${limitFun}
 
     @Override
-    public List<${entity.simpleName}> getList(String qlString, ArrayList<QueryParam> params,
+    public List<${entity.simpleName}> getList(String qlString, List<QueryParam> params,
             long start, int counts) throws SQLException, Exception {
         boolean isAll = false;
         List<${entity.simpleName}> l = null;
@@ -324,7 +324,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     }
 
     @Override
-    public long getTotal(String qlString, ArrayList<QueryParam> params)
+    public long getTotal(String qlString, List<QueryParam> params)
             throws SQLException, Exception {
         long total = -1;
         StringBuilder sql = new StringBuilder();
@@ -423,7 +423,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     }
 
     @Override
-    public int update(String qlString, ArrayList<QueryParam> params)
+    public int update(String qlString, List<QueryParam> params)
             throws SQLException, Exception {
         int row = -1;
         if (!qlString.trim().toLowerCase().startsWith("update")) {
@@ -515,7 +515,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     }
 
     @Override
-    public int remove(String qlString, ArrayList<QueryParam> params)
+    public int remove(String qlString, List<QueryParam> params)
             throws SQLException, Exception {
         int row = -1;
         StringBuilder sql = new StringBuilder();
