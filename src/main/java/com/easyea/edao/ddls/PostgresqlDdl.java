@@ -53,7 +53,7 @@ public class PostgresqlDdl extends AbstractDdl {
             }
         }
         String shemas = "public";
-        if (id.length() > 0) {
+        if (aField != null && !aField.isEmpty()) {
             sql.a("CREATE TABLE ").a(shemas).a(".")
                     .a(tbName).a(" (").r(1);
             Collections.sort(aF);
