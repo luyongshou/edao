@@ -186,15 +186,13 @@ public class ClassUtil {
                         sb.append(toLowerCase(camel.charAt(i)));
                     }
                 } else {
+                    sb.append("_").append(toLowerCase(c));
                     if (upCount > 1) {
-                        sb.append("_").append(toLowerCase(c));
                         for (int j=0;j<upCount-2;j++) {
                             i++;
                             sb.append(toLowerCase(camel.charAt(i)));
                         }
                     }
-                    i++;
-                    sb.append("_").append(toLowerCase(camel.charAt(i)));
                 }
             } else {
                 sb.append(c);
