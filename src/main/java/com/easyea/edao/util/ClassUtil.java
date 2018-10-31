@@ -178,7 +178,7 @@ public class ClassUtil {
             char c = camel.charAt(i);
             if (isUpperCase(c)) { //如果为大写字母则判断后面是否是大写字母
                 int upCount = getUpperCaseCount(i, camel, len);
-                System.out.println("i=" + i + ",upCount=" + upCount + ",len=" + len);
+                
                 if (upCount + i == len) {
                     sb.append("_").append(toLowerCase(c));
                     for (int j=0;j<upCount-1;j++) {
