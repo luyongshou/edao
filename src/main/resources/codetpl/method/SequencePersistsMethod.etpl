@@ -20,13 +20,13 @@ var idClass = idInfo.type;
             String sId = "${nextIdSql}";
             pstmt = session.prepareStatement(sId);
             for (${entity.simpleName} entity : entities) {
-                if (entity.getId() == null || entity.getId() <= 0) {
+                if (entity.get${idInfo.method}() == null || entity.get${idInfo.method}() <= 0) {
                     ResultSet rs = pstmt.executeQuery();
                     if (rs.next()) {
                         aId[i] = rs.get${idInfo.setMethod}("nid");
                     }
                 } else {
-                    aId[i] = entity.getId();
+                    aId[i] = entity.get${idInfo.method}();
                 }
                 i++;
             }
@@ -86,7 +86,7 @@ var idClass = idInfo.type;
                 }
                 %>
                 pstmt.addBatch();
-                entity.setId(aId[i]);
+                entity.set${idInfo.method}(aId[i]);
                 i++;
             }
             if (initAuto) {

@@ -13,7 +13,7 @@ var idClass = idInfo.type;
                 session.setAutoCommit(false);
             }
             ${idClass.simpleName} nid = null;
-            if (entity.getId() == null || entity.getId() <= 0) {
+            if (entity.get${idInfo.method}() == null || entity.get${idInfo.method}() <= 0) {
                 String sId = "${nextIdSql}";
                 pstmt = session.prepareStatement(sId);
                 ResultSet rs = pstmt.executeQuery();
@@ -23,7 +23,7 @@ var idClass = idInfo.type;
                 rs.close();
                 rs = null;
             } else {
-                nid = entity.getId();
+                nid = entity.get${idInfo.method}();
             }
             int row = 0;
             if (nid != null) {
@@ -96,11 +96,11 @@ var idClass = idInfo.type;
                 %>
                 if (session.enableBatch()) {
                     pstmt.addBatch();
-                    entity.setId(nid);
+                    entity.set${idInfo.method}(nid);
                 } else {
                     row = pstmt.executeUpdate();
                     if (row > 0) {
-                        entity.setId(nid);
+                        entity.set${idInfo.method}(nid);
                     }
                 }
             }

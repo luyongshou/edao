@@ -115,6 +115,7 @@ public abstract class AbstractBuilder implements Builder {
         
         List<String> columns = new ArrayList<String>();
         Map<String, TypeInfo> fieldTypes = new HashMap<String, TypeInfo>();
+        String idColumeName = "";
         if (fields != null && !fields.isEmpty()) {
             String mName;
             boolean isId;
@@ -126,6 +127,9 @@ public abstract class AbstractBuilder implements Builder {
                         + f.getName().substring(1);
                 String setMethod = ClassUtil.typeToJdbc(f);
                 isId = f.getName().equals(idField.getName());
+                if (isId) {
+                    idColumeName = column;
+                }
                 TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), isId);
                 if (f.getType().equals(Date.class)) {
                     Annotation[] atns = f.getAnnotations();
@@ -191,6 +195,7 @@ public abstract class AbstractBuilder implements Builder {
         } catch (Exception ex) {
             throw new EntityException(ex);
         }
+        System.out.println("code:\n" + code);
         return code;
     }
     

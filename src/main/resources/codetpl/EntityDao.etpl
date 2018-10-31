@@ -95,7 +95,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     @Override
     public ${entity.simpleName} getEntityById(Object primaryKey) throws SQLException, Exception {
         ${entity.simpleName} t = null;
-        List l = this.getList(" where  id=" + (${idClass2.simpleName}) primaryKey);
+        List l = this.getList(" where  ${idColumnName}=" + (${idClass2.simpleName}) primaryKey);
         if (l != null && l.size() > 0) {
             t = (${entity.simpleName}) l.get(0);
         }
@@ -501,7 +501,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     @Override
     public boolean remove(Object ent) throws SQLException, Exception {
         ${entity.simpleName} entity = (${entity.simpleName}) ent;
-        int row = this.remove(" where id=" + entity.getId());
+        int row = this.remove(" where id=" + entity.get${idInfo.method}());
         if (row > 0) {
             return true;
         } else {

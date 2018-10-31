@@ -153,7 +153,7 @@ public class PostgresqlDdl extends AbstractDdl {
                 }
                 sql.a(",").r(1);
             }
-            sql.t(1).a("PRIMARY KEY(id)").r(1);
+            sql.t(1).a("PRIMARY KEY(" + prikey + ")").r(1);
             sql.a(") WITHOUT OIDS;");
         }
         sqls.add(sql.toString());

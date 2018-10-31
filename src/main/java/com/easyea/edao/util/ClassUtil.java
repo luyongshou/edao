@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import sun.net.PortConfig;
 
 /**
  *
@@ -47,7 +48,9 @@ public class ClassUtil {
             }
         }
         if (tbName.length() == 0) {
-            tbName = cls.getSimpleName();
+            String name = cls.getSimpleName();
+            tbName = name.substring(0, 1).toLowerCase() + name.substring(1);
+            tbName = toUnderScore(tbName);
         }
         return tbName;
     }
@@ -96,6 +99,7 @@ public class ClassUtil {
         } else {
             set = "Object";
         }
+        System.out.println("f.name=" + field.getName() + ",set=" + set);
         return set;
     }
     
@@ -155,6 +159,81 @@ public class ClassUtil {
             }
         }
         return seq;
+    }
+    
+    /**
+     * 将驼峰命名的风格字符串转为下划线风格的命名字符串。连续多个大些字母时，如果以连续的大写字母
+     * 结束则在第一个大写字母前增加下划线，如果不是以大写字母结束则在第一个大写字母前增加一个下划线
+     * 然后再最后一个大写字母前增加一个下划线
+     * @param camel
+     * @return 
+     */
+    public static String toUnderScore(String camel) {
+        if (camel == null || camel.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        int len = camel.length();
+        for (int i=0;i<len;i++) {
+            char c = camel.charAt(i);
+            if (isUpperCase(c)) { //如果为大写字母则判断后面是否是大写字母
+                int upCount = getUpperCaseCount(i, camel, len);
+                System.out.println("i=" + i + ",upCount=" + upCount + ",len=" + len);
+                if (upCount + i == len) {
+                    sb.append("_").append(toLowerCase(c));
+                    for (int j=0;j<upCount-1;j++) {
+                        i++;
+                        sb.append(toLowerCase(camel.charAt(i)));
+                    }
+                } else {
+                    if (upCount > 1) {
+                        sb.append("_").append(toLowerCase(c));
+                        for (int j=0;j<upCount-2;j++) {
+                            i++;
+                            sb.append(toLowerCase(camel.charAt(i)));
+                        }
+                    }
+                    i++;
+                    sb.append("_").append(toLowerCase(camel.charAt(i)));
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+    
+    /**
+     * 查询连续大写字母的个数
+     * @param start 开始位置
+     * @param camel 原字符串
+     * @param len 字符传长度
+     * @return 
+     */
+    private static int getUpperCaseCount(int start, String camel, int len) {
+        if (start == len -1) {
+            return 1;
+        }
+        for (int i=start + 1;i<len;i++) {
+            char c = camel.charAt(i);
+            if (!isUpperCase(c)) {
+                return i - start;
+            }
+        }
+        return len - start;
+    }
+    
+    public static char toLowerCase(char c) {
+        return (char)(c + 32);
+    }
+    
+    /**
+     * 判断一个字符是否是大写字母
+     * @param c
+     * @return 
+     */
+    public static boolean isUpperCase(char c) {
+        return c >= 'A' && c <= 'Z';
     }
 
     /**
