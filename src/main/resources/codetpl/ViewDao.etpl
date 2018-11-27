@@ -128,7 +128,11 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
                 }
             }
             ResultSet rs = pstmt.executeQuery();
-            l = new ArrayList<>();
+            int lsize = 128;
+            if (counts > 0 && counts > lsize) {
+                lsize = counts;
+            }
+            l = new ArrayList<>(lsize);
             ArrayList<String> aColumn = new ArrayList<>();
             if (!isAll) {
                 ResultSetMetaData rsmd = rs.getMetaData();
