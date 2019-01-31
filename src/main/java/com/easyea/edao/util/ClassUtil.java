@@ -264,7 +264,7 @@ public class ClassUtil {
     public static String getColumnName(Field field) {
         String       colName = field.getName();
         Annotation[] fanns   = field.getAnnotations();
-        if (fanns != null) {
+        if (fanns != null && fanns.length > 0) {
             for (Annotation fann : fanns) {
                 if (fann instanceof Column) {
                     Column cann = (Column) fann;
@@ -273,6 +273,8 @@ public class ClassUtil {
                     }
                 }
             }
+        } else {
+            colName = toUnderScore(colName);
         }
         return colName;
     }
