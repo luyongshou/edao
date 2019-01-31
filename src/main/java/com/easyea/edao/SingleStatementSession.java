@@ -183,5 +183,9 @@ public class SingleStatementSession implements StatementSession {
     public SqlStat getSqlStat() {
         return stat;
     }
+
+    public void close() throws Exception {
+        closeConnection();
+    }
     
 }

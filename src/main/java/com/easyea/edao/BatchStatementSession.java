@@ -208,4 +208,8 @@ public class BatchStatementSession implements StatementSession {
     public SqlStat getSqlStat() {
         return stat;
     }
+
+    public void close() throws Exception {
+        closeConnection();
+    }
 }
