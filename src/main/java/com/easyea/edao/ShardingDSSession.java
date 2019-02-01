@@ -37,7 +37,7 @@ public interface ShardingDSSession {
      * @param vals 分区字段值的列表
      * @return 返回该对象所在的数据库操作的StatementSession对象Map
      */
-    Map<DataSource, List<Object>> getDataSources(Class entityCls, List<Object> vals);
+    Map<DataSource, List<? extends Object>> getDataSources(Class entityCls, List<? extends Object> vals);
     /**
      * 获取数据库StatementSession
      * @param con
