@@ -33,11 +33,12 @@ public interface ShardingDSSession {
     
     /**
      * 根据持久化Bean的类以及分区字段的值列表获取数据列表所使用的StatementSession的Map
+     * @param <T>
      * @param entityCls 持久化Bean的类
      * @param vals 分区字段值的列表
      * @return 返回该对象所在的数据库操作的StatementSession对象Map
      */
-    Map<DataSource, List<? extends Object>> getDataSources(Class entityCls, List<? extends Object> vals);
+    <T> Map<DataSource, List<T>> getDataSources(Class entityCls, List<T> vals);
     /**
      * 获取数据库StatementSession
      * @param con
