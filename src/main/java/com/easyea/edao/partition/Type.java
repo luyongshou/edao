@@ -12,5 +12,9 @@ public enum Type {
     /**
      * 按字段的范围分区
      */
-    RANGE
+    RANGE,
+    /**
+     * 按字段的hash进行分表
+     */
+    HASH
 }
