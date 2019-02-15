@@ -2,7 +2,6 @@ package com.easyea.edao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,6 +78,24 @@ public interface EntityDao<T> {
      * @throws java.lang.Exception
      */
     public List<T> getList(String qlString) throws SQLException, Exception;
+    /**
+     * 根据sql语句获取一个符合条件的持久化对象
+     * @param qlString sql语句
+     * @return 符合条件的一个持久化对象
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public T findOne(String qlString) throws SQLException, Exception;
+    
+    /**
+     * 根据sql语句以及绑定变量获取一个符合条件的持久化对象
+     * @param qlString sql语句
+     * @param params 绑定变量的值
+     * @return 符合条件的一个持久化对象
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public T findOne(String qlString, List<QueryParam> params) throws SQLException, Exception;
 
     /**
      * 获取一定数量符合条件的持久化对象列表

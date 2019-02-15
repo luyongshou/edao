@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -139,7 +141,8 @@ public class PostgresqlDdl extends AbstractDdl {
                         } else {
                             sql.a(" VARCHAR(").a(flength).a(") DEFAULT ''");
                         }
-                    } else if (ftype.equals(Date.class)) {
+                    } else if (ftype.equals(Date.class) || ftype.equals(LocalDate.class) 
+                            || ftype.equals(LocalDateTime.class)) {
                         if (tempType == null) {
                             sql.a(" TIMESTAMP(6) WITH TIME ZONE");
                         } else if (tempType.equals(TemporalType.TIMESTAMP)) {

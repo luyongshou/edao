@@ -6,6 +6,10 @@
 
 package com.easyea.edao.util;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 /**
  *
  * @author louis
@@ -17,6 +21,8 @@ public class TypeInfo {
     private String  temporal;
     private boolean isId;
     private boolean isObject;
+    private boolean isJdbcObject;
+    private String objClassName;
     
     public TypeInfo(String setMethod, String method, Class type, boolean isId) {
         this.setMethod = setMethod;
@@ -25,6 +31,10 @@ public class TypeInfo {
         this.temporal  = "";
         this.isId      = isId;
         this.isObject  = type.toString().startsWith("class ");
+        this.isJdbcObject = isJdbcObject(type);
+        if (isJdbcObject) {
+            this.objClassName = type.getName() + ".class";
+        }
     }
     
     public TypeInfo(String setMethod, String method, Class type, String temporal, 
@@ -35,6 +45,19 @@ public class TypeInfo {
         this.temporal  = temporal;
         this.isId      = isId;
         this.isObject  = type.toString().startsWith("class ");
+        this.isJdbcObject = isJdbcObject(type);
+        if (isJdbcObject) {
+            this.objClassName = type.getName() + ".class";
+        }
+    }
+    
+    private boolean isJdbcObject(Class type) {
+        if (type.getName().equals(LocalDateTime.class.getName()) 
+                || type.getName().equals(LocalDate.class.getName())
+                || type.getName().equals(LocalTime.class.getName())) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -119,5 +142,19 @@ public class TypeInfo {
      */
     public void setIsObject(boolean isObject) {
         this.isObject = isObject;
+    }
+
+    /**
+     * @return the isJdbcObject
+     */
+    public boolean isIsJdbcObject() {
+        return isJdbcObject;
+    }
+
+    /**
+     * @return the objClassName
+     */
+    public String getObjClassName() {
+        return objClassName;
     }
 }

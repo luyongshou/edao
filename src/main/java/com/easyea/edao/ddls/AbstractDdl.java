@@ -17,6 +17,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -122,6 +124,7 @@ public abstract class AbstractDdl implements Ddl {
         List<String> sqls = new ArrayList<String>();
         if (field != null) {
             Class  ftype   = field.getType();
+            System.out.println("ftype=" + ftype);
             String colName = ClassUtil.getColumnName(field);
             colName = colName.toUpperCase(Locale.ENGLISH);
             Annotation[] anns = field.getAnnotations();
@@ -143,7 +146,8 @@ public abstract class AbstractDdl implements Ddl {
                 appendFloatColumSqls(tableName, colName, fCol, sqls);
             } else if (ftype.equals(Double.class) || ftype.toString().equals("double")) {
                 appendDoubleColumSqls(tableName, colName, fCol, sqls);
-            } else if (ftype.equals(Date.class)) {
+            } else if (ftype.equals(Date.class) || ftype.equals(LocalDateTime.class) 
+                    || ftype.equals(LocalDate.class)) {
                 appendDateColumSqls(tableName, colName, anns, sqls);
             } else if (ftype.equals(Boolean.class) || ftype.toString().equals("boolean")) {
                 appendBooleanColumSqls(tableName, colName, fCol, sqls);

@@ -16,6 +16,9 @@ import com.easyea.edao.annotation.View;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -95,6 +98,9 @@ public class ClassUtil {
                     set = "Timestamp";
                 }
             }
+        } else if (otype.equals(LocalDateTime.class) || otype.equals(LocalDate.class) 
+                || otype.equals(LocalTime.class)) {
+            set = "Object";
         } else {
             set = "Object";
         }

@@ -466,7 +466,7 @@ public class DefaultManager implements DaoManager {
     @Override
     public Class getViewDaoClass(Class beanCls, Builder builder) 
             throws ViewException, Exception {
-        String daoName = ClassUtil.vdaoPackPre + beanCls.getName() + "Dao";
+        String daoName = ClassUtil.vdaoPackPre + beanCls.getName() + "ViewDao";
         String cacheKey = builder.getDbProductName() + "_" + daoName;
         Class dao = cache.get(cacheKey);
         if (dao != null) {
@@ -495,7 +495,7 @@ public class DefaultManager implements DaoManager {
     public static void compileViewDao(Class ecls, DynamicClassLoader loader,
             Builder builder) 
             throws ViewException, Exception {
-        String daoName = ClassUtil.vdaoPackPre + "_" + ecls.getName() + "Dao";
+        String daoName = ClassUtil.vdaoPackPre + "_" + ecls.getName() + "ViewDao";
         if (daoName == null) {
             throw new ViewException("Dao package name is null");
         }
@@ -511,6 +511,7 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }
+        System.out.println("viewDao code:" + source);
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -848,6 +849,7 @@ public class DefaultManager implements DaoManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("viewDaoFactory code:" + code);
         return code;
     }
 
