@@ -10,6 +10,7 @@ var idClass = idInfo.type;
         }
         PreparedStatement pstmt = null;
         boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             if (session.getAutoCommit()) {
                 initAuto = true;

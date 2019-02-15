@@ -5,6 +5,7 @@ var entity, columns, tableName, fieldTypes;
     public ${entity.simpleName} persist(${entity.simpleName} entity) throws SQLException, Exception {
         PreparedStatement pstmt = null;
         boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             if (session.getAutoCommit()) {
                 initAuto = true;

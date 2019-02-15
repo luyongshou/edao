@@ -25,28 +25,31 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
+public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}> {
 
-    static Logger logger = LoggerFactory.getLogger(${entity.simpleName}Dao.class);
+    static Logger logger = LoggerFactory.getLogger(${entity.simpleName}ViewDao.class);
 
-    private StatementSession session;
+    static final ThreadLocal<StatementSession> LOCAL_STATEMENT_SESSION =
+            new ThreadLocal<StatementSession>();
+
     private DdlManager ddlManager = null;
 
-    public ${entity.simpleName}Dao() {
-        session = null;
+    public ${entity.simpleName}ViewDao() {
+        
     }
 
     @Override
     public void setConnect(Connection con) {
         //if (session == null) {
-            session = new SingleStatementSession();
+            StatementSession session = new SingleStatementSession();
             session.setConnection(con);
+            setStatementSession(session);
         //}
     }
 
     @Override
     public void setStatementSession(StatementSession session) {
-        this.session = session;
+        LOCAL_STATEMENT_SESSION.set(session);
     }
 
     @Override
@@ -92,6 +95,7 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
         if (logger.isDebugEnabled()) {
             logger.debug("sql=[{}]", ssql);
         }
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             pstmt = session.prepareStatement(ssql);
             if (params != null && params.size() > 0) {
@@ -194,6 +198,7 @@ public class ${entity.simpleName}Dao implements ViewDao<${entity.simpleName}> {
                 sql.append(qlString);
             }
         }
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         if (params != null && params.size() > 0) {
             PreparedStatement pstmt = null;
             try {

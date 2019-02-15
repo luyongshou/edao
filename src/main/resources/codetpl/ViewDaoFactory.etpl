@@ -4,7 +4,8 @@ var vdaoFactPackPre, entity, entityPackage;
 package ${vdaoFactPackPre}${entityPackage};
 
 import com.easyea.edao.exception.ViewException;
-import evdaop.${entity.name}Dao;
+import ${entity.name};
+import evdaop.${entity.name}ViewDao;
 import com.easyea.edao.ViewFactory;
 import com.easyea.edao.ViewDao;
 
@@ -16,7 +17,7 @@ public class ${entity.simpleName}DaoFactory implements ViewFactory<${entity.simp
 
     @Override
     public ViewDao<${entity.simpleName}> getDao() throws ViewException, Exception {
-        ViewDao<${entity.simpleName}> dao = new ${entity.simpleName}Dao();
+        ViewDao<${entity.simpleName}> dao = new ${entity.simpleName}ViewDao();
         return dao;
     }
     

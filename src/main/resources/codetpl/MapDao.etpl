@@ -28,23 +28,24 @@ public class ${dbProductName}MapDao implements MapDao {
     
     static Logger logger = LoggerFactory.getLogger(${dbProductName}MapDao.class);
 
-    private StatementSession session;
+    static final ThreadLocal<StatementSession> LOCAL_STATEMENT_SESSION =
+            new ThreadLocal<StatementSession>();
 
     public ${dbProductName}MapDao() {
-        session = null;
     }
 
     @Override
     public void setConnect(Connection con) {
         //if (session == null) {
-            session = new SingleStatementSession();
+            StatementSession session = new SingleStatementSession();
             session.setConnection(con);
+            setStatementSession(session);
         //}
     }
 
     @Override
     public void setStatementSession(StatementSession session) {
-        this.session = session;
+        LOCAL_STATEMENT_SESSION.set(session);
     }
 
     @Override
@@ -84,6 +85,7 @@ public class ${dbProductName}MapDao implements MapDao {
         if (logger.isDebugEnabled()) {
             logger.debug("sql=[{}]", ssql);
         }
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             pstmt = session.prepareStatement(ssql);
             if (params != null && params.size() > 0) {
@@ -186,6 +188,7 @@ public class ${dbProductName}MapDao implements MapDao {
             return row;
         }
         PreparedStatement pstmt = null;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             pstmt = session.prepareStatement(sql);
             if (params != null && params.size() > 0) {

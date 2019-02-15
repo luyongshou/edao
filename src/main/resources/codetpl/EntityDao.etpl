@@ -42,12 +42,13 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
 
     static Logger logger = LoggerFactory.getLogger(${entity.simpleName}Dao.class);
 
-    private StatementSession session;
+    static final ThreadLocal<StatementSession> LOCAL_STATEMENT_SESSION =
+            new ThreadLocal<StatementSession>();
+
     private DdlManager       ddlManager = null;
     private PartitionManager partm      = null;
 
     public ${entity.simpleName}Dao() {
-        session = null;
         <%
         if (hasPartition == "1") {
         %>
@@ -68,7 +69,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
 
     @Override
     public void setStatementSession(StatementSession session) {
-        this.session = session;
+        LOCAL_STATEMENT_SESSION.set(session);
         if (ddlManager != null && !ddlManager.isSync()) {
             try {
                 ddlManager.syncDdl(session.getConnection());
@@ -96,6 +97,24 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
     public ${entity.simpleName} getEntityById(Object primaryKey) throws SQLException, Exception {
         ${entity.simpleName} t = null;
         List l = this.getList(" where  ${idColumnName}=" + (${idClass2.simpleName}) primaryKey);
+        if (l != null && l.size() > 0) {
+            t = (${entity.simpleName}) l.get(0);
+        }
+        return t;
+    }
+
+    public ${entity.simpleName} findOne(String qlString) throws SQLException, Exception {
+        ${entity.simpleName} t = null;
+        List l = this.getList(qlString, 0, 1);
+        if (l != null && l.size() > 0) {
+            t = (${entity.simpleName}) l.get(0);
+        }
+        return t;
+    }
+    
+    public ${entity.simpleName} findOne(String qlString, List<QueryParam> params) throws SQLException, Exception {
+        ${entity.simpleName} t = null;
+        List l = this.getList(qlString, params, 0, 1);
         if (l != null && l.size() > 0) {
             t = (${entity.simpleName}) l.get(0);
         }
@@ -141,13 +160,14 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         if (counts > 0) {
             ssql = getLimitSql(ssql, start, counts);
         }
-        PreparedStatement pstmt = null;
         if (logger.isDebugEnabled()) {
             logger.debug("sql=[{}]", ssql);
         }
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
-            pstmt = session.prepareStatement(ssql);
+            ResultSet rs;
             if (params != null && params.size() > 0) {
+                PreparedStatement pstmt = session.prepareStatement(ssql);
                 for (QueryParam param : params) {
                     if (param.getValue() instanceof Date) {
                         if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
@@ -179,8 +199,11 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
                 }
+                rs = pstmt.executeQuery();
+            } else {
+                Statement stmt = session.statement();
+                rs = stmt.executeQuery(sql.toString());
             }
-            ResultSet rs = pstmt.executeQuery();
             int lsize = 128;
             if (counts > 0 && counts > lsize) {
                 lsize = counts;
@@ -201,7 +224,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                     var info = fieldTypes[column];
                 %>
                 if (isAll || aColumn.contains("${column}")) {
-                    t.set${info.method}(rs.get${info.setMethod}("${column}"));
+                    t.set${info.method}(rs.get${info.setMethod}("${column}"<%if (info.isJdbcObject) {%>,${info.objClassName}<%}%>));
                 }
                 <%
                 }
@@ -244,6 +267,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         sql.append(" WHERE ${idColumn}=?");
         PreparedStatement pstmt = null;
         boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             if (session.getAutoCommit()) {
                 initAuto = true;
@@ -342,6 +366,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 sql.append(qlString);
             }
         }
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         if (params != null && params.size() > 0) {
             PreparedStatement pstmt = null;
             try {
@@ -435,6 +460,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         }
         PreparedStatement pstmt = null;
         boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             if (session.getAutoCommit()) {
                 initAuto = true;
@@ -529,6 +555,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         sql.append(qlString);
         PreparedStatement pstmt = null;
         boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
         try {
             if (session.getAutoCommit()) {
                 initAuto = true;
