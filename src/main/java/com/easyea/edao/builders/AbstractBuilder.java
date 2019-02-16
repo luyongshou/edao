@@ -19,6 +19,7 @@ import com.easyea.edao.codetpls.WebitTemplate;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.exception.ViewException;
 import com.easyea.edao.util.ClassUtil;
+import static com.easyea.edao.util.ClassUtil.getColumnName;
 import com.easyea.edao.util.TypeInfo;
 import com.easyea.logger.Logger;
 import com.easyea.logger.LoggerFactory;
@@ -66,9 +67,10 @@ public abstract class AbstractBuilder implements Builder {
         Class partitionManager = manager.getPartitionManager(entityCls);
         logger.info("partitionManager=[{}]", partitionManager);
         String tableName = ClassUtil.getTableName(entityCls);
-        String seqName = tableName + "_id_seq";
+        
         initFields();
         Field idField = idField();
+        String seqName = tableName + "_" + getColumnName(idField) + "_seq";
         GenerationType genType = GenerationType.SEQUENCE;
         Annotation[] ans = idField.getAnnotations();
         String gseqName = "";
