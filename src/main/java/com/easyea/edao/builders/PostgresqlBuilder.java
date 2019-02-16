@@ -38,7 +38,7 @@ public class PostgresqlBuilder extends AbstractBuilder {
     protected String getLimitSQLFun() {
         StringBuilder fun = new StringBuilder();
         fun.append("private String getLimitSql(String sql, long start, int count) {\n");
-        fun.append("\t\treturn sql += \" limit \" + count + \" offset \" + count;\n");
+        fun.append("\t\treturn sql += \" limit \" + count + \" offset \" + start;\n");
         fun.append("\t}");
         return fun.toString();
     }
