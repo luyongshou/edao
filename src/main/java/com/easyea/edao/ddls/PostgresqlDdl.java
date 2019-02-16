@@ -141,12 +141,31 @@ public class PostgresqlDdl extends AbstractDdl {
                         } else {
                             sql.a(" VARCHAR(").a(flength).a(") DEFAULT ''");
                         }
-                    } else if (ftype.equals(Date.class) || ftype.equals(LocalDate.class) 
-                            || ftype.equals(LocalDateTime.class)) {
+                    } else if (ftype.equals(Date.class)) {
+                        if (tempType == null) {
+                            sql.a(" date");
+                        } else if (tempType.equals(TemporalType.TIMESTAMP)) {
+                            sql.a(" TIMESTAMP(6) WITH TIME ZONE");
+                        } else if (tempType.equals(TemporalType.TIME)) {
+                            sql.a(" TIME(6) WITHOUT TIME ZONE");
+                        } else if (tempType.equals(TemporalType.DATE)) {
+                            sql.a(" DATE");
+                        }
+                    } else if (ftype.equals(LocalDate.class)) {
                         if (tempType == null) {
                             sql.a(" TIMESTAMP(6) WITH TIME ZONE");
                         } else if (tempType.equals(TemporalType.TIMESTAMP)) {
                             sql.a(" TIMESTAMP(6) WITH TIME ZONE");
+                        } else if (tempType.equals(TemporalType.TIME)) {
+                            sql.a(" TIME(6) WITHOUT TIME ZONE");
+                        } else if (tempType.equals(TemporalType.DATE)) {
+                            sql.a(" DATE");
+                        }
+                    } else if (ftype.equals(LocalDateTime.class)) {
+                        if (tempType == null) {
+                            sql.a(" TIMESTAMP(6) WITHOUT TIME ZONE");
+                        } else if (tempType.equals(TemporalType.TIMESTAMP)) {
+                            sql.a(" TIMESTAMP(6) WITHOUT TIME ZONE");
                         } else if (tempType.equals(TemporalType.TIME)) {
                             sql.a(" TIME(6) WITHOUT TIME ZONE");
                         } else if (tempType.equals(TemporalType.DATE)) {
