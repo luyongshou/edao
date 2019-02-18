@@ -6,6 +6,7 @@ package com.easyea.edao.ddls;
 
 import com.easyea.edao.Ddl;
 import com.easyea.edao.annotation.Column;
+import com.easyea.edao.annotation.Comment;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.util.ClassUtil;
 import com.easyea.logger.Logger;
@@ -180,6 +181,51 @@ public abstract class AbstractDdl implements Ddl {
             }
         }
         return sqls;
+    }
+    
+    /**
+     * 获取数据表的注释信息
+     * @param entity 持久化Class的对象
+     * @return 
+     */
+    public String getTableComment(Class entity, String tableName) throws Exception {
+        Annotation[] anns = entity.getAnnotations();
+        String comment = getAnnotationComment(anns);
+        if (comment == null || comment.trim().length() == 0) {
+            return null;
+        }
+        return "comment on table " + getTableName(entity) + " IS '" + comment + "'";
+    }
+    
+    public String getColumnComment(Field field, String tableName, String columName) {
+        Annotation[] anns = field.getAnnotations();
+        String comment = getAnnotationComment(anns);
+        if (comment == null || comment.trim().length() == 0) {
+            return null;
+        }
+        return "comment on column " + tableName + "." + columName + " is '" + comment + "';";
+    }
+    
+    public void addCommentDdl(String comment, List<String> comments) {
+        if (comment == null || comment.trim().length() == 0) {
+            return;
+        }
+        if (!comments.contains(comment)) {
+            comments.add(comment);
+        }
+    }
+    
+    private String getAnnotationComment(Annotation[] anns) {
+        if (anns == null) {
+            return null;
+        }
+        for (Annotation ann : anns) {
+            if (ann instanceof Comment) {
+                Comment tbComment = (Comment)ann;
+                return tbComment.value();
+            }
+        }
+        return null;
     }
     
     protected abstract void appendBooleanColumSqls(String       tableName, 

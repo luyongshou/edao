@@ -38,9 +38,13 @@ public class PostgresqlDdl extends AbstractDdl {
             throws EntityException, Exception {
         List<String> sqls = new ArrayList<String>();
         CodeBuilder sql = new CodeBuilder();
+        
+        List<String> comments = new ArrayList<String>();
+        
 
         //DDLManager ddlM = DDLManagerFactory.getDDLManager(con);
         String tbName = ClassUtil.getTableName(entity).toLowerCase();
+        addCommentDdl(getTableComment(entity, tbName), comments);
         //List tbs = ddlM.getTables();
         
         List<Field> aField = ClassUtil.getFields(entity);
@@ -66,6 +70,7 @@ public class PostgresqlDdl extends AbstractDdl {
             String  prikey   = "";
             Column  dcolumn  = null;
             for (Field finfo : aField) {
+                
                 isPrikey = false;
                 flength  = "255";
                 String       f     = finfo.getName();
@@ -173,12 +178,16 @@ public class PostgresqlDdl extends AbstractDdl {
                         }
                     }
                 }
+                addCommentDdl(getColumnComment(finfo, tbName, fname), comments);
                 sql.a(",").r(1);
             }
             sql.t(1).a("PRIMARY KEY(" + prikey + ")").r(1);
             sql.a(") WITHOUT OIDS;");
         }
         sqls.add(sql.toString());
+        if (!comments.isEmpty()) {
+            sqls.addAll(comments);
+        }
         return sqls;
     }
 

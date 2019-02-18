@@ -270,17 +270,22 @@ public class ClassUtil {
     public static String getColumnName(Field field) {
         String       colName = field.getName();
         Annotation[] fanns   = field.getAnnotations();
+        String annotationColName = "";
         if (fanns != null && fanns.length > 0) {
             for (Annotation fann : fanns) {
                 if (fann instanceof Column) {
                     Column cann = (Column) fann;
                     if (cann.name() != null && cann.name().length() > 0) {
-                        colName = cann.name();
+                        annotationColName = cann.name();
                     }
                 }
             }
-        } else {
+            
+        }
+        if (annotationColName.length() == 0) {
             colName = toUnderScore(colName);
+        } else {
+            colName = annotationColName;
         }
         return colName;
     }
