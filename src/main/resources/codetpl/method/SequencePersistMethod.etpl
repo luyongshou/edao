@@ -2,6 +2,7 @@
 var entity, nextIdSql, columns, tableName, fieldTypes, hasPartition, idColumnName;
 var idInfo = fieldTypes[idColumnName];
 var idClass = idInfo.type;
+var idJdbcMethod = idInfo.setMethod;
 %>    
     @Override
     public ${entity.simpleName} persist(${entity.simpleName} entity) throws SQLException, Exception {
@@ -19,7 +20,7 @@ var idClass = idInfo.type;
                 pstmt = session.prepareStatement(sId);
                 ResultSet rs = pstmt.executeQuery();
                 if (rs.next()) {
-                    nid = rs.get${idInfo.setMethod}("nid");
+                    nid = rs.get${idJdbcMethod.getMethod}("nid");
                 }
                 rs.close();
                 rs = null;
@@ -58,9 +59,24 @@ var idClass = idInfo.type;
                 <%
                 for (column : columns) {
                     var info = fieldTypes[column];
+                    var jdbcMethod = info.setMethod;
                     if (info.isId) {
                 %>
-                pstmt.set${info.setMethod}(${for.iter.index+1}, nid);
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, nid);
+                <%
+                    } else if (jdbcMethod.isJson) {
+                %>
+                PGobject json${for.iter.index+1} = new PGobject();
+                json${for.iter.index+1}.setType("json");
+                json${for.iter.index+1}.setValue(entity.get${info.method}());
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, json${for.iter.index+1});
+                <%
+                    } else if (jdbcMethod.isJsonb) {
+                %>
+                PGobject json${for.iter.index+1} = new PGobject();
+                json${for.iter.index+1}.setType("jsonb");
+                json${for.iter.index+1}.setValue(entity.get${info.method}());
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, json${for.iter.index+1});
                 <%
                     } else {
                         if ("TIMESTAMP" == info.temporal) {
@@ -69,7 +85,7 @@ var idClass = idInfo.type;
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new Timestamp(entity.get${info.method}().getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else if ("DATE" == info.temporal) {
                 %>
@@ -77,7 +93,7 @@ var idClass = idInfo.type;
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else if ("TIME" == info.temporal) {
                 %>
@@ -85,11 +101,11 @@ var idClass = idInfo.type;
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}.getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else {
                 %>
-                pstmt.set${info.setMethod}(${for.iter.index+1}, entity.get${info.method}());
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, entity.get${info.method}());
                 <%
                         }
                     }

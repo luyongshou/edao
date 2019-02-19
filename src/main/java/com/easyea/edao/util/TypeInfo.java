@@ -6,6 +6,7 @@
 
 package com.easyea.edao.util;
 
+import com.easyea.edao.util.ClassUtil.JdbcMethod;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,7 +16,7 @@ import java.time.LocalTime;
  * @author louis
  */
 public class TypeInfo {
-    private String  setMethod;
+    private JdbcMethod  setMethod;
     private String  method;
     private Class   type;
     private String  temporal;
@@ -24,7 +25,7 @@ public class TypeInfo {
     private boolean isJdbcObject;
     private String objClassName;
     
-    public TypeInfo(String setMethod, String method, Class type, boolean isId) {
+    public TypeInfo(JdbcMethod setMethod, String method, Class type, boolean isId) {
         this.setMethod = setMethod;
         this.method    = method;
         this.type      = type;
@@ -37,7 +38,7 @@ public class TypeInfo {
         }
     }
     
-    public TypeInfo(String setMethod, String method, Class type, String temporal, 
+    public TypeInfo(JdbcMethod setMethod, String method, Class type, String temporal, 
             boolean isId) {
         this.setMethod = setMethod;
         this.method    = method;
@@ -105,14 +106,14 @@ public class TypeInfo {
     /**
      * @return the setMethod
      */
-    public String getSetMethod() {
+    public JdbcMethod getSetMethod() {
         return setMethod;
     }
 
     /**
      * @param setMethod the setMethod to set
      */
-    public void setSetMethod(String setMethod) {
+    public void setSetMethod(JdbcMethod setMethod) {
         this.setMethod = setMethod;
     }
 

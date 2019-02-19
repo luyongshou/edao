@@ -6,6 +6,8 @@ package com.easyea.edao.ddls;
 
 import com.easyea.edao.annotation.Column;
 import com.easyea.edao.annotation.Id;
+import com.easyea.edao.annotation.Json;
+import com.easyea.edao.annotation.Jsonb;
 import com.easyea.edao.annotation.Lob;
 import com.easyea.edao.annotation.Temporal;
 import com.easyea.edao.annotation.TemporalType;
@@ -78,6 +80,8 @@ public class PostgresqlDdl extends AbstractDdl {
                 Object       ftype = finfo.getType();
                 String       fname = ClassUtil.getColumnName(finfo);
                 boolean      isLob = false;
+                boolean      isJson = false;
+                boolean      isJsonb = false;
                 TemporalType tempType = null;
                 if (aann != null) {
                     for (Annotation ann : aann) {
@@ -98,6 +102,12 @@ public class PostgresqlDdl extends AbstractDdl {
                         if (ann instanceof Temporal) {
                             Temporal tann = (Temporal)ann;
                             tempType = tann.value();
+                        }
+                        if (ann instanceof Json) {
+                            isJson = true;
+                        }
+                        if (ann instanceof Jsonb) {
+                            isJsonb = true;
                         }
                     }
                 } else {
@@ -141,7 +151,11 @@ public class PostgresqlDdl extends AbstractDdl {
                         }
                         sql.a(") default 0");
                     } else if (ftype.equals(String.class)) {
-                        if (isLob) {
+                        if (isJson) {
+                            sql.a(" JSON DEFAULT '{}'");
+                        } else if (isJsonb) {
+                             sql.a(" JSONB DEFAULT '{}'");
+                        } else if (isLob) {
                             sql.a(" TEXT DEFAULT ''");
                         } else {
                             sql.a(" VARCHAR(").a(flength).a(") DEFAULT ''");

@@ -1,5 +1,6 @@
 <%
 var entity, columns, tableName, fieldTypes;
+var jdbcMethod;
 %>    
     @Override
     public ${entity.simpleName} persist(${entity.simpleName} entity) throws SQLException, Exception {
@@ -43,6 +44,7 @@ var entity, columns, tableName, fieldTypes;
             i = 1;
             for (column : columns) {
                 var info = fieldTypes[column];
+                var jdbcMethod = info.setMethod;
                 if (!info.isId) {
                     if ("TIMESTAMP" == info.temporal) {
             %>
@@ -50,7 +52,7 @@ var entity, columns, tableName, fieldTypes;
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new Timestamp(entity.get${info.method}().getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMethod.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("DATE" == info.temporal) {
             %>
@@ -58,7 +60,7 @@ var entity, columns, tableName, fieldTypes;
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMethod.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("TIME" == info.temporal) {
             %>
@@ -66,11 +68,11 @@ var entity, columns, tableName, fieldTypes;
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}.getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMethod.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else {
             %>
-            pstmt.set${info.setMethod}(${i}, entity.get${info.method}());
+            pstmt.set${jdbcMethod.setMethod}(${i}, entity.get${info.method}());
             <%
                     }
                     i++;
@@ -85,7 +87,7 @@ var entity, columns, tableName, fieldTypes;
                 %>
                 ${idType.simpleName} nid = null;
                 if (prs.next()) {
-                    nid = prs.get${idInfo.setMethod}(1);
+                    nid = prs.get${jdbcMethod.getMethod}(1);
                 }
                 entity.setId(nid);
             }

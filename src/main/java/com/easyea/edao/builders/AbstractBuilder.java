@@ -19,6 +19,7 @@ import com.easyea.edao.codetpls.WebitTemplate;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.exception.ViewException;
 import com.easyea.edao.util.ClassUtil;
+import com.easyea.edao.util.ClassUtil.JdbcMethod;
 import static com.easyea.edao.util.ClassUtil.getColumnName;
 import com.easyea.edao.util.TypeInfo;
 import com.easyea.logger.Logger;
@@ -127,7 +128,7 @@ public abstract class AbstractBuilder implements Builder {
                 columns.add(column.toLowerCase(Locale.ENGLISH));
                 mName = f.getName().substring(0, 1).toUpperCase(Locale.ENGLISH)
                         + f.getName().substring(1);
-                String setMethod = ClassUtil.typeToJdbc(f);
+                ClassUtil.JdbcMethod setMethod = ClassUtil.typeToJdbc(f);
                 isId = f.getName().equals(idField.getName());
                 if (isId) {
                     idColumeName = column;
@@ -197,7 +198,7 @@ public abstract class AbstractBuilder implements Builder {
         } catch (Exception ex) {
             throw new EntityException(ex);
         }
-        System.out.println("code:\n" + code);
+
         return code;
     }
     
@@ -218,7 +219,7 @@ public abstract class AbstractBuilder implements Builder {
                 columns.add(column.toLowerCase(Locale.ENGLISH));
                 mName = f.getName().substring(0, 1).toUpperCase(Locale.ENGLISH)
                         + f.getName().substring(1);
-                String setMethod = ClassUtil.typeToJdbc(f);
+                JdbcMethod setMethod = ClassUtil.typeToJdbc(f);
                 TypeInfo ti = new TypeInfo(setMethod, mName, f.getType(), false);
                 if (f.getType().equals(Date.class)) {
                     Annotation[] atns = f.getAnnotations();

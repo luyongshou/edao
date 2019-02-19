@@ -1,6 +1,6 @@
 <%
 var entity, columns, tableName, fieldTypes, hasPartition;
-var idInfo;
+var idInfo, jdbcMethod;
 for(column : columns){
     var info = fieldTypes[column];
     if (info.isId) {
@@ -52,6 +52,7 @@ for(column : columns){
                 <%
                 for (column : columns) {
                     var info = fieldTypes[column];
+                    var jdbcMethod = info.setMethod;
                     if (!info.isId) {
                         if ("TIMESTAMP" == info.temporal) {
                 %>
@@ -59,7 +60,7 @@ for(column : columns){
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new Timestamp(entity.get${info.method}().getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else if ("DATE" == info.temporal) {
                 %>
@@ -67,7 +68,7 @@ for(column : columns){
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else if ("TIME" == info.temporal) {
                 %>
@@ -75,11 +76,11 @@ for(column : columns){
                 if (entity.get${info.method}() != null) {
                     ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}.getTime());
                 }
-                pstmt.set${info.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
                 <%
                         } else {
                 %>
-                pstmt.set${info.setMethod}(${for.iter.index+1}, entity.get${info.method}());
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, entity.get${info.method}());
                 <%
                         }
                     }
@@ -90,10 +91,11 @@ for(column : columns){
                     ResultSet prs = pstmt.getGeneratedKeys();
                     <%
                     var idType = idInfo.type;
+                    var jdbcMethod = idInfo.setMethod;
                     %>
                     ${idType.simpleName} nid = null;
                     if (prs.next()) {
-                        nid = prs.get${idInfo.setMethod}(1);
+                        nid = prs.get${jdbcMethod.getMethod}(1);
                     }
                     entity.setId(nid);
                 }

@@ -150,9 +150,10 @@ public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}
                 <%
                 for (column : columns) {
                     var info = fieldTypes[column];
+                    var jdbcMethod = info.setMethod;
                 %>
                 if (isAll || aColumn.contains("${column}")) {
-                    t.set${info.method}(rs.get${info.setMethod}("${column}"));
+                    t.set${info.method}(rs.get${jdbcMethod.getMethod}("${column}"));
                 }
                 <%
                 }

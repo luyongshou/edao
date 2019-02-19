@@ -125,7 +125,6 @@ public abstract class AbstractDdl implements Ddl {
         List<String> sqls = new ArrayList<String>();
         if (field != null) {
             Class  ftype   = field.getType();
-            System.out.println("ftype=" + ftype);
             String colName = ClassUtil.getColumnName(field);
             colName = colName.toUpperCase(Locale.ENGLISH);
             Annotation[] anns = field.getAnnotations();

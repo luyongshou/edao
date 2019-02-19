@@ -39,6 +39,7 @@ import com.easyea.edao.util.JavaCode;
 import com.easyea.internal.util.ClassUtils;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -47,12 +48,17 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -302,6 +308,81 @@ public class DefaultManager implements DaoManager {
         return dao;
     }
     
+    private static void addJarFiles(List<File> files, ClassLoader loader) {
+        
+        try {
+            /*
+            ClassLoader sysClassLoader = ClassLoader.getSystemClassLoader();
+            
+            Enumeration resEnum;
+            String springBootClass = null;
+            String springBootLib = null;
+            String classPath = null;
+            System.out.println("sysClassLoader=" + sysClassLoader);
+            try {
+                resEnum = sysClassLoader.getResources(JarFile.MANIFEST_NAME);
+                if (resEnum != null) {
+                    while (resEnum.hasMoreElements()) {
+                        try {
+                            URL url = (URL)resEnum.nextElement();
+                            InputStream is = url.openStream();
+                            if (is != null) {
+                                Manifest manifest = new Manifest(is);
+                                Attributes mainAttribs = manifest.getMainAttributes();
+                                springBootClass = mainAttribs.getValue("Spring-Boot-Classes");
+                                springBootLib = mainAttribs.getValue("Spring-Boot-Lib");
+                                classPath = mainAttribs.getValue("Class-Path");
+                            }
+                        }
+                        catch (Exception e) {
+                            // Silently ignore wrong manifests on classpath?
+                        }
+                    }
+                }
+            } catch (IOException e1) {
+                // Silently ignore wrong manifests on classpath?
+            }
+            System.out.println("Class-Path=" + classPath);
+            System.out.println("springBootClass=" + springBootClass);
+            System.out.println("springBootLib=" + springBootLib);
+            if (springBootClass != null) {
+                files.add(new File(sysClassLoader.getResource(springBootClass).getFile()));
+            }
+            if (springBootLib != null) {
+                Enumeration<URL> libs = sysClassLoader.getResources(springBootLib);
+                if (libs != null) {
+                    while (libs.hasMoreElements()) {
+                        files.add(new File(libs.nextElement().getFile()));
+                    }
+                }
+                
+            }
+            */
+            //Get the URLs
+            /*
+            URL[] urls = ((URLClassLoader)sysClassLoader).getURLs();
+
+            for(int i=0; i< urls.length; i++) {
+                files.add(new File(urls[i].getFile()));
+            }
+            
+            Field f;
+            f = ClassLoader.class.getDeclaredField("classes");
+            f.setAccessible(true);
+            Vector<Class> classes =  (Vector<Class>) f.get(loader);
+
+            for(Class cls : classes){
+                java.net.URL location = cls.getResource('/' + cls.getName().replace('.',
+                '/') + ".class");
+                files.add(new File(location.getFile()));
+            }
+            */
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+    }
+    
     public void compileDao(Class entityCls, DynamicClassLoader loader, 
             Builder builder) throws EntityException, Exception {
         if (entityCls == null) {
@@ -328,6 +409,7 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }
+
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -348,6 +430,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -438,6 +521,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -511,7 +595,7 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }
-        System.out.println("viewDao code:" + source);
+        
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -536,6 +620,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -619,6 +704,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -704,6 +790,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -813,6 +900,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);
@@ -849,7 +937,6 @@ public class DefaultManager implements DaoManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("viewDaoFactory code:" + code);
         return code;
     }
 
@@ -914,6 +1001,7 @@ public class DefaultManager implements DaoManager {
             }
             cloader = cloader.getParent();
         }
+        addJarFiles(files, cloader);
         if (files.size() > 0) {
             try {
                 manager.setLocation(StandardLocation.CLASS_PATH, files);

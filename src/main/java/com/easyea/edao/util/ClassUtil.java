@@ -8,6 +8,8 @@ import com.easyea.edao.annotation.Column;
 import com.easyea.edao.annotation.GeneratedValue;
 import com.easyea.edao.annotation.GenerationType;
 import com.easyea.edao.annotation.Id;
+import com.easyea.edao.annotation.Json;
+import com.easyea.edao.annotation.Jsonb;
 import com.easyea.edao.annotation.SequenceGenerator;
 import com.easyea.edao.annotation.Table;
 import com.easyea.edao.annotation.Temporal;
@@ -57,13 +59,78 @@ public class ClassUtil {
         return tbName;
     }
     
+    public static class JdbcMethod {
+        private String setMethod;
+        private String getMethod;
+        private boolean isJson;
+        private boolean isJsonb;
+
+        /**
+         * @return the setMethod
+         */
+        public String getSetMethod() {
+            return setMethod;
+        }
+
+        /**
+         * @param setMethod the setMethod to set
+         */
+        public void setSetMethod(String setMethod) {
+            this.setMethod = setMethod;
+        }
+
+        /**
+         * @return the getMethod
+         */
+        public String getGetMethod() {
+            return getMethod;
+        }
+
+        /**
+         * @param getMethod the getMethod to set
+         */
+        public void setGetMethod(String getMethod) {
+            this.getMethod = getMethod;
+        }
+
+        /**
+         * @return the isJson
+         */
+        public boolean getIsJson() {
+            return isJson;
+        }
+
+        /**
+         * @param isJson the isJson to set
+         */
+        public void setIsJson(boolean isJson) {
+            this.isJson = isJson;
+        }
+
+        /**
+         * @return the isJsonb
+         */
+        public boolean getIsJsonb() {
+            return isJsonb;
+        }
+
+        /**
+         * @param isJsonb the isJsonb to set
+         */
+        public void setIsJsonb(boolean isJsonb) {
+            this.isJsonb = isJsonb;
+        }
+    }
+    
     /**
      * 根据java属性的数据类型获取jdbc设置字段值的函数名
      * @param field java对象的属性对象
      * @return jdbc绑定的函数名称
      */
-    public static String typeToJdbc(Field field) {
+    public static JdbcMethod typeToJdbc(Field field) {
+        JdbcMethod jdbcMethod = new JdbcMethod();
         String set = "";
+        String get = null;
         Class otype = field.getType();
         if (otype.equals(Long.class) || otype.toString().equals("long")) {
             set = "Long";
@@ -71,6 +138,22 @@ public class ClassUtil {
             set = "Int";
         } else if (otype.equals(String.class)) {
             set = "String";
+            Annotation[] ans = field.getAnnotations();
+            boolean isJson = false;
+            for (Annotation an : ans) {
+                if (an instanceof Json) {
+                    isJson = true;
+                    jdbcMethod.setIsJson(true);
+                } 
+                if (an instanceof Jsonb) {
+                    isJson = true;
+                    jdbcMethod.setIsJsonb(true);
+                }
+            }
+            if (isJson) {
+                set = "Object";
+            }
+            get = "String";
         } else if (otype.equals(Boolean.class) || otype.toString().equals("boolean")) {
             set = "Boolean";
         } else if (otype.equals(Double.class) || otype.toString().equals("double")) {
@@ -104,8 +187,12 @@ public class ClassUtil {
         } else {
             set = "Object";
         }
-        System.out.println("f.name=" + field.getName() + ",set=" + set);
-        return set;
+        jdbcMethod.setSetMethod(set);
+        if (get == null) {
+            get = set;
+        }
+        jdbcMethod.setGetMethod(get);
+        return jdbcMethod;
     }
     
     /**

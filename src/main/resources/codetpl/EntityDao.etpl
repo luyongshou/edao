@@ -5,6 +5,7 @@ var seqName, persistMethod, persistsMethod, fieldTypes, hasPartition, limitFun;
 var idColumnName;
 var idInfo2 = fieldTypes[idColumnName];
 var idClass2 = idInfo2.type;
+var idJdbcMd = idInfo2.setMethod;
 %>
 package ${daoPackPre}${entityPackage};
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 <%
@@ -222,9 +224,10 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 <%
                 for (column : columns) {
                     var info = fieldTypes[column];
+                    var jdbcMd = info.setMethod;
                 %>
                 if (isAll || aColumn.contains("${column}")) {
-                    t.set${info.method}(rs.get${info.setMethod}("${column}"<%if (info.isJdbcObject) {%>,${info.objClassName}<%}%>));
+                    t.set${info.method}(rs.get${jdbcMd.getMethod}("${column}"<%if (info.isJdbcObject) {%>,${info.objClassName}<%}%>));
                 }
                 <%
                 }
@@ -279,6 +282,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             i = 1;
             for(column : columns){
                 var info = fieldTypes[column];
+                var jdbcMd = info.setMethod;
                 if (!info.isId) {
                     if ("TIMESTAMP" == info.temporal) {
             %>
@@ -286,7 +290,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new java.sql.Timestamp(entity.get${info.method}().getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMd.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("DATE" == info.temporal) {
             %>
@@ -294,7 +298,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new java.sql.Date(entity.get${info.method}().getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMd.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else if ("TIME" == info.temporal) {
             %>
@@ -302,17 +306,17 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             if (entity.get${info.method}() != null) {
                 ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}().getTime());
             }
-            pstmt.set${info.setMethod}(${i}, ts${for.iter.index+1});
+            pstmt.set${jdbcMd.setMethod}(${i}, ts${for.iter.index+1});
             <%
                     } else {
             %>
-            pstmt.set${info.setMethod}(${i}, entity.get${info.method}());
+            pstmt.set${jdbcMd.setMethod}(${i}, entity.get${info.method}());
             <%
                     }
                     i++;
                 }
             } %>
-            pstmt.set${idInfo.setMethod}(${i}, entity.get${idInfo.method}());
+            pstmt.set${idJdbcMd.setMethod}(${i}, entity.get${idInfo.method}());
             if (session.enableBatch()) {
                 pstmt.addBatch();
             } else {
