@@ -120,6 +120,7 @@ public class ClassUtil {
         public void setIsJsonb(boolean isJsonb) {
             this.isJsonb = isJsonb;
         }
+
     }
     
     /**
@@ -184,6 +185,8 @@ public class ClassUtil {
         } else if (otype.equals(LocalDateTime.class) || otype.equals(LocalDate.class) 
                 || otype.equals(LocalTime.class)) {
             set = "Object";
+        } else if ("[B".equals(otype.getName())) {
+            set = "Bytes";
         } else {
             set = "Object";
         }

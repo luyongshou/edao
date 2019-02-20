@@ -190,6 +190,8 @@ public class PostgresqlDdl extends AbstractDdl {
                         } else if (tempType.equals(TemporalType.DATE)) {
                             sql.a(" DATE");
                         }
+                    } else if ("[B".equals(finfo.getType().getName())) {
+                        sql.a(" bytea");
                     }
                 }
                 addCommentDdl(getColumnComment(finfo, tbName, fname), comments);
