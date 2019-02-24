@@ -98,6 +98,13 @@ public class BatchStatementSession implements StatementSession {
             }
         }
     }
+    
+    @Override
+    public void rollback() throws SQLException {
+        if (con != null) {
+            con.rollback();
+        }
+    }
 
     @Override
     public Statement statement() throws SQLException {

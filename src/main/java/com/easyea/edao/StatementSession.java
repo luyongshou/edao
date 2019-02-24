@@ -66,6 +66,11 @@ public interface StatementSession extends AutoCloseable {
      * @throws SQLException 
      */
     public void commit() throws SQLException;
+    /**
+     * 数据库回滚
+     * @throws SQLException 
+     */
+    void rollback() throws SQLException;
     
     /**
      * 获取一个Statement

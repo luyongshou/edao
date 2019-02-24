@@ -100,6 +100,13 @@ public class SingleStatementSession implements StatementSession {
             con.commit();
         }
     }
+    
+    @Override
+    public void rollback() throws SQLException {
+        if (con != null) {
+            con.rollback();
+        }
+    }
 
     @Override
     public void closeStatements() {
@@ -121,7 +128,8 @@ public class SingleStatementSession implements StatementSession {
     @Override
     public void closeConnection() {
         if (con != null) {
-            try {con.close();} catch (Exception e) {}
+            System.out.println("close SQL connection!!!!!");
+            try {con.close();} catch (SQLException e) {e.printStackTrace();}
         }
     }
 
