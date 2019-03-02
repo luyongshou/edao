@@ -51,6 +51,7 @@ var idJdbcMethod = idInfo.setMethod;
                 for (column : columns) {
                     var info = fieldTypes[column];
                     var jdbcMethod = info.setMethod;
+                    var infoType = info.type;
                     if (info.isId) {
                 %>
                 pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, aId[i]);
@@ -93,6 +94,14 @@ var idJdbcMethod = idInfo.setMethod;
                     ts${for.iter.index+1} = new java.sql.Time(entity.get${info.method}.getTime());
                 }
                 pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, ts${for.iter.index+1});
+                <%
+                        } else if ("Int" == jdbcMethod.setMethod && infoType.name == "java.lang.Integer") {
+                %>
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, (entity.get${info.method}()==null)?0:entity.get${info.method}());
+                <%
+                        } else if ("Long" == jdbcMethod.setMethod && infoType.name == "java.lang.Long") {
+                %>
+                pstmt.set${jdbcMethod.setMethod}(${for.iter.index+1}, (entity.get${info.method}()==null)?0L:entity.get${info.method}());
                 <%
                         } else {
                 %>

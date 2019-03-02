@@ -8,6 +8,7 @@ import com.easyea.edao.QueryParam;
 import com.easyea.edao.StatementSession;
 import com.easyea.edao.SingleStatementSession;
 import com.easyea.edao.annotation.TemporalType;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,6 +117,8 @@ public class ${dbProductName}MapDao implements MapDao {
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
@@ -219,6 +222,8 @@ public class ${dbProductName}MapDao implements MapDao {
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }

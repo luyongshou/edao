@@ -10,6 +10,7 @@ import com.easyea.edao.StatementSession;
 import com.easyea.edao.SingleStatementSession;
 import com.easyea.edao.annotation.TemporalType;
 import ${entity.name};
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -126,6 +127,8 @@ public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
@@ -150,10 +153,10 @@ public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}
                 <%
                 for (column : columns) {
                     var info = fieldTypes[column];
-                    var jdbcMethod = info.setMethod;
+                    var jdbcMd = info.setMethod;
                 %>
                 if (isAll || aColumn.contains("${column}")) {
-                    t.set${info.method}(rs.get${jdbcMethod.getMethod}("${column}"));
+                    t.set${info.method}(rs.get${jdbcMd.getMethod}("${column}"<%if (info.isJdbcObject) {%>,${info.objClassName}<%}%>));
                 }
                 <%
                 }
@@ -231,6 +234,8 @@ public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }

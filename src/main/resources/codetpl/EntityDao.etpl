@@ -17,6 +17,7 @@ import com.easyea.edao.StatementSession;
 import com.easyea.edao.SingleStatementSession;
 import com.easyea.edao.annotation.TemporalType;
 import ${entity.name};
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -197,6 +198,8 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
@@ -300,6 +303,20 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             }
             pstmt.set${jdbcMd.setMethod}(${i}, ts${for.iter.index+1});
             <%
+                } else if (jdbcMd.isJson) {
+            %>
+            PGobject json${for.iter.index+1} = new PGobject();
+            json${for.iter.index+1}.setType("json");
+            json${for.iter.index+1}.setValue(entity.get${info.method}());
+            pstmt.set${jdbcMd.setMethod}(${i}, json${for.iter.index+1});
+            <%
+                } else if (jdbcMd.isJsonb) {
+            %>
+            PGobject json${for.iter.index+1} = new PGobject();
+            json${for.iter.index+1}.setType("jsonb");
+            json${for.iter.index+1}.setValue(entity.get${info.method}());
+            pstmt.set${jdbcMd.setMethod}(${i}, json${for.iter.index+1});
+            <%
                     } else if ("TIME" == info.temporal) {
             %>
             java.sql.Time ts${for.iter.index+1} = null;
@@ -402,6 +419,8 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
@@ -499,6 +518,8 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }
@@ -594,6 +615,8 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                         pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
                     } else if (param.getValue() instanceof Double) {
                         pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
                     } else {
                         pstmt.setObject((Integer) param.getPosition(), param.getValue());
                     }

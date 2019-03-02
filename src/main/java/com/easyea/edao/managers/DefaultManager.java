@@ -409,7 +409,6 @@ public class DefaultManager implements DaoManager {
         if (logger.isDebugEnabled()) {
             logger.debug("{}'s java source [{}]", daoName, source);
         }
-
         DynamicJavaFile jfile = new DynamicJavaFile(shortName, source);
                 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
