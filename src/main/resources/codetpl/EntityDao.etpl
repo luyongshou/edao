@@ -207,7 +207,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 rs = pstmt.executeQuery();
             } else {
                 Statement stmt = session.statement();
-                rs = stmt.executeQuery(sql.toString());
+                rs = stmt.executeQuery(ssql);
             }
             int lsize = 128;
             if (counts > 0 && counts > lsize) {
@@ -307,14 +307,14 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
             %>
             PGobject json${for.iter.index+1} = new PGobject();
             json${for.iter.index+1}.setType("json");
-            json${for.iter.index+1}.setValue(entity.get${info.method}());
+            json${for.iter.index+1}.setValue((String)entity.get${info.method}());
             pstmt.set${jdbcMd.setMethod}(${i}, json${for.iter.index+1});
             <%
                 } else if (jdbcMd.isJsonb) {
             %>
             PGobject json${for.iter.index+1} = new PGobject();
             json${for.iter.index+1}.setType("jsonb");
-            json${for.iter.index+1}.setValue(entity.get${info.method}());
+            json${for.iter.index+1}.setValue((String)entity.get${info.method}());
             pstmt.set${jdbcMd.setMethod}(${i}, json${for.iter.index+1});
             <%
                     } else if ("TIME" == info.temporal) {
@@ -490,9 +490,15 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 session.setAutoCommit(false);
             }
             pstmt = session.prepareStatement(qlString);
+            PGobject pgObject; 
             if (params != null && params.size() > 0) {
                 for (QueryParam param : params) {
-                    if (param.getValue() instanceof Date) {
+                    if (param.getType() != null && !param.getType().isEmpty()) {
+                        pgObject = new PGobject();
+                        pgObject.setType(param.getType());
+                        pgObject.setValue((String)param.getValue());
+                        pstmt.setObject((Integer) param.getPosition(), pgObject);
+                    } else if (param.getValue() instanceof Date) {
                         if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
                             pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Date) param.getValue()).getTime()));
                         } else if (TemporalType.TIME.equals(param.getTemporalType())) {
