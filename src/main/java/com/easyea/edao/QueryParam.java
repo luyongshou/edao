@@ -25,6 +25,10 @@ public class QueryParam implements Serializable {
      */
     private Object value;
     /**
+     * 数据类型
+     */
+    private String type;
+    /**
      * 查询参数如果值为Date或者Calendar类型时，设定时间的值
      */
     private TemporalType temporalType;
@@ -69,5 +73,19 @@ public class QueryParam implements Serializable {
 
     public TemporalType getTemporalType() {
         return this.temporalType;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
     }
 }
