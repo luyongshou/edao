@@ -128,7 +128,6 @@ public class SingleStatementSession implements StatementSession {
     @Override
     public void closeConnection() {
         if (con != null) {
-            System.out.println("close SQL connection!!!!!");
             try {con.close();} catch (SQLException e) {e.printStackTrace();}
         }
     }
