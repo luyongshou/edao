@@ -456,4 +456,14 @@ public class OracleDdl extends AbstractDdl {
     public List<String> getEntityPartitionDdl(Class entity, String extName) throws EntityException, Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    protected void appendJsonbColumSqls(String tableName, String colName, Annotation[] anns, List<String> sqls) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected void appendJsonColumSqls(String tableName, String colName, Annotation[] anns, List<String> sqls) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

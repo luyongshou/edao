@@ -7,6 +7,8 @@ package com.easyea.edao.ddls;
 import com.easyea.edao.Ddl;
 import com.easyea.edao.annotation.Column;
 import com.easyea.edao.annotation.Comment;
+import com.easyea.edao.annotation.Json;
+import com.easyea.edao.annotation.Jsonb;
 import com.easyea.edao.exception.EntityException;
 import com.easyea.edao.util.ClassUtil;
 import com.easyea.logger.Logger;
@@ -129,19 +131,32 @@ public abstract class AbstractDdl implements Ddl {
             colName = colName.toUpperCase(Locale.ENGLISH);
             Annotation[] anns = field.getAnnotations();
             Column fCol = null;
+            boolean isJsonb = false;
+            boolean isJson = false;
             if (anns != null) {
                 for (Annotation ann : anns) {
                     if (ann instanceof Column) {
                         fCol = (Column)ann;
+                    } else if (ann instanceof Jsonb) {
+                        isJsonb = true;
+                    } else if (ann instanceof Json) {
+                        isJson = true;
                     }
                 }
             }
+            System.out.println("isJsonb=" + isJsonb);
             if (ftype.equals(Long.class) || ftype.toString().equals("long")) {
                 appendLongColumSqls(tableName, colName, fCol, sqls);
             } else if (ftype.equals(Integer.class) || ftype.toString().equals("int")) {
                 appendIntColumSqls(tableName, colName, fCol, sqls);
             } else if (ftype.equals(String.class)) {
-                appendStringColumSqls(tableName, colName, anns, sqls);
+                if (isJsonb) {
+                    appendJsonbColumSqls(tableName, colName, anns, sqls);
+                } else if (isJson) {
+                    appendJsonColumSqls(tableName, colName, anns, sqls);
+                } else {
+                    appendStringColumSqls(tableName, colName, anns, sqls);
+                }
             } else if (ftype.equals(Float.class) || ftype.toString().equals("float")) {
                 appendFloatColumSqls(tableName, colName, fCol, sqls);
             } else if (ftype.equals(Double.class) || ftype.toString().equals("double")) {
@@ -261,4 +276,13 @@ public abstract class AbstractDdl implements Ddl {
                                                String       colName, 
                                                Column       fCol,
                                                List<String> sqls);
+    protected abstract void appendJsonbColumSqls(String       tableName, 
+                                                 String       colName, 
+                                                 Annotation[] anns,
+                                                 List<String> sqls);
+    
+    protected abstract void appendJsonColumSqls(String       tableName, 
+                                                String       colName, 
+                                                Annotation[] anns,
+                                                List<String> sqls);
 }

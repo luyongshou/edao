@@ -498,4 +498,18 @@ public class PostgresqlDdl extends AbstractDdl {
                 ")) INHERITS (" + tbName + ");");
         return sqls;
     }
+
+    @Override
+    protected void appendJsonbColumSqls(String tableName, String colName, Annotation[] anns, List<String> sqls) {
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " jsonb default '{}'";
+        sqls.add(sql);
+    }
+
+    @Override
+    protected void appendJsonColumSqls(String tableName, String colName, Annotation[] anns, List<String> sqls) {
+        String sql = "alter table " + tableName + " add column " + 
+                colName + " json defaut '{}'";
+        sqls.add(sql);
+    }
 }
