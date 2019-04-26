@@ -32,6 +32,7 @@ var idJdbcMethod = idInfo.setMethod;
                 }
                 i++;
             }
+
             i = 0;
             String sql = "insert into ${tableName} ("
                     + "<%for(column : columns){%>
@@ -115,6 +116,8 @@ var idJdbcMethod = idInfo.setMethod;
                 entity.set${idInfo.method}(aId[i]);
                 i++;
             }
+            pstmt.executeBatch();
+            pstmt.clearBatch();
             if (initAuto) {
                 session.commit();
             }
