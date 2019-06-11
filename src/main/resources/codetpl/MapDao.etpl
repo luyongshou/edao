@@ -126,7 +126,7 @@ public class ${dbProductName}MapDao implements MapDao {
             }
             ResultSet rs = pstmt.executeQuery();
             int lsize = 128;
-            if (counts > 0 && counts > lsize) {
+            if (counts > 0 && counts < lsize) {
                 lsize = counts;
             }
             l = new ArrayList<>(lsize);

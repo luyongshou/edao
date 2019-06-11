@@ -210,7 +210,7 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
                 rs = stmt.executeQuery(ssql);
             }
             int lsize = 128;
-            if (counts > 0 && counts > lsize) {
+            if (counts > 0 && counts < lsize) {
                 lsize = counts;
             }
             l = new ArrayList<>(lsize);

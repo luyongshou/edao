@@ -136,7 +136,7 @@ public class ${entity.simpleName}ViewDao implements ViewDao<${entity.simpleName}
             }
             ResultSet rs = pstmt.executeQuery();
             int lsize = 128;
-            if (counts > 0 && counts > lsize) {
+            if (counts > 0 && counts < lsize) {
                 lsize = counts;
             }
             l = new ArrayList<>(lsize);
