@@ -239,4 +239,26 @@ public interface EntityDao<T> {
      */
     public int remove(String qlString, List<QueryParam> params) 
             throws SQLException, Exception;
+    
+    /**
+     * 批量删除持久化对象
+     *
+     * @param qlString
+     * @return 返回删除对象的个数失败返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
+     */
+    public int execute(String qlString) throws SQLException, Exception;
+
+    /**
+     * 批量删除持久化对象
+     *
+     * @param qlString
+     * @param params
+     * @return 返回删除对象的个数失败返回-1
+     * @throws java.sql.SQLException
+     * @throws java.lang.Exception
+     */
+    public int execute(String qlString, List<QueryParam> params) 
+            throws SQLException, Exception;
 }

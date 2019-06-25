@@ -655,4 +655,87 @@ public class ${entity.simpleName}Dao implements EntityDao<${entity.simpleName}> 
         }
         return row;
     }
+
+    @Override
+    public int execute(String qlString) throws SQLException, Exception {
+        return this.execute(qlString, null);
+    }
+
+    @Override
+    public int execute(String qlString, List<QueryParam> params)
+            throws SQLException, Exception {
+        int row = -1;
+        StringBuilder sql = new StringBuilder();
+        sql.append(qlString);
+        PreparedStatement pstmt = null;
+        boolean initAuto = false;
+        StatementSession session = LOCAL_STATEMENT_SESSION.get();
+        try {
+            if (session.getAutoCommit()) {
+                initAuto = true;
+                session.setAutoCommit(false);
+            }
+            pstmt = session.prepareStatement(sql.toString());
+            if (params != null && params.size() > 0) {
+                for (QueryParam param : params) {
+                    if (param.getValue() instanceof Date) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Date) param.getValue()).getTime()));
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Date) param.getValue()).getTime()));
+                        }
+                    } else if (param.getValue() instanceof Calendar) {
+                        if (TemporalType.TIMESTAMP.equals(param.getTemporalType())) {
+                            pstmt.setTimestamp((Integer) param.getPosition(), new Timestamp(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.TIME.equals(param.getTemporalType())) {
+                            pstmt.setTime((Integer) param.getPosition(), new Time(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        } else if (TemporalType.DATE.equals(param.getTemporalType())) {
+                            pstmt.setDate((Integer) param.getPosition(), new java.sql.Date(((Calendar) param.getValue()).getTimeInMillis()), (Calendar) param.getValue());
+                        }
+                    } else if (param.getValue() instanceof String) {
+                        pstmt.setString((Integer) param.getPosition(), (String) param.getValue());
+                    } else if (param.getValue() instanceof Integer) {
+                        pstmt.setInt((Integer) param.getPosition(), (Integer) param.getValue());
+                    } else if (param.getValue() instanceof Long) {
+                        pstmt.setLong((Integer) param.getPosition(), (Long) param.getValue());
+                    } else if (param.getValue() instanceof Boolean) {
+                        pstmt.setBoolean((Integer) param.getPosition(), (Boolean) param.getValue());
+                    } else if (param.getValue() instanceof Double) {
+                        pstmt.setDouble((Integer) param.getPosition(), (Double) param.getValue());
+                    } else if (param.getValue() instanceof Array) {
+                        pstmt.setArray((Integer) param.getPosition(), (Array)param.getValue());
+                    } else {
+                        pstmt.setObject((Integer) param.getPosition(), param.getValue());
+                    }
+                }
+            }
+            if (session.enableBatch()) {
+                pstmt.addBatch();
+            } else {
+                row = pstmt.executeUpdate();
+            }
+            if (session.enableStat()) {
+                session.addUpdate(1);
+            }
+            if (initAuto) {
+                session.commit();
+            }
+        } catch (SQLException sqlex) {
+            logger.error(sqlex.getMessage());
+            throw sqlex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw ex;
+        } finally {
+            if (!session.enableBatch()) {
+                session.closeStatements();
+            }
+            if (initAuto) {
+                session.setAutoCommit(true);
+            }
+        }
+        return row;
+    }
 }
